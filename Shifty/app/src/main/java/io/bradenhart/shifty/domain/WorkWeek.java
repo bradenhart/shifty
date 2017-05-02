@@ -9,11 +9,13 @@ import java.util.List;
 
 public class WorkWeek implements Serializable {
 
+    private String title;
     private List<Shift> shifts;
     private Double hours;
     private Payslip payslip;
 
-    public WorkWeek(List<Shift> shifts) {
+    public WorkWeek(String title, List<Shift> shifts) {
+        this.title = title;
         this.shifts = shifts;
         this.hours = calculateHours(shifts);
         this.payslip = new Payslip(hours);
@@ -25,6 +27,10 @@ public class WorkWeek implements Serializable {
             hours += s.getPaidHours();
         }
         return hours;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public List<Shift> getShifts() {
