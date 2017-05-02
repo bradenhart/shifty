@@ -9,14 +9,14 @@
     tools:context="io.bradenhart.shifty.activity.MainActivity">
 
     <include
-        android:id="@+id/toolbar_main"
+        android:id="@+id/appbar_main"
         layout="@layout/view_toolbar" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_shift_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar_main"
+        android:layout_below="@id/appbar_main"
         android:layout_marginBottom="56dp"
         android:layout_marginTop="0dp" />
 

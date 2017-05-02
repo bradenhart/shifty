@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="#cccccc"
+    android:orientation="vertical"
+    tools:context=".activity.ShiftActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:drawableStart="@drawable/ic_today_24dp"
+                android:gravity="center_vertical|start"
+                android:padding="5dp"
+                android:drawablePadding="5dp"
+                android:text="day"
+                android:textAlignment="textStart"
+                android:textColor="#424242"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:padding="10dp"-->
+            <!--android:text="day"-->
+            <!--android:textAlignment="center"-->
+            <!--android:textSize="18sp" />-->
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/textview_day"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:text="---, -- --- --"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="16sp" />
+
+                <ImageButton
+                    android:id="@+id/button_day"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|end"
+                    android:layout_marginEnd="5dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_date_black_24dp" />
+
+            </FrameLayout>
+
+            <!--<Button-->
+            <!--android:id="@+id/button_day"-->
+            <!--style="@style/Base.Widget.AppCompat.Button"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="PICK DATE"-->
+            <!--android:textColor="@color/colorPrimary"-->
+            <!--android:textSize="20sp"-->
+            <!--android:textStyle="bold"-->
+            <!--android:drawableTop="@drawable/ic_date_black_24dp"-->
+            <!--android:drawablePadding="2.5dp"/>-->
+
+            <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginTop="25dp"-->
+            <!--android:padding="10dp"-->
+            <!--android:text="start"-->
+            <!--android:textAlignment="center"-->
+            <!--android:textSize="18sp" />-->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:text="time"
+                android:drawableStart="@drawable/ic_access_time_24dp"
+                android:drawablePadding="5dp"
+                android:drawableTint="#fff"
+                android:gravity="center_vertical|start"
+                android:padding="5dp"
+                android:textAlignment="textStart"
+                android:textColor="#424242"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp">
+
+                <TextView
+                    android:layout_width="64dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:text="start"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="normal" />
+
+                <io.bradenhart.shifty.ui.TimeScroller
+                    android:id="@+id/timescroller_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/timeScrollerViewHeight">
+
+                </io.bradenhart.shifty.ui.TimeScroller>
+
+            </LinearLayout>
+
+            <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:padding="0dp">-->
+            <!--<include-->
+            <!--android:id="@+id/layout_timepicker_start"-->
+            <!--layout="@layout/fragment_timepicker"/>-->
+            <!--</LinearLayout>-->
+
+
+            <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginTop="25dp"-->
+            <!--android:padding="10dp"-->
+            <!--android:text="end"-->
+            <!--android:textAlignment="center"-->
+            <!--android:textSize="18sp" />-->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp">
+
+                <TextView
+                    android:layout_width="64dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center|end"
+                    android:padding="10dp"
+                    android:text="end  "
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="normal" />
+
+                <io.bradenhart.shifty.ui.TimeScroller
+                    android:id="@+id/timescroller_end"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/timeScrollerViewHeight">
+
+                </io.bradenhart.shifty.ui.TimeScroller>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/button_save_shift"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alpha="0.75"
+        android:textColor="@color/text_off_white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:theme="@style/MyButton" />
+
+</LinearLayout>
