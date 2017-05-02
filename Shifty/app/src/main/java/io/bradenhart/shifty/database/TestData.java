@@ -2,16 +2,16 @@ package io.bradenhart.shifty.database;
 
 import android.content.Context;
 
-import com.bradenhart.hours.domain.Shift;
-import com.bradenhart.hours.domain.ShiftDate.*;
+import io.bradenhart.shifty.domain.Shift;
+import io.bradenhart.shifty.domain.ShiftDate.*;
 
 import java.util.Calendar;
 
-import static com.bradenhart.hours.domain.ShiftDate.Month.*;
-import static com.bradenhart.hours.domain.ShiftDate.Weekday.*;
-import static com.bradenhart.hours.domain.ShiftTime.Hour.*;
-import static com.bradenhart.hours.domain.ShiftTime.Minute.*;
-import static com.bradenhart.hours.domain.ShiftTime.Period.*;
+import static io.bradenhart.shifty.domain.ShiftDate.Month.*;
+import static io.bradenhart.shifty.domain.ShiftDate.Weekday.*;
+import static io.bradenhart.shifty.domain.ShiftTime.Hour.*;
+import static io.bradenhart.shifty.domain.ShiftTime.Minute.*;
+import static io.bradenhart.shifty.domain.ShiftTime.Period.*;
 
 /**
  * Created by bradenhart on 3/04/17.
