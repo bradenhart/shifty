@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- background section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#c8cccccc">
+
+            <TextView
+                style="@style/TimeScrollerTextViewStyle"
+                android:text="" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0.75"
+            android:background="@color/colorPrimary">
+
+            <TextView
+                style="@style/TimeScrollerTextViewStyle"
+                android:text="" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#c8cccccc">
+
+            <TextView
+                style="@style/TimeScrollerTextViewStyle"
+                android:text="" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- scrollview section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/timeScrollerViewHeight"
+        android:orientation="horizontal">
+
+        <!-- hour -->
+        <io.bradenhart.shifty.ui.MyScrollView
+            android:id="@+id/scrollview_hours"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:id="@+id/llayout_hours"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="1" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="2" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="3" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="4" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="5" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="6" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="7" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="8" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="9" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="10" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="11" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="12" />
+
+                <TextView
+                    android:id="@+id/textview_hour_btm"
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text=" " />
+            </LinearLayout>
+        </io.bradenhart.shifty.ui.MyScrollView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text=":"
+            android:textColor="@color/text_off_white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- min -->
+        <io.bradenhart.shifty.ui.MyScrollView
+            android:id="@+id/scrollview_mins"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:id="@+id/llayout_mins"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="00" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="05" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="10" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="15" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="20" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="25" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="30" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="35" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="40" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="45" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="50" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="55" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text=" " />
+            </LinearLayout>
+
+        </io.bradenhart.shifty.ui.MyScrollView>
+
+        <!-- period -->
+        <io.bradenhart.shifty.ui.MyScrollView
+            android:id="@+id/scrollview_period"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingStart="25dp"
+            android:paddingEnd="25dp">
+
+            <LinearLayout
+                android:id="@+id/llayout_period"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="AM" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="PM" />
+
+                <TextView
+                    style="@style/TimeScrollerTextViewStyle"
+                    android:text="" />
+            </LinearLayout>
+
+        </io.bradenhart.shifty.ui.MyScrollView>
+
+    </LinearLayout>
+
+
+    <!-- foreground section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0.50"
+            android:background="#d7ccc8">
+
+            <TextView
+                style="@style/TimeScrollerTextViewStyle"
+                android:text="" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llayout_time_selector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent">
+
+            <TextView
+                style="@style/TimeScrollerTextViewStyle"
+                android:text="" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0.5"
+            android:background="#d7ccc8">
+
+            <TextView
+                style="@style/TimeScrollerTextViewStyle"
+                android:text="" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</merge>
