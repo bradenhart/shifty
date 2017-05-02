@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="io.bradenhart.shifty.activity.MainActivity">
+
+    <include
+        android:id="@+id/toolbar_main"
+        layout="@layout/view_toolbar" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_shift_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar_main"
+        android:layout_marginBottom="56dp"
+        android:layout_marginTop="0dp" />
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardview_bottom_action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:elevation="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimaryDark"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <!--<ImageButton-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:background="?attr/selectableItemBackgroundBorderless"-->
+            <!--android:tint="@color/colorPrimary" />-->
+
+            <ImageButton
+                android:id="@+id/button_select_weeks"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_date_black_24dp"
+                android:tint="@color/text_off_white" />
+
+            <ImageButton
+                android:id="@+id/button_new_shift"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_add_black_24dp"
+                android:tint="@color/text_off_white" />
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>
