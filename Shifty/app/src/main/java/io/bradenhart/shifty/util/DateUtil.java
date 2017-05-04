@@ -116,7 +116,6 @@ public class DateUtil {
         return datetimes;
     }
 
-
     public static String getYMDString(int year, int month, int day) {
         Calendar c = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
@@ -238,24 +237,24 @@ public class DateUtil {
 //            e.printStackTrace();
 //        }
         if (now.before(start)) {
-            Log.e("Progress", sdf.format(now.getTime()) + " Before " + shift.getStartDateTimeString());
+//            Log.e("Progress", sdf.format(now.getTime()) + " Before " + shift.getStartDateTimeString());
             return 0;
         }
 
         if (now.after(end)) {
-            Log.e("Progress", sdf.format(now.getTime()) + " After " + shift.getEndDateTimeString());
+//            Log.e("Progress", sdf.format(now.getTime()) + " After " + shift.getEndDateTimeString());
             return 1;
         }
 
         if (now.after(start) && now.before(end)) {
-            Log.e("Progress", shift.getId() + " Equal");
+//            Log.e("Progress", shift.getId() + " Equal");
 //            return (int) ((end.getTimeInMillis() - now.getTimeInMillis()));
             long mins = ((end.getTimeInMillis() - start.getTimeInMillis())/1000)/60; //mins for shift
             long diff = ((now.getTimeInMillis() - start.getTimeInMillis())/1000)/60; //mins passed
             return (double) diff/mins;
         }
 
-        Log.e("Progress", "Nothing");
+//        Log.e("Progress", "Nothing");
         return 0;
     }
 
