@@ -66,7 +66,10 @@ public class TestData {
 
             new Shift(y, Calendar.MAY, 1, 8, 0, 0, 4, 30, 1),
             new Shift(y, Calendar.MAY, 3, 9, 30, 0, 6, 0, 1),
-            new Shift(y, Calendar.MAY, 7, 9, 0, 0, 4, 0, 1)
+            new Shift(y, Calendar.MAY, 7, 9, 0, 0, 4, 0, 1),
+
+            new Shift(y, Calendar.MAY, 9, 9, 30, 0, 6, 0, 1),
+            new Shift(y, Calendar.MAY, 14, 9, 0, 0, 4, 0, 1)
     };
 
     public static void addDataToDB(Context context) {
