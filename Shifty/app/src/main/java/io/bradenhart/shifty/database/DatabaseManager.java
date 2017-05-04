@@ -23,12 +23,12 @@ import java.util.Map;
 public class DatabaseManager {
 
     private SQLiteDatabase database;
-    private ShiftrDbHelper dbHelper;
+    private ShiftyDbHelper dbHelper;
 //    private Context context;
 
     public DatabaseManager(Context context) {
 //        this.context = context;
-        this.dbHelper = ShiftrDbHelper.getInstance(context.getApplicationContext());
+        this.dbHelper = ShiftyDbHelper.getInstance(context.getApplicationContext());
     }
 
     private void openForWrite() throws SQLException {
@@ -47,16 +47,16 @@ public class DatabaseManager {
     public boolean insertShift(Shift shift) {
 //        Log.e("DatabaseManager", "<<--" + shift.toString() + " -->>");
         ContentValues values = new ContentValues();
-        values.put(ShiftrContract.Shift._ID, shift.getId());
-        values.put(ShiftrContract.Shift.COLUMN_NAME_START_HOUR, shift.getStartTime().getHour().toString());
-        values.put(ShiftrContract.Shift.COLUMN_NAME_START_MIN, shift.getStartTime().getMinute().toString());
-        values.put(ShiftrContract.Shift.COLUMN_NAME_START_PERIOD, shift.getStartTime().getPeriod().toString());
-        values.put(ShiftrContract.Shift.COLUMN_NAME_END_HOUR, shift.getEndTime().getHour().toString());
-        values.put(ShiftrContract.Shift.COLUMN_NAME_END_MIN, shift.getEndTime().getMinute().toString());
-        values.put(ShiftrContract.Shift.COLUMN_NAME_END_PERIOD, shift.getEndTime().getPeriod().toString());
-        values.put(ShiftrContract.Shift.COLUMN_NAME_WEEK_START, DateUtil.getWeekStart(shift.getId()));
+        values.put(ShiftyContract.Shift._ID, shift.getId());
+        values.put(ShiftyContract.Shift.COLUMN_NAME_START_HOUR, shift.getStartTime().getHour().toString());
+        values.put(ShiftyContract.Shift.COLUMN_NAME_START_MIN, shift.getStartTime().getMinute().toString());
+        values.put(ShiftyContract.Shift.COLUMN_NAME_START_PERIOD, shift.getStartTime().getPeriod().toString());
+        values.put(ShiftyContract.Shift.COLUMN_NAME_END_HOUR, shift.getEndTime().getHour().toString());
+        values.put(ShiftyContract.Shift.COLUMN_NAME_END_MIN, shift.getEndTime().getMinute().toString());
+        values.put(ShiftyContract.Shift.COLUMN_NAME_END_PERIOD, shift.getEndTime().getPeriod().toString());
+        values.put(ShiftyContract.Shift.COLUMN_NAME_WEEK_START, DateUtil.getWeekStart(shift.getId()));
         openForWrite();
-        long l = database.insert(ShiftrContract.Shift.TABLE_NAME, null, values);
+        long l = database.insert(ShiftyContract.Shift.TABLE_NAME, null, values);
         close();
         return l != -1;
     }
@@ -64,8 +64,8 @@ public class DatabaseManager {
     public Shift retrieveShift(String _id) {
         openForRead();
 
-        Cursor cursor = database.rawQuery("select * from " + ShiftrContract.Shift.TABLE_NAME
-                        + " where " + ShiftrContract.Shift._ID + " = ?",
+        Cursor cursor = database.rawQuery("select * from " + ShiftyContract.Shift.TABLE_NAME
+                        + " where " + ShiftyContract.Shift._ID + " = ?",
                 new String[]{_id}
         );
 
@@ -84,7 +84,7 @@ public class DatabaseManager {
     public int getShiftCount() {
         openForRead();
 
-        Cursor cursor = database.rawQuery("select _id from " + ShiftrContract.Shift.TABLE_NAME, null);
+        Cursor cursor = database.rawQuery("select _id from " + ShiftyContract.Shift.TABLE_NAME, null);
 
         cursor.moveToFirst();
 
@@ -99,7 +99,7 @@ public class DatabaseManager {
 
         openForRead();
 
-        Cursor cursor = database.rawQuery("select * from " + ShiftrContract.Shift.TABLE_NAME + " order by " + ShiftrContract.Shift._ID + " asc", null);
+        Cursor cursor = database.rawQuery("select * from " + ShiftyContract.Shift.TABLE_NAME + " order by " + ShiftyContract.Shift._ID + " asc", null);
 
         if (cursor.moveToFirst()) {
             do {
@@ -121,17 +121,17 @@ public class DatabaseManager {
         Cursor cursor;
         if (datetimes.length > 1) {
             Log.e("LOG", datetimes[0] + " -> " + datetimes[datetimes.length - 1]);
-            cursor = database.rawQuery("select * from " + ShiftrContract.Shift.TABLE_NAME + " where " + ShiftrContract.Shift._ID + " between datetime(?) and (?) order by " + ShiftrContract.Shift._ID + " asc",
+            cursor = database.rawQuery("select * from " + ShiftyContract.Shift.TABLE_NAME + " where " + ShiftyContract.Shift._ID + " between datetime(?) and (?) order by " + ShiftyContract.Shift._ID + " asc",
                     new String[]{datetimes[0], datetimes[datetimes.length - 1]});
         } else {
             Log.e("LOG", datetimes[0]);
-            cursor = database.rawQuery("select * from " + ShiftrContract.Shift.TABLE_NAME + " where " + ShiftrContract.Shift.COLUMN_NAME_WEEK_START + " =? order by " + ShiftrContract.Shift._ID + " asc",
+            cursor = database.rawQuery("select * from " + ShiftyContract.Shift.TABLE_NAME + " where " + ShiftyContract.Shift.COLUMN_NAME_WEEK_START + " =? order by " + ShiftyContract.Shift._ID + " asc",
                     new String[]{datetimes[0]});
         }
 
         if (cursor.moveToFirst()) {
             do {
-                String cws = cursor.getString(cursor.getColumnIndex(ShiftrContract.Shift.COLUMN_NAME_WEEK_START));
+                String cws = cursor.getString(cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_NAME_WEEK_START));
                 List<Shift> l = shiftMap.get(cws) == null ? new ArrayList<Shift>() : shiftMap.get(cws);
                 Shift s = getShiftFromCursor(cursor);
                 l.add(s);
@@ -147,17 +147,35 @@ public class DatabaseManager {
         return shiftMap;
     }
 
-    private Shift getShiftFromCursor(Cursor cursor) {
-        String id = cursor.getString(cursor.getColumnIndex(ShiftrContract.Shift._ID));
+    public int countShiftsAfterDate(String datetime) {
+        openForRead();
 
-        String startHour = cursor.getString(cursor.getColumnIndex(ShiftrContract.Shift.COLUMN_NAME_START_HOUR));
-        String startMin = cursor.getString(cursor.getColumnIndex(ShiftrContract.Shift.COLUMN_NAME_START_MIN));
-        String startPeriod = cursor.getString(cursor.getColumnIndex(ShiftrContract.Shift.COLUMN_NAME_START_PERIOD));
+        int count = 0;
+
+        Cursor cursor = database.rawQuery("select count(" + ShiftyContract.Shift.COLUMN_NAME_WEEK_START + ") from " + ShiftyContract.Shift.TABLE_NAME + " where "
+                + ShiftyContract.Shift.COLUMN_NAME_WEEK_START + " > ?", new String[] {datetime});
+
+        if (cursor.moveToNext()) {
+            count = cursor.getInt(0);
+        }
+
+        cursor.close();
+        close();
+
+        return count;
+    }
+
+    private Shift getShiftFromCursor(Cursor cursor) {
+        String id = cursor.getString(cursor.getColumnIndex(ShiftyContract.Shift._ID));
+
+        String startHour = cursor.getString(cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_NAME_START_HOUR));
+        String startMin = cursor.getString(cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_NAME_START_MIN));
+        String startPeriod = cursor.getString(cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_NAME_START_PERIOD));
         ShiftTime startTime = new ShiftTime(ShiftTime.Hour.get(startHour), ShiftTime.Minute.get(startMin), ShiftTime.Period.get(startPeriod));
 
-        String endHour = cursor.getString(cursor.getColumnIndex(ShiftrContract.Shift.COLUMN_NAME_END_HOUR));
-        String endMin = cursor.getString(cursor.getColumnIndex(ShiftrContract.Shift.COLUMN_NAME_END_MIN));
-        String endPeriod = cursor.getString(cursor.getColumnIndex(ShiftrContract.Shift.COLUMN_NAME_END_PERIOD));
+        String endHour = cursor.getString(cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_NAME_END_HOUR));
+        String endMin = cursor.getString(cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_NAME_END_MIN));
+        String endPeriod = cursor.getString(cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_NAME_END_PERIOD));
         ShiftTime endTime = new ShiftTime(ShiftTime.Hour.get(endHour), ShiftTime.Minute.get(endMin), ShiftTime.Period.get(endPeriod));
 
         Shift shift = new Shift(id, DateUtil.getDateFromDateTime(id), startTime, endTime);
@@ -168,7 +186,7 @@ public class DatabaseManager {
     public void deleteShift(String id) {
         openForWrite();
 //        Log.e("DELETE", id);
-        int res = database.delete(ShiftrContract.Shift.TABLE_NAME, ShiftrContract.Shift._ID + " = ?", new String[] { id });
+        int res = database.delete(ShiftyContract.Shift.TABLE_NAME, ShiftyContract.Shift._ID + " = ?", new String[] { id });
         Log.e("DELETE", res == 0 ? "failed" : res + " id: " + id);
         close();
 //        return res;
@@ -176,7 +194,7 @@ public class DatabaseManager {
 
     public void deleteAllShifts() {
         openForWrite();
-        database.execSQL("delete from " + ShiftrContract.Shift.TABLE_NAME);
+        database.execSQL("delete from " + ShiftyContract.Shift.TABLE_NAME);
         close();
     }
 

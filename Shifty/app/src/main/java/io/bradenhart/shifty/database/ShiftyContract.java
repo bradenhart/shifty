@@ -6,9 +6,9 @@ import android.provider.BaseColumns;
  * Created by bradenhart on 28/03/17.
  */
 
-public class ShiftrContract {
+public class ShiftyContract {
 
-    private ShiftrContract() {}
+    private ShiftyContract() {}
 
     public static class Shift implements BaseColumns {
         public static final String TABLE_NAME = "Shift";

@@ -4,18 +4,18 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import io.bradenhart.shifty.database.ShiftrContract.*;
+import io.bradenhart.shifty.database.ShiftyContract.*;
 
 /**
  * Created by bradenhart on 27/03/17.
  */
 
-class ShiftrDbHelper extends SQLiteOpenHelper {
+class ShiftyDbHelper extends SQLiteOpenHelper {
 
-    private static final String DB_NAME = "shiftr_db.db";
+    private static final String DB_NAME = "shifty_db.db";
     private static final int DB_VERSION = 1;
 
-    private static ShiftrDbHelper dbHelper;
+    private static ShiftyDbHelper dbHelper;
     private Context context;
 
     private final String SQL_CREATE_SHIFT = "create table " + Shift.TABLE_NAME + "("
@@ -33,13 +33,13 @@ class ShiftrDbHelper extends SQLiteOpenHelper {
 
 //    private final String SQL_DELETE_WEEK = "drop table if exists " + Week.TABLE_NAME;
 
-    private ShiftrDbHelper(Context context) {
+    private ShiftyDbHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         this.context = context;
     }
 
-    static synchronized ShiftrDbHelper getInstance(Context context) {
-        return dbHelper == null ? new ShiftrDbHelper(context) : dbHelper;
+    static synchronized ShiftyDbHelper getInstance(Context context) {
+        return dbHelper == null ? new ShiftyDbHelper(context) : dbHelper;
     }
 
     @Override
