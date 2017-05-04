@@ -25,8 +25,8 @@ public class WorkWeekSection extends StatelessSection {
     private Context context;
     private String sectionTag;
     private SectionedRecyclerViewAdapter adapter;
-    String headerTitle;
-    WorkWeek workWeek;
+    private String headerTitle;
+    private WorkWeek workWeek;
     List<Shift> shifts;
 
     private int itemHeight;

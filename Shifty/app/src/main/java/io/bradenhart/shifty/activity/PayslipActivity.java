@@ -88,7 +88,7 @@ public class PayslipActivity extends AppCompatActivity {
 
         switch (id) {
             case android.R.id.home:
-                Intent homeIntent = new Intent(PayslipActivity.this, MainActivity.class);
+                Intent homeIntent = new Intent(PayslipActivity.this, ShiftViewActivity.class);
                 homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(homeIntent);

@@ -188,7 +188,7 @@ public class ShiftActivity extends AppCompatActivity {
         endTimeScroller.resetScroller();
 
         if (editModeEnabled) {
-            Intent intent = new Intent(ShiftActivity.this, MainActivity.class);
+            Intent intent = new Intent(ShiftActivity.this, ShiftViewActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
@@ -198,7 +198,7 @@ public class ShiftActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(ShiftActivity.this, MainActivity.class);
+        Intent intent = new Intent(ShiftActivity.this, ShiftViewActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

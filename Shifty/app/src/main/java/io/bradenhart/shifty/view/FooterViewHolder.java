@@ -11,7 +11,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.bradenhart.shifty.R;
-import io.bradenhart.shifty.activity.MainActivity;
 import io.bradenhart.shifty.activity.PayslipActivity;
 import io.bradenhart.shifty.domain.Payslip;
 import io.bradenhart.shifty.domain.WorkWeek;
