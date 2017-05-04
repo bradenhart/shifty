@@ -68,6 +68,10 @@ public class WorkWeekSection extends StatelessSection {
         shifts.remove(pos);
     }
 
+    public String getEndDate() {
+        return DateUtil.getWeekEnd(shifts.get(0).getId());
+    }
+
 //    public SectionedRecyclerViewAdapter getAdapter() {
 //        return adapter;
 //    }
@@ -112,7 +116,7 @@ public class WorkWeekSection extends StatelessSection {
         final ItemViewHolder itemHolder = (ItemViewHolder) holder;
 
         final Shift shift = shifts.get(position);
-        Log.e("BIND", shift.getId());
+//        Log.e("BIND", shift.getId());
 
         itemHolder.shift = shift;
         itemHolder.pos = position;
@@ -125,7 +129,7 @@ public class WorkWeekSection extends StatelessSection {
         itemHolder.shiftLengthTV.setText(String.format(Locale.ENGLISH, "%.2f hrs", shift.getPaidHours()));
 
         double progress = DateUtil.getShiftProgress(shift);
-        Log.e("Progress", progress + "");
+//        Log.e("Progress", progress + "");
         int percentHeight = (int) Math.ceil(itemHeight * progress);
         itemHolder.shiftProgressBar.setLayoutParams(new LinearLayout.LayoutParams(progressWidth, percentHeight));
     }
