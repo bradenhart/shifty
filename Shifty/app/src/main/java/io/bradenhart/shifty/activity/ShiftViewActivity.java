@@ -37,6 +37,8 @@ import io.bradenhart.shifty.domain.WorkWeek;
 import io.bradenhart.shifty.util.DateUtil;
 import io.bradenhart.shifty.view.WorkWeekSection;
 
+import static io.bradenhart.shifty.util.Utils.*;
+
 public class ShiftViewActivity extends AppCompatActivity {
 
     final String TAG = "MainActivity.class";
@@ -61,50 +63,37 @@ public class ShiftViewActivity extends AppCompatActivity {
     @BindDimen(R.dimen.workweek_shift_progress_width)
     int progressWidth;
 
-    private int weeks = 3;
+    private final int DEFAULT_DISPLAY_COUNT = 4;
+    private int weeks = DEFAULT_DISPLAY_COUNT;
     private int offset = 0;
 
     private MySectionAdapter sectionedAdapter;
+
+    SimpleDateFormat oldFmt;
+    SimpleDateFormat newFmt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shiftview);
 
+        oldFmt = new SimpleDateFormat(DateUtil.FMT_DATETIME, Locale.ENGLISH);
+        newFmt = new SimpleDateFormat("MMMM dd", Locale.ENGLISH);
+
         ButterKnife.bind(ShiftViewActivity.this);
 
         // set up actionbar
         setUpActionBar();
-
-        String[] datetimes = DateUtil.getDateTimesForRange(weeks, offset);
 
         TestData.deleteAllTestData(getApplicationContext());
         TestData.addDataToDB(getApplicationContext());
 
         sectionedAdapter = new MySectionAdapter();
 
-        Map<String, List<Shift>> map = new DatabaseManager(getApplicationContext()).getShiftsInDateRange(datetimes);
-        SimpleDateFormat oldFmt = new SimpleDateFormat(DateUtil.FMT_DATETIME, Locale.ENGLISH);
-        SimpleDateFormat newFmt = new SimpleDateFormat("MMMM dd", Locale.ENGLISH);
+        Map<String, List<Shift>> map = fetchWorkWeeks(weeks, offset);
 
         Log.e("DB", map.keySet().size() + "");
-        for (String week : map.keySet()) {
-            System.out.println("week: " + week);
-            try {
-                Date date = oldFmt.parse(week);
-                String tag = UUID.randomUUID().toString();
-                System.out.println(map.get(week));
-                WorkWeekSection workWeekSection = new WorkWeekSection.Builder()
-                                .setContext(this)
-                                .setTag(tag)
-                                .setWorkWeek(new WorkWeek("Week of " + newFmt.format(date), map.get(week)))
-                                .setAdapter(sectionedAdapter)
-                                .build();
-                sectionedAdapter.addSection(tag, workWeekSection);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
+        displayWorkWeeks(map);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 //        recyclerView.setHasFixedSize(true);
@@ -114,18 +103,18 @@ public class ShiftViewActivity extends AppCompatActivity {
         recyclerView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
             public void onScrollChange(View view, int i, int i1, int i2, int i3) {
-                if (!recyclerView.canScrollVertically(1)) {
-//                    Log.e("SCROLL", "Can't scroll up");
+                String nextWeekDate = ((WorkWeekSection)sectionedAdapter.getSectionForPosition(sectionedAdapter.getItemCount() - 1)).getEndDate();
+                Log.e("NEXT", nextWeekDate);
+                int count = new DatabaseManager(getApplicationContext()).countShiftsAfterDate(nextWeekDate);
+
+                if (!recyclerView.canScrollVertically(1) && count > 0) {
+                    Log.e("SCROLL", "show fab + " + count);
                     loadMoreButton.setVisibility(View.VISIBLE);
                 } else {
-                    if (loadMoreButton.getVisibility() == View.VISIBLE) {
-                        loadMoreButton.setVisibility(View.GONE);
-                    }
+                    Log.e("SCROLL", "hide fab + " + count);
+                    loadMoreButton.setVisibility(View.GONE);
                 }
 
-//                if (!recyclerView.canScrollVertically(0)) {
-//                    Log.e("SCROLL", "Can't scroll down");
-//                }
             }
         });
 
@@ -159,76 +148,64 @@ public class ShiftViewActivity extends AppCompatActivity {
 //        sectionedAdapter = new SectionedRecyclerViewAdapter();
 
         Map<String, List<Shift>> map = new DatabaseManager(getApplicationContext()).getShiftsInDateRange(datetimes);
-        SimpleDateFormat oldFmt = new SimpleDateFormat(DateUtil.FMT_DATETIME, Locale.ENGLISH);
-        SimpleDateFormat newFmt = new SimpleDateFormat("MMMM dd", Locale.ENGLISH);
 
         if (map.keySet().size() == 0) {
             loadMoreButton.setVisibility(View.GONE);
+            makeToast(this, "No more weeks to load.");
         }
 
-        Toast.makeText(getApplicationContext(), map.keySet().size() + "", Toast.LENGTH_SHORT).show();
-        for (String week : map.keySet()) {
-            System.out.println("week: " + week);
-            try {
-                Date date = oldFmt.parse(week);
-                String tag = UUID.randomUUID().toString();
-                Log.e("TAG", "1... " + tag);
-                System.out.println(map.get(week));
-                WorkWeekSection workWeekSection = new WorkWeekSection.Builder()
-                        .setContext(this)
-                        .setTag(tag)
-                        .setWorkWeek(new WorkWeek("Week of " + newFmt.format(date), map.get(week)))
-                        .setAdapter(sectionedAdapter)
-                        .build();
+//        Toast.makeText(getApplicationContext(), map.keySet().size() + "", Toast.LENGTH_SHORT).show();
+        displayWorkWeeks(map);
 
-                sectionedAdapter.addSection(tag, workWeekSection);
-//                recyclerView.invalidate();
-                sectionedAdapter.notifyDataSetChanged();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
+        sectionedAdapter.notifyDataSetChanged();
+
+        recyclerView.smoothScrollToPosition(sectionedAdapter.getItemCount() - 1);
     }
 
-    @OnClick(R.id.button_select_weeks)
-    public void onClickSelectWeeks() {
-        String[] datetimes = DateUtil.getDateTimesForRange(1, -1);
-
-//        sectionedAdapter = new SectionedRecyclerViewAdapter();
-
-        Map<String, List<Shift>> map = new DatabaseManager(getApplicationContext()).getShiftsInDateRange(datetimes);
-        SimpleDateFormat oldFmt = new SimpleDateFormat(DateUtil.FMT_DATETIME, Locale.ENGLISH);
-        SimpleDateFormat newFmt = new SimpleDateFormat("MMMM dd", Locale.ENGLISH);
-
-        Toast.makeText(getApplicationContext(), map.keySet().size() + "", Toast.LENGTH_SHORT).show();
-        for (String week : map.keySet()) {
-            System.out.println("week: " + week);
-            try {
-                Date date = oldFmt.parse(week);
-                String tag = UUID.randomUUID().toString();
-                Log.e("TAG", "1... " + tag);
-                System.out.println(map.get(week));
-                WorkWeekSection workWeekSection = new WorkWeekSection.Builder()
-                        .setContext(this)
-                        .setTag(tag)
-                        .setWorkWeek(new WorkWeek("Week of " + newFmt.format(date), map.get(week)))
-                        .setAdapter(sectionedAdapter)
-                        .build();
-
-                sectionedAdapter.addSectionAtStart(tag, workWeekSection);
-//                recyclerView.invalidate();
-                sectionedAdapter.notifyDataSetChanged();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
+//    @OnClick(R.id.button_select_weeks)
+//    public void onClickSelectWeeks() {
+//        Map<String, List<Shift>> map = fetchWorkWeeks(-1);
+//
+//        makeToast(getApplicationContext(), map.keySet().size() + "");
+//
+//        sectionedAdapter.notifyDataSetChanged();
+//    }
 
     @OnClick(R.id.button_new_shift)
     public void onClickNewShiftButton() {
         Intent intent = new Intent(ShiftViewActivity.this, ShiftActivity.class);
 
         startActivity(intent);
+    }
+
+    private Map<String, List<Shift>> fetchWorkWeeks(int weeks, int offset) {
+        String[] datetimes = DateUtil.getDateTimesForRange(weeks, offset);
+
+        return new DatabaseManager(getApplicationContext()).getShiftsInDateRange(datetimes);
+    }
+
+    private Map<String, List<Shift>> fetchWorkWeeks(int offset) {
+        return fetchWorkWeeks(1, offset);
+    }
+
+    private void displayWorkWeeks(Map<String, List<Shift>> map) {
+        for (String week : map.keySet()) {
+            System.out.println("week: " + week);
+            try {
+                Date date = oldFmt.parse(week);
+                String tag = UUID.randomUUID().toString();
+                Log.e("TAG", "1... " + tag);
+                System.out.println(map.get(week));
+                WorkWeekSection workWeekSection = new WorkWeekSection.Builder()
+                        .setContext(this)
+                        .setTag(tag)
+                        .setWorkWeek(new WorkWeek("Week of " + newFmt.format(date), map.get(week)))
+                        .setAdapter(sectionedAdapter)
+                        .build();
+                sectionedAdapter.addSection(tag, workWeekSection);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
