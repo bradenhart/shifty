@@ -125,24 +125,26 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
         recyclerView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
             public void onScrollChange(View view, int i, int i1, int i2, int i3) {
-                String nextWeekDate = ((WorkWeekSection) sectionedAdapter.getSectionForPosition(sectionedAdapter.getItemCount() - 1)).getEndDate();
-                Log.e("NEXT", nextWeekDate);
-                int count = new DatabaseManager(getApplicationContext()).countShiftsAfterDate(nextWeekDate);
+                if (sectionedAdapter.getItemCount() >= 1) {
+                    String nextWeekDate = ((WorkWeekSection) sectionedAdapter.getSectionForPosition(sectionedAdapter.getItemCount() - 1)).getEndDate();
+                    Log.e("NEXT", nextWeekDate);
+                    int count = new DatabaseManager(getApplicationContext()).countShiftsAfterDate(nextWeekDate);
 
-                if (!recyclerView.canScrollVertically(1)) {
-                    if (count > 0) {
-                        Log.e("SCROLL", "show fab + " + count);
+                    if (!recyclerView.canScrollVertically(1)) {
+                        if (count > 0) {
+                            Log.e("SCROLL", "show fab + " + count);
 //                        loadMoreButton.startAnimation(slideUpLoadAnim);
-                        loadMoreButton.startAnimation(slideInLoadAnim);
-                    }
+                            loadMoreButton.startAnimation(slideInLoadAnim);
+                        }
 
-                    if (weeks > DEFAULT_DISPLAY_COUNT && resetButton.getVisibility() == View.GONE) {
-                        Log.e("SHOW", "show reset fab, weeks: " + weeks);
-                        resetButton.startAnimation(slideInResetAnim);
+                        if (weeks > DEFAULT_DISPLAY_COUNT && resetButton.getVisibility() == View.GONE) {
+                            Log.e("SHOW", "show reset fab, weeks: " + weeks);
+                            resetButton.startAnimation(slideInResetAnim);
+                        }
+                    } else {
+                        Log.e("SCROLL", "hide fab + " + count);
+                        loadMoreButton.startAnimation(slideOutLoadAnim);
                     }
-                } else {
-                    Log.e("SCROLL", "hide fab + " + count);
-                    loadMoreButton.startAnimation(slideOutLoadAnim);
                 }
 
             }
@@ -179,19 +181,41 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
 
         Map<String, List<Shift>> map = fetchWorkWeeks(offset);
 
-        if (map.keySet().size() == 0) {
-            loadMoreButton.startAnimation(slideOutLoadAnim);
-//            loadMoreButton.setVisibility(View.GONE);
-            makeToast(this, "No more weeks to load.");
-        }
+        checkLoadMoreState(map.size());
 
-//        Toast.makeText(getApplicationContext(), map.keySet().size() + "", Toast.LENGTH_SHORT).show();
         displayWorkWeeks(map);
 
         sectionedAdapter.notifyDataSetChanged();
 
         recyclerView.smoothScrollToPosition(sectionedAdapter.getItemCount() - 1);
     }
+
+    @OnClick(R.id.button_reset)
+    public void clickResetButton() {
+        makeToast(this, "Reset");
+        sectionedAdapter.removeAllSections();
+//        sectionedAdapter.notifyDataSetChanged();
+
+        weeks = DEFAULT_DISPLAY_COUNT;
+        offset = 0;
+
+        Map<String, List<Shift>> map = fetchWorkWeeks(weeks, offset);
+
+        checkLoadMoreState(map.size());
+
+        displayWorkWeeks(map);
+
+        sectionedAdapter.notifyDataSetChanged();
+    }
+
+    private void checkLoadMoreState(int size) {
+        if (size == 0) {
+            loadMoreButton.startAnimation(slideOutLoadAnim);
+//            loadMoreButton.setVisibility(View.GONE);
+            makeToast(this, "No more weeks to load.");
+        }
+    }
+
 
 //    @OnClick(R.id.button_select_weeks)
 //    public void onClickSelectWeeks() {
