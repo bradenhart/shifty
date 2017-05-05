@@ -1,6 +1,8 @@
 package io.bradenhart.shifty.util;
 
 import android.content.Context;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 /**
@@ -17,6 +19,8 @@ public class Utils {
         makeToast(context, message, Toast.LENGTH_SHORT);
     }
 
-
+    public static Animation getAnim(Context context, int anim) {
+        return AnimationUtils.loadAnimation(context, anim);
+    }
 
 }
