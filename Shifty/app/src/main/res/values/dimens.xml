@@ -14,4 +14,6 @@
     <dimen name="workweek_shift_progress_width">4dp</dimen>
 
     <dimen name="action_bar_size">?attr/actionBarSize</dimen>
+
+    <dimen name="margin_5dp">5dp</dimen>
 </resources>
