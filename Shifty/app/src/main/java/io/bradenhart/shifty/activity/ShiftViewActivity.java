@@ -1,9 +1,7 @@
 package io.bradenhart.shifty.activity;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.content.Intent;
-import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -15,15 +13,12 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -40,7 +35,6 @@ import io.bradenhart.shifty.database.DatabaseManager;
 import io.bradenhart.shifty.database.TestData;
 import io.bradenhart.shifty.domain.Shift;
 import io.bradenhart.shifty.domain.WorkWeek;
-import io.bradenhart.shifty.ui.ViewWeightAnimationWrapper;
 import io.bradenhart.shifty.util.DateUtil;
 import io.bradenhart.shifty.view.WorkWeekSection;
 
@@ -58,17 +52,19 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     @BindView(R.id.rv_shift_list)
     RecyclerView recyclerView;
     @BindView(R.id.layout_fabs_container)
-    LinearLayout fabsContainer;
+    RelativeLayout fabsContainer;
     @BindView(R.id.button_load_more)
     FloatingActionButton loadMoreButton;
     @BindView(R.id.button_reset)
     FloatingActionButton resetButton;
+    @Nullable
     @BindView(R.id.cardview_bottom_action_bar)
     CardView bottomActionBar;
+    @Nullable
     @BindView(R.id.button_select_weeks)
     ImageButton selectWeeksButton;
     @BindView(R.id.button_new_shift)
-    ImageButton newShiftButton;
+    FloatingActionButton newShiftButton;
     @BindDimen(R.dimen.workweek_item_height)
     int itemHeight;
     @BindDimen(R.dimen.workweek_shift_progress_width)
@@ -85,9 +81,10 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     private SimpleDateFormat oldFmt;
     private SimpleDateFormat newFmt;
 
-    private Animation fadeInResetAnim, fadeOutLoadAnim, slideUpLoadAnim, slideInLoadAnim,
-            slideInResetAnim, slideOutLoadAnim, slideOutResetAnim, scootLoadAnim, spinLoadAnim,
-            slideInOutResetAnim;
+    private Animation fadeInResetAnim, fadeOutResetAnim, spinLoadAnim, spinResetAnim, fadeInLoadAnim, fadeOutLoadAnim;
+
+    private boolean hideLoadBtn = false;
+    private int count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,28 +97,24 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
         oldFmt = new SimpleDateFormat(DateUtil.FMT_DATETIME, Locale.ENGLISH);
         newFmt = new SimpleDateFormat("MMMM dd", Locale.ENGLISH);
 
-//        fadeInResetAnim = getAnim(this, R.anim.fade_in);
-//        fadeOutResetAnim = getAnim(this, R.anim.fade_out);
+        fadeInResetAnim = getAnim(this, R.anim.fade_in);
+        fadeOutResetAnim = getAnim(this, R.anim.fade_out);
+        fadeInLoadAnim = getAnim(this, R.anim.fade_in);
         fadeOutLoadAnim = getAnim(this, R.anim.fade_out);
-//        slideUpLoadAnim = getAnim(this, R.anim.slide_up);
-        slideInLoadAnim = getAnim(this, R.anim.slide_in_right);
-        slideInResetAnim = getAnim(this, R.anim.slide_in_left);
-        slideOutLoadAnim = getAnim(this, R.anim.slide_out_left);
-        slideOutResetAnim = getAnim(this, R.anim.slide_out_right);
-        scootLoadAnim = getAnim(this, R.anim.scoot_to_center);
         spinLoadAnim = getAnim(this, R.anim.spin);
-//        slideInOutResetAnim = getAnim(this, R.anim.slide_in_out_start_left);
-        setAnimationListener(slideUpLoadAnim, slideInLoadAnim,
-                slideInResetAnim, slideOutLoadAnim, slideOutResetAnim, scootLoadAnim, spinLoadAnim,
-                slideInOutResetAnim);
+        spinResetAnim = getAnim(this, R.anim.spin);
+        setAnimationListener(spinResetAnim,
+                fadeInResetAnim, fadeOutResetAnim,
+                fadeInLoadAnim, fadeOutLoadAnim,
+                spinLoadAnim);
 
         ButterKnife.bind(ShiftViewActivity.this);
 
         // set up actionbar
         setUpActionBar();
 
-        TestData.deleteAllTestData(getApplicationContext());
-        TestData.addDataToDB(getApplicationContext());
+//        TestData.deleteAllTestData(getApplicationContext());
+//        TestData.addDataToDB(getApplicationContext());
 
         sectionedAdapter = new MySectionAdapter();
 
@@ -137,30 +130,43 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
 
         recyclerView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
-            public void onScrollChange(View view, int i, int i1, int i2, int i3) {
-                if (sectionedAdapter.getItemCount() >= 1) {
-                    String nextWeekDate = ((WorkWeekSection) sectionedAdapter.getSectionForPosition(sectionedAdapter.getItemCount() - 1)).getEndDate();
-                    Log.e("NEXT", nextWeekDate);
-                    int count = new DatabaseManager(getApplicationContext()).countShiftsAfterDate(nextWeekDate);
+            public void onScrollChange(View view, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                String nextWeekDate = ((WorkWeekSection) sectionedAdapter.getSectionForPosition(sectionedAdapter.getItemCount() - 1)).getEndDate();
+                Log.e("NEXT", nextWeekDate);
+                count = new DatabaseManager(getApplicationContext()).countShiftsAfterDate(nextWeekDate);
 
-                    if (!recyclerView.canScrollVertically(1)) {
-                        if (count > 0) {
-                            Log.e("SCROLL", "show fab + " + count);
-//                        loadMoreButton.startAnimation(slideUpLoadAnim);
-                            loadMoreButton.startAnimation(slideInLoadAnim);
-                        }
-
-                        if (weeks > DEFAULT_DISPLAY_COUNT && resetButton.getVisibility() == View.GONE) {
-                            Log.e("SHOW", "show reset fab, weeks: " + weeks);
-                            resetButton.startAnimation(slideInResetAnim);
-//                            resetButton.startAnimation(slideInOutResetAnim);
-                        }
-                    } else {
-                        Log.e("SCROLL", "hide fab + " + count);
-                        loadMoreButton.startAnimation(slideOutLoadAnim);
-                    }
+                if (weeks > DEFAULT_DISPLAY_COUNT && resetButton.getVisibility() == View.GONE) {
+                    Log.e("SHOW", "show reset fab, weeks: " + weeks);
+                    resetButton.startAnimation(fadeInResetAnim);
                 }
 
+                // can't scroll up or down, all retrieved shifts are visible on screen
+                if (!recyclerView.canScrollVertically(-1) && !recyclerView.canScrollVertically(1)) {
+                    // if there are shifts to load, show 'load more' button
+                    if (count > 0) {
+                        Log.e("SCROLL", "show fab + " + count);
+                        loadMoreButton.startAnimation(fadeInLoadAnim);
+                    }
+                } else if (!recyclerView.canScrollVertically(1) && recyclerView.canScrollVertically(-1)) {
+                    if (count > 0) {
+                        Log.e("SCROLL", "show fab + " + count);
+                        if (loadMoreButton.getVisibility() != View.VISIBLE)
+                            loadMoreButton.startAnimation(fadeInLoadAnim);
+                    } else {
+                        Log.e("SCROLL", "hide fab");
+                        loadMoreButton.setVisibility(View.GONE);
+                    }
+
+                }
+
+            }
+        });
+
+        loadMoreButton.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+            @Override
+            public void onSystemUiVisibilityChange(int visibility) {
+                if (visibility == View.GONE) makeToast(getApplicationContext(), "GONE");
+                if (visibility == View.INVISIBLE) makeToast(getApplicationContext(), "INVISIBLE");
             }
         });
 
@@ -187,45 +193,45 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
 
     @OnClick(R.id.button_load_more)
     public void clickLoadMoreButton() {
+        loadMoreButton.setVisibility(View.VISIBLE);
+
         offset = weeks;
         weeks += 1;
-//        String[] datetimes = DateUtil.getDateTimesForRange(1, offset);
-
-//        sectionedAdapter = new SectionedRecyclerViewAdapter();
 
         Map<String, List<Shift>> map = fetchWorkWeeks(offset);
 
-        checkLoadMoreState(map.size());
+        checkLoadMoreState();
 
         displayWorkWeeks(map);
 
         sectionedAdapter.notifyDataSetChanged();
 
-        recyclerView.smoothScrollToPosition(sectionedAdapter.getItemCount() - 1);
+        recyclerView.scrollToPosition(sectionedAdapter.getItemCount() - 1);
+
+        loadMoreButton.startAnimation(spinLoadAnim);
     }
 
     @OnClick(R.id.button_reset)
     public void clickResetButton() {
-        makeToast(this, "Reset");
+        resetButton.startAnimation(spinResetAnim);
+
         sectionedAdapter.removeAllSections();
-//        sectionedAdapter.notifyDataSetChanged();
 
         weeks = DEFAULT_DISPLAY_COUNT;
         offset = 0;
 
         Map<String, List<Shift>> map = fetchWorkWeeks(weeks, offset);
 
-        checkLoadMoreState(map.size());
+        checkLoadMoreState();
 
         displayWorkWeeks(map);
 
         sectionedAdapter.notifyDataSetChanged();
     }
 
-    private void checkLoadMoreState(int size) {
-        if (size == 0) {
-            loadMoreButton.startAnimation(slideOutLoadAnim);
-//            loadMoreButton.setVisibility(View.GONE);
+    private void checkLoadMoreState() {
+        hideLoadBtn = count == 1;
+        if (count == 1) {
             makeToast(this, "No more weeks to load.");
         }
     }
@@ -281,130 +287,53 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     @Override
     public void onAnimationStart(Animation animation) {
 
-        /** RESET button animations */
-        /* reset button is appearing on screen */
-        if (animation == slideInResetAnim) {
-            // make it visible
+        /** RESET button animations START */
+        if (animation == fadeInResetAnim) {
             resetButton.setVisibility(View.VISIBLE);
         }
-
-        /* reset button is disappearing */
-        if (animation == slideOutResetAnim) {
-//            makeToast(getApplicationContext(), "reset slide out started");
-            // stop user from clicking it as it moves off screen
-            resetButton.setClickable(false);
-        }
-
-        //        if (animation == fadeInResetAnim) {
-//            resetButton.setVisibility(View.VISIBLE);
-//        }
-
-//        if (animation == slideInOutResetAnim) {
-//            resetButton.setVisibility(View.VISIBLE);
-//        }
         /** */
 
-        /** LOAD MORE button animations */
-        /* load more button is appearing */
-        if (animation == slideInLoadAnim) {
+        /** LOAD MORE button animations START */
+        /* load more button is fading in */
+        if (animation == fadeInLoadAnim) {
             loadMoreButton.setVisibility(View.VISIBLE);
+            loadMoreButton.setClickable(true);
         }
-
-        /* load more button disappearing */
-        if (animation == slideOutLoadAnim) {
-            // stop user from clicking it
-            loadMoreButton.setClickable(false);
-        }
-
-        //        if (animation == scootLoadAnim) {
-//            loadMoreButton.setVisibility(View.VISIBLE);
-//        }
-
-        /*  */
-//        if (animation == slideUpLoadAnim) {
-//            loadMoreButton.setVisibility(View.VISIBLE);
-//        }
         /** */
-
 
     }
 
     @Override
     public void onAnimationEnd(Animation animation) {
 
-        /** RESET button animations */
-        /* reset button has faded in */
-//        if (animation == fadeInResetAnim) {
-//            fadeOutResetAnim.setStartOffset(3000);
-//            resetButton.startAnimation(fadeOutResetAnim);
-//        }
-
-        /* reset button has slid on screen */
-        if (animation == slideInResetAnim) {
-            ViewWeightAnimationWrapper animationWrapper = new ViewWeightAnimationWrapper(loadMoreButton);
-            ObjectAnimator anim = ObjectAnimator.ofFloat(animationWrapper,
-                    "weight",
-                    animationWrapper.getWeight(),
-                    1);
-            anim.setDuration(2500);
-            anim.start();
-
-
-//            slideOutResetAnim.setStartOffset(3000);
-            resetButton.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-//                    makeToast(getApplicationContext(), "run slide out animation");
-                    resetButton.startAnimation(slideOutResetAnim);
-                }
-            }, 3000);
-//            slideOutResetAnim.setDuration(1000);
-//            resetButton.startAnimation(slideOutResetAnim);
-            resetButton.setClickable(true);
-        }
-
+        /** RESET button animations END */
         /* reset button has faded out */
-//        if (animation == fadeOutResetAnim) {
-//            resetButton.setVisibility(View.GONE);
-//        }
-
-        /* reset button has slid off screen */
-        if (animation == slideOutResetAnim) {
-//            loadMoreButton.startAnimation(spinLoadAnim);
-            float parentWidth = fabsContainer.getMeasuredWidth();
-            float fabWidth = loadMoreButton.getMeasuredWidth();
-
-            loadMoreButton.animate()
-                    .setDuration(750)
-                    .x(parentWidth/2 - fabWidth/2)
-                    .setInterpolator(new LinearInterpolator())
-//                    .setStartDelay(1500)
-                    .start();
+        if (animation == fadeOutResetAnim) {
             resetButton.setVisibility(View.GONE);
         }
+
+        if (animation == spinResetAnim) {
+            resetButton.startAnimation(fadeOutResetAnim);
+        }
+
         /** */
 
-        /** LOAD MORE button animations */
-        /* load more button has slid off screen */
-        if (animation == slideOutLoadAnim) {
-            // hide the button
+        /** LOAD MORE button animations END */
+        if (animation == fadeOutLoadAnim) {
             loadMoreButton.setVisibility(View.GONE);
         }
 
-        /* load more button has slid on screen */
-        if (animation == slideInLoadAnim) {
-            // allow user to click it
-            loadMoreButton.setClickable(true);
+        if (animation == spinLoadAnim) {
+            if (hideLoadBtn) loadMoreButton.startAnimation(fadeOutLoadAnim);
+            else loadMoreButton.setVisibility(View.VISIBLE);
         }
+
+        /** */
 
     }
 
     @Override
     public void onAnimationRepeat(Animation animation) {
-
-//        if (animation == slideInOutResetAnim) {
-//            slideInOutResetAnim.setStartOffset(5000);
-//        }
 
     }
 
