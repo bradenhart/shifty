@@ -51,18 +51,6 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     TextView titleView;
     @BindView(R.id.rv_shift_list)
     RecyclerView recyclerView;
-    @BindView(R.id.layout_fabs_container)
-    RelativeLayout fabsContainer;
-    @BindView(R.id.button_load_more)
-    FloatingActionButton loadMoreButton;
-    @BindView(R.id.button_reset)
-    FloatingActionButton resetButton;
-    @Nullable
-    @BindView(R.id.cardview_bottom_action_bar)
-    CardView bottomActionBar;
-    @Nullable
-    @BindView(R.id.button_select_weeks)
-    ImageButton selectWeeksButton;
     @BindView(R.id.button_new_shift)
     FloatingActionButton newShiftButton;
     @BindDimen(R.dimen.workweek_item_height)
@@ -72,9 +60,10 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     @BindDimen(R.dimen.margin_5dp)
     int margin5dp;
 
-    private final int DEFAULT_DISPLAY_COUNT = 3;
+    private final int DEFAULT_DISPLAY_COUNT = 20;
     private int weeks = DEFAULT_DISPLAY_COUNT;
     private int offset = 0;
+    private int count = 0;
 
     private MySectionAdapter sectionedAdapter;
 
@@ -82,9 +71,6 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     private SimpleDateFormat newFmt;
 
     private Animation fadeInResetAnim, fadeOutResetAnim, spinLoadAnim, spinResetAnim, fadeInLoadAnim, fadeOutLoadAnim;
-
-    private boolean hideLoadBtn = false;
-    private int count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,38 +121,6 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
                 Log.e("NEXT", nextWeekDate);
                 count = new DatabaseManager(getApplicationContext()).countShiftsAfterDate(nextWeekDate);
 
-                if (weeks > DEFAULT_DISPLAY_COUNT && resetButton.getVisibility() == View.GONE) {
-                    Log.e("SHOW", "show reset fab, weeks: " + weeks);
-                    resetButton.startAnimation(fadeInResetAnim);
-                }
-
-                // can't scroll up or down, all retrieved shifts are visible on screen
-                if (!recyclerView.canScrollVertically(-1) && !recyclerView.canScrollVertically(1)) {
-                    // if there are shifts to load, show 'load more' button
-                    if (count > 0) {
-                        Log.e("SCROLL", "show fab + " + count);
-                        loadMoreButton.startAnimation(fadeInLoadAnim);
-                    }
-                } else if (!recyclerView.canScrollVertically(1) && recyclerView.canScrollVertically(-1)) {
-                    if (count > 0) {
-                        Log.e("SCROLL", "show fab + " + count);
-                        if (loadMoreButton.getVisibility() != View.VISIBLE)
-                            loadMoreButton.startAnimation(fadeInLoadAnim);
-                    } else {
-                        Log.e("SCROLL", "hide fab");
-                        loadMoreButton.setVisibility(View.GONE);
-                    }
-
-                }
-
-            }
-        });
-
-        loadMoreButton.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
-            @Override
-            public void onSystemUiVisibilityChange(int visibility) {
-                if (visibility == View.GONE) makeToast(getApplicationContext(), "GONE");
-                if (visibility == View.INVISIBLE) makeToast(getApplicationContext(), "INVISIBLE");
             }
         });
 
@@ -191,60 +145,10 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
 //        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
     }
 
-    @OnClick(R.id.button_load_more)
-    public void clickLoadMoreButton() {
-        loadMoreButton.setVisibility(View.VISIBLE);
-
-        offset = weeks;
-        weeks += 1;
-
-        Map<String, List<Shift>> map = fetchWorkWeeks(offset);
-
-        checkLoadMoreState();
-
-        displayWorkWeeks(map);
-
-        sectionedAdapter.notifyDataSetChanged();
-
-        recyclerView.scrollToPosition(sectionedAdapter.getItemCount() - 1);
-
-        loadMoreButton.startAnimation(spinLoadAnim);
+    private boolean canLoadMoreState() {
+        // TODO check if there are any more shifts to load from db
+        return false;
     }
-
-    @OnClick(R.id.button_reset)
-    public void clickResetButton() {
-        resetButton.startAnimation(spinResetAnim);
-
-        sectionedAdapter.removeAllSections();
-
-        weeks = DEFAULT_DISPLAY_COUNT;
-        offset = 0;
-
-        Map<String, List<Shift>> map = fetchWorkWeeks(weeks, offset);
-
-        checkLoadMoreState();
-
-        displayWorkWeeks(map);
-
-        sectionedAdapter.notifyDataSetChanged();
-    }
-
-    private void checkLoadMoreState() {
-        hideLoadBtn = count == 1;
-        if (count == 1) {
-            makeToast(this, "No more weeks to load.");
-        }
-    }
-
-
-//    @OnClick(R.id.button_select_weeks)
-//    public void onClickSelectWeeks() {
-//        Map<String, List<Shift>> map = fetchWorkWeeks(-1);
-//
-//        makeToast(getApplicationContext(), map.keySet().size() + "");
-//
-//        sectionedAdapter.notifyDataSetChanged();
-//    }
 
     @OnClick(R.id.button_new_shift)
     public void onClickNewShiftButton() {
@@ -288,17 +192,9 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     public void onAnimationStart(Animation animation) {
 
         /** RESET button animations START */
-        if (animation == fadeInResetAnim) {
-            resetButton.setVisibility(View.VISIBLE);
-        }
         /** */
 
         /** LOAD MORE button animations START */
-        /* load more button is fading in */
-        if (animation == fadeInLoadAnim) {
-            loadMoreButton.setVisibility(View.VISIBLE);
-            loadMoreButton.setClickable(true);
-        }
         /** */
 
     }
@@ -307,27 +203,9 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     public void onAnimationEnd(Animation animation) {
 
         /** RESET button animations END */
-        /* reset button has faded out */
-        if (animation == fadeOutResetAnim) {
-            resetButton.setVisibility(View.GONE);
-        }
-
-        if (animation == spinResetAnim) {
-            resetButton.startAnimation(fadeOutResetAnim);
-        }
-
         /** */
 
         /** LOAD MORE button animations END */
-        if (animation == fadeOutLoadAnim) {
-            loadMoreButton.setVisibility(View.GONE);
-        }
-
-        if (animation == spinLoadAnim) {
-            if (hideLoadBtn) loadMoreButton.startAnimation(fadeOutLoadAnim);
-            else loadMoreButton.setVisibility(View.VISIBLE);
-        }
-
         /** */
 
     }
