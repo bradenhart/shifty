@@ -10,7 +10,7 @@
     tools:context="io.bradenhart.shifty.activity.ShiftViewActivity">
 
     <include
-        android:id="@+id/appbar_main"
+        android:id="@+id/appbar_shiftview"
         layout="@layout/view_toolbar" />
 
     <FrameLayout
@@ -32,6 +32,7 @@
             android:tint="#fff"
             android:visibility="visible"
             app:fabSize="normal"
+            app:elevation="10dp"
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"/>
