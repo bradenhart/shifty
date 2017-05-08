@@ -56,6 +56,10 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         this.workweeks.remove(workWeek);
     }
 
+    public void clear() {
+        this.workweeks.clear();
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.section_workweek_base, parent, false);
