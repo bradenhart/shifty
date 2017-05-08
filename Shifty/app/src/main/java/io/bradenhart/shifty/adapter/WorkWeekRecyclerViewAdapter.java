@@ -40,8 +40,12 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         this.workweeks.add(workWeek);
     }
 
-    public void removedWorkWeek(int pos) {
+    public void removeWorkWeek(int pos) {
         this.workweeks.remove(pos);
+    }
+
+    public void removeWorkWeek(WorkWeek workWeek) {
+        this.workweeks.remove(workWeek);
     }
 
     @Override
@@ -57,9 +61,12 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
         WorkWeek workWeek = workweeks.get(position);
         ShiftRecyclerViewAdapter adapter = new ShiftRecyclerViewAdapter(context, workWeek.getShifts());
+        adapter.setParentPos(position);
+        adapter.setParentAdapter(this);
         weekHolder.header.setText(workWeek.getTitle());
         weekHolder.recyclerView.setLayoutManager(new LinearLayoutManager(context.getApplicationContext()));
         weekHolder.recyclerView.setAdapter(adapter);
+        weekHolder.recyclerView.setHasFixedSize(true);
         weekHolder.footer.setText(String.format(Locale.ENGLISH, "$%.02f", workWeek.getPayslip().getNet()));
     }
 

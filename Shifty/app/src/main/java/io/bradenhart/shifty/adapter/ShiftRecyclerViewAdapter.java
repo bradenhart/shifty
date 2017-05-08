@@ -22,6 +22,7 @@ import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.activity.ShiftActivity;
 import io.bradenhart.shifty.database.DatabaseManager;
 import io.bradenhart.shifty.domain.Shift;
+import io.bradenhart.shifty.domain.WorkWeek;
 import io.bradenhart.shifty.util.DateUtil;
 import io.bradenhart.shifty.view.ItemViewHolder;
 import io.bradenhart.shifty.view.WorkWeekSection;
@@ -36,19 +37,32 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
     private Context context;
     private List<Shift> shifts;
     private int itemHeight, progressWidth;
+    private WorkWeekRecyclerViewAdapter parentAdapter;
+    private int parentPos;
 
     public ShiftRecyclerViewAdapter(Context context, List<Shift> shifts) {
         this.context = context;
         this.shifts = shifts;
-        itemHeight = context.getResources().getDimensionPixelSize(R.dimen.workweek_item_height);
-        progressWidth = context.getResources().getDimensionPixelSize(R.dimen.workweek_shift_progress_width);
+        this.itemHeight = context.getResources().getDimensionPixelSize(R.dimen.workweek_item_height);
+        this.progressWidth = context.getResources().getDimensionPixelSize(R.dimen.workweek_shift_progress_width);
     }
 
+    public void removeShift(int pos) {
+        shifts.remove(pos);
+    }
+
+    public void setParentPos(int pos) {
+        this.parentPos = pos;
+    }
+
+    public void setParentAdapter(WorkWeekRecyclerViewAdapter parentAdapter) {
+        this.parentAdapter = parentAdapter;
+    }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.section_workweek_item, parent, false);
-        return new ShiftViewHolder(view);
+        return new ShiftViewHolder(context, view);
     }
 
     @Override
@@ -58,8 +72,8 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
         final Shift shift = shifts.get(position);
 
         shiftHolder.shift = shift;
-        shiftHolder.pos = position;
-//        shiftHolder.section = adapter.getSection(sectionTag);
+        shiftHolder.shiftPos = position;
+        shiftHolder.parentPos = parentPos;
         shiftHolder.dayOfMonthTV.setText(DateUtil.getDayOfMonth(shift.getId()));
         shiftHolder.dayOfWeekTV.setText(DateUtil.getWeekday(shift.getId(), DateUtil.FMT_WEEKDAY_FULL));
         shiftHolder.startTimeTV.setText(shift.getStartTime().toString());
@@ -81,8 +95,8 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
     class ShiftViewHolder extends RecyclerView.ViewHolder {
 
         private Context context;
-        Integer pos;
-        Section section;
+        Integer shiftPos;
+        Integer parentPos;
         Shift shift;
         @BindView(R.id.layout_shift_item)
         LinearLayout itemLayout;
@@ -108,8 +122,9 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
         @BindView(R.id.button_close_options)
         ImageButton closeButton;
 
-        public ShiftViewHolder(View itemView) {
+        public ShiftViewHolder(Context context, View itemView) {
             super(itemView);
+            this.context = context;
             ButterKnife.bind(this, itemView);
         }
 
@@ -140,16 +155,14 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
         void onClickDeleteButton() {
             // TODO change this to use new solution to Section class
 
-//            new DatabaseManager(context.getApplicationContext()).deleteShift(shift.getId());
-////        SectionedRecyclerViewAdapter sectionedAdapter =
-//            ((WorkWeekSection) section).removeShift(pos);
-////        section.removeShift(getPos());
-//            onClickCloseButton();
-////        section.notifyItemRemovedFromSection(getSectionTag(), getPos());
-//            ((WorkWeekSection) section).notifyDataSetChanged();
-//            if (((WorkWeekSection) section).shifts.size() == 0) {
-//                ((WorkWeekSection) section).removeFromAdapter();
-//            }
+            new DatabaseManager(context.getApplicationContext()).deleteShift(shift.getId());
+            removeShift(shiftPos);
+            onClickCloseButton();
+            notifyDataSetChanged();
+            if (shifts.size() == 0) {
+                parentAdapter.removeWorkWeek(parentPos);
+                parentAdapter.notifyDataSetChanged();
+            }
         }
 
     }
