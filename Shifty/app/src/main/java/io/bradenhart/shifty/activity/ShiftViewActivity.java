@@ -2,13 +2,11 @@ package io.bradenhart.shifty.activity;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -16,8 +14,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
-import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.text.ParseException;
@@ -36,20 +32,18 @@ import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.adapter.MySectionAdapter;
 import io.bradenhart.shifty.adapter.WorkWeekRecyclerViewAdapter;
 import io.bradenhart.shifty.database.DatabaseManager;
-import io.bradenhart.shifty.database.TestData;
 import io.bradenhart.shifty.domain.Shift;
 import io.bradenhart.shifty.domain.WorkWeek;
 import io.bradenhart.shifty.util.DateUtil;
-import io.bradenhart.shifty.view.WorkWeekSection;
 
 import static io.bradenhart.shifty.util.Utils.*;
 
 public class ShiftViewActivity extends AppCompatActivity implements Animation.AnimationListener {
 
     final String TAG = "MainActivity.class";
-    private final String appName = "Shifty";
+    private final String title = "Shifty";
 
-    @BindView(R.id.appbar_main)
+    @BindView(R.id.appbar_shiftview)
     AppBarLayout appBar;
     Toolbar toolbar;
     TextView titleView;
@@ -109,7 +103,8 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
 
 //        Map<String, List<Shift>> map = fetchWorkWeeks(weeks, offset);
         Map<String, List<Shift>> map;
-        if (showCurrent) map = new DatabaseManager(getApplicationContext()).getShiftsFromCurrentWeek();
+        if (showCurrent)
+            map = new DatabaseManager(getApplicationContext()).getShiftsFromCurrentWeek();
         else map = new DatabaseManager(getApplicationContext()).getShiftsBeforeCurrentWeek();
 
         Log.e("DB", map.keySet().size() + "");
@@ -125,37 +120,32 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
 
+                Map<String, List<Shift>> map;
+
                 switch (id) {
                     case R.id.menu_button_shifts:
-                        Map<String, List<Shift>> map;
-//                        if (showCurrent) {
-                            // show recent shifts
-//                            makeToast(getApplicationContext(), "showing recent shifts");
-//                            navView.getMenu().getItem(0).setTitle("Shifts").setIcon(R.drawable.ic_view_list_white_24dp);
-//                            map = new DatabaseManager(getApplicationContext()).getShiftsBeforeCurrentWeek();
-//                            showCurrent = false;
-//                        } else {
-                            // show current shifts
-                            makeToast(getApplicationContext(), "showing current shifts");
-//                            navView.getMenu().getItem(0).setTitle("Recent").setIcon(R.drawable.ic_history_white_24dp);
-                            map = new DatabaseManager(getApplicationContext()).getShiftsFromCurrentWeek();
-//                            showCurrent = true;
-//                        }
-
+                        // show current shifts
+                        newShiftButton.setVisibility(View.VISIBLE);
+                        makeToast(getApplicationContext(), "showing current shifts");
+                        map = new DatabaseManager(getApplicationContext()).getShiftsFromCurrentWeek();
                         adapter.clear();
                         displayWorkWeeks(map);
                         adapter.notifyDataSetChanged();
                         break;
                     case R.id.menu_button_recent:
+                        // show recent shifts
+                        newShiftButton.setVisibility(View.GONE);
                         makeToast(getApplicationContext(), "showing recent shifts");
-//                            navView.getMenu().getItem(0).setTitle("Shifts").setIcon(R.drawable.ic_view_list_white_24dp);
                         map = new DatabaseManager(getApplicationContext()).getShiftsBeforeCurrentWeek();
-//                            showCurrent = false;
-//                        } else {
-                        // show current shifts
-//                        makeToast(getApplicationContext(), "showing current shifts");
-//                        navView.getMenu().getItem(0).setTitle("Recent").setIcon(R.drawable.ic_history_white_24dp);
-//                        map = new DatabaseManager(getApplicationContext()).getShiftsFromCurrentWeek();
+                        adapter.clear();
+                        displayWorkWeeks(map);
+                        adapter.notifyDataSetChanged();
+                        break;
+                    case R.id.menu_button_search:
+
+                        break;
+                    case R.id.menu_button_calculator:
+
                         break;
                 }
 
@@ -175,7 +165,7 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
         // disable the title that would appear in the actionbar
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         // show the desired title in the toolbar instead of the actionbar
-        titleView.setText(appName);
+        titleView.setText(title);
         // will show the back arrow/caret and make it clickable. will not return home unless parent activity is specified
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // shows logo/icon with caret/arrow if passed true. will not show logo/icon if passed false
