@@ -192,6 +192,20 @@ public class DatabaseManager {
 //        return res;
     }
 
+    public void deleteAllShifts(String[] ids) {
+        openForWrite();
+
+        String whereClause = " in (";
+        for (int i = 0; i < ids.length; i++) {
+            whereClause += "?";
+            if (i + 1 < ids.length) whereClause += ",";
+        }
+        whereClause += ")";
+
+        database.delete(ShiftyContract.Shift.TABLE_NAME, ShiftyContract.Shift._ID + whereClause, ids);
+        close();
+    }
+
     public void deleteAllShifts() {
         openForWrite();
         database.execSQL("delete from " + ShiftyContract.Shift.TABLE_NAME);
