@@ -1,12 +1,16 @@
 package io.bradenhart.shifty.adapter;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +18,12 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.bradenhart.shifty.R;
+import io.bradenhart.shifty.database.DatabaseManager;
+import io.bradenhart.shifty.domain.Shift;
 import io.bradenhart.shifty.domain.WorkWeek;
+import io.bradenhart.shifty.util.Utils;
 
 /**
  * Created by bradenhart on 8/05/17.
@@ -52,7 +60,7 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.section_workweek_base, parent, false);
 
-        return new WorkWeekViewHolder(view);
+        return new WorkWeekViewHolder(context, view);
     }
 
     @Override
@@ -60,6 +68,7 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         WorkWeekViewHolder weekHolder = (WorkWeekViewHolder) holder;
 
         WorkWeek workWeek = workweeks.get(position);
+        weekHolder.pos = position;
         ShiftRecyclerViewAdapter adapter = new ShiftRecyclerViewAdapter(context, workWeek.getShifts());
         adapter.setParentPos(position);
         adapter.setParentAdapter(this);
@@ -77,16 +86,56 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
     class WorkWeekViewHolder extends RecyclerView.ViewHolder {
 
+        private Context context;
+        Integer pos;
         @BindView(R.id.textview_workweek_header)
         TextView header;
+        @BindView(R.id.button_delete_workweek)
+        ImageButton deleteButton;
         @BindView(R.id.recyclerview_workweek_content)
         RecyclerView recyclerView;
         @BindView(R.id.textview_workweek_footer)
         TextView footer;
 
-        public WorkWeekViewHolder(View itemView) {
+        public WorkWeekViewHolder(Context context, View itemView) {
             super(itemView);
+            this.context = context;
             ButterKnife.bind(this, itemView);
+        }
+
+        @OnClick(R.id.button_delete_workweek)
+        public void onClickDeleteButton() {
+            new AlertDialog.Builder(context)
+                    .setTitle("Are you sure?")
+                    .setMessage("This will delete the entire workweek for good!")
+                    .setCancelable(true)
+                    .setPositiveButton("DELETE", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            List<Shift> shifts = workweeks.get(pos).getShifts();
+                            String[] ids = new String[shifts.size()];
+
+                            int index = 0;
+                            for (Shift s : shifts) {
+                                ids[index] = s.getId();
+                                index++;
+                            }
+
+                            new DatabaseManager(context).deleteAllShifts(ids);
+
+                            removeWorkWeek(pos);
+                            notifyDataSetChanged();
+                            Utils.makeToast(context, "Workweek deleted", Toast.LENGTH_LONG);
+                        }
+                    })
+                    .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                        }
+                    })
+                    .show();
+
         }
     }
 }

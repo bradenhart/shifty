@@ -1,7 +1,9 @@
 package io.bradenhart.shifty.adapter;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 import java.util.Locale;
@@ -24,6 +27,7 @@ import io.bradenhart.shifty.database.DatabaseManager;
 import io.bradenhart.shifty.domain.Shift;
 import io.bradenhart.shifty.domain.WorkWeek;
 import io.bradenhart.shifty.util.DateUtil;
+import io.bradenhart.shifty.util.Utils;
 import io.bradenhart.shifty.view.ItemViewHolder;
 import io.bradenhart.shifty.view.WorkWeekSection;
 import io.github.luizgrp.sectionedrecyclerviewadapter.Section;
@@ -153,16 +157,32 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
         @OnClick(R.id.button_delete_shift)
         void onClickDeleteButton() {
-            // TODO change this to use new solution to Section class
+            new AlertDialog.Builder(context)
+                    .setTitle("Are you sure?")
+                    .setMessage("This will delete the shift for good!")
+                    .setPositiveButton("DELETE", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            new DatabaseManager(context.getApplicationContext()).deleteShift(shift.getId());
+                            removeShift(shiftPos);
+                            onClickCloseButton();
+                            notifyDataSetChanged();
+                            Utils.makeToast(context, "Shift deleted", Toast.LENGTH_LONG);
+                            if (shifts.size() == 0) {
+                                parentAdapter.removeWorkWeek(parentPos);
+                                parentAdapter.notifyDataSetChanged();
+                                Utils.makeToast(context, "Workweek deleted", Toast.LENGTH_LONG);
+                            }
+                        }
+                    })
+                    .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            onClickCloseButton();
+                        }
+                    })
+                    .show();
 
-            new DatabaseManager(context.getApplicationContext()).deleteShift(shift.getId());
-            removeShift(shiftPos);
-            onClickCloseButton();
-            notifyDataSetChanged();
-            if (shifts.size() == 0) {
-                parentAdapter.removeWorkWeek(parentPos);
-                parentAdapter.notifyDataSetChanged();
-            }
         }
 
     }
