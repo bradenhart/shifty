@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!--<item-->
+        <!--android:enabled="true"-->
+        <!--android:icon="@drawable/ic_history_white_24dp"-->
+        <!--android:title="Recent"-->
+        <!--app:showAsAction="always" />-->
+
+    <item
+        android:enabled="true"
+        android:title="Shifts"
+        android:icon="@drawable/ic_view_list_white_24dp"
+        app:showAsAction="always"/>
+
+    <item
+        android:enabled="true"
+        android:title="Search"
+        android:titleCondensed="Search"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_search_white_24dp"/>
+
+    <item
+        android:enabled="true"
+        android:title="Calculator"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_calculator_white_24dp"></item>
+
+</menu>
