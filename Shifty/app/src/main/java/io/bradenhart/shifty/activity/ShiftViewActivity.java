@@ -181,9 +181,7 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
 
     @OnClick(R.id.button_new_shift)
     public void onClickNewShiftButton() {
-        Intent intent = new Intent(ShiftViewActivity.this, ShiftActivity.class);
-
-        startActivity(intent);
+        ShiftActivity.start(getApplicationContext(), ShiftActivity.Mode.CREATE);
     }
 
     private Map<String, List<Shift>> fetchWorkWeeks(int weeks, int offset) {

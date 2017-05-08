@@ -1,6 +1,7 @@
 package io.bradenhart.shifty.activity;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -79,6 +80,23 @@ public class ShiftActivity extends AppCompatActivity {
     Boolean editModeEnabled = false;
     Shift shift;
     String ymdString;
+
+    public static enum Mode {
+        CREATE, EDIT
+    }
+
+    public static void start(Context context, Mode mode, Shift shift) {
+        Intent intent = new Intent(context, ShiftActivity.class);
+        intent.putExtra(ShiftActivity.KEY_EDIT_MODE, mode == Mode.EDIT);
+        intent.putExtra(ShiftActivity.KEY_SHIFT, shift);
+        context.startActivity(intent);
+    }
+
+    public static void start(Context context, Mode mode) {
+        Intent intent = new Intent(context, ShiftActivity.class);
+        intent.putExtra(ShiftActivity.KEY_EDIT_MODE, mode == Mode.EDIT);
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

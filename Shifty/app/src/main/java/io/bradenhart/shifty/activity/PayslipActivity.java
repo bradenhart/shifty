@@ -1,5 +1,6 @@
 package io.bradenhart.shifty.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.bradenhart.shifty.util.DateUtil;
 
 /**
  * Created by bradenhart on 20/04/17.
@@ -52,6 +54,13 @@ public class PayslipActivity extends AppCompatActivity {
     @BindView(R.id.textview_payslip_net)
     TextView netTV;
 
+
+    public static void start(Context context, Payslip payslip, String start, String end) {
+        Intent intent = new Intent(context, PayslipActivity.class);
+        intent.putExtra(PayslipActivity.KEY_PAYSLIP, payslip);
+        intent.putExtra(PayslipActivity.KEY_WEEK_INFO, DateUtil.getWorkWeekTitle(start, end));
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

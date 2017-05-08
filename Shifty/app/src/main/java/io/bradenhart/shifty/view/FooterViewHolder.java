@@ -41,12 +41,7 @@ public class FooterViewHolder extends RecyclerView.ViewHolder {
         String startDateTimeString = DateUtil.getWeekStart(workWeek.getShifts().get(0).getId());
         String endDateTimeString = DateUtil.getWeekEnd(workWeek.getShifts().get(0).getId());
 
-        Intent intent = new Intent(context, PayslipActivity.class);
-        intent.putExtra(PayslipActivity.KEY_PAYSLIP, payslip);
-        intent.putExtra(PayslipActivity.KEY_WEEK_INFO,
-                DateUtil.getWorkWeekTitle(startDateTimeString, endDateTimeString));
-        context.startActivity(intent);
-
+        PayslipActivity.start(context, payslip, startDateTimeString, endDateTimeString);
     }
 
 }
