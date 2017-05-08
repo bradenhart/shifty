@@ -31,6 +31,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.adapter.MySectionAdapter;
+import io.bradenhart.shifty.adapter.WorkWeekRecyclerViewAdapter;
 import io.bradenhart.shifty.database.DatabaseManager;
 import io.bradenhart.shifty.database.TestData;
 import io.bradenhart.shifty.domain.Shift;
@@ -65,6 +66,7 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     private int offset = 0;
     private int count = 0;
 
+    private WorkWeekRecyclerViewAdapter adapter;
     private MySectionAdapter sectionedAdapter;
 
     private SimpleDateFormat oldFmt;
@@ -101,7 +103,7 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
 
 //        TestData.deleteAllTestData(getApplicationContext());
 //        TestData.addDataToDB(getApplicationContext());
-
+        adapter = new WorkWeekRecyclerViewAdapter(this);
         sectionedAdapter = new MySectionAdapter();
 
         Map<String, List<Shift>> map = fetchWorkWeeks(weeks, offset);
@@ -111,15 +113,15 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 //        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(sectionedAdapter);
+        recyclerView.setAdapter(adapter);
 //        recyclerView.scrollToPosition(6);
 
         recyclerView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
             public void onScrollChange(View view, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                String nextWeekDate = ((WorkWeekSection) sectionedAdapter.getSectionForPosition(sectionedAdapter.getItemCount() - 1)).getEndDate();
-                Log.e("NEXT", nextWeekDate);
-                count = new DatabaseManager(getApplicationContext()).countShiftsAfterDate(nextWeekDate);
+//                String nextWeekDate = ((WorkWeekSection) sectionedAdapter.getSectionForPosition(sectionedAdapter.getItemCount() - 1)).getEndDate();
+//                Log.e("NEXT", nextWeekDate);
+//                count = new DatabaseManager(getApplicationContext()).countShiftsAfterDate(nextWeekDate);
 
             }
         });
@@ -175,13 +177,15 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
                 String tag = UUID.randomUUID().toString();
                 Log.e("TAG", "1... " + tag);
                 System.out.println(map.get(week));
-                WorkWeekSection workWeekSection = new WorkWeekSection.Builder()
-                        .setContext(this)
-                        .setTag(tag)
-                        .setWorkWeek(new WorkWeek("Week of " + newFmt.format(date), map.get(week)))
-                        .setAdapter(sectionedAdapter)
-                        .build();
-                sectionedAdapter.addSection(tag, workWeekSection);
+                WorkWeek workWeek = new WorkWeek("Week of " + newFmt.format(date), map.get(week));
+//                WorkWeekSection workWeekSection = new WorkWeekSection.Builder()
+//                        .setContext(this)
+//                        .setTag(tag)
+//                        .setWorkWeek(new WorkWeek("Week of " + newFmt.format(date), map.get(week)))
+//                        .setAdapter(sectionedAdapter)
+//                        .build();
+//                sectionedAdapter.addSection(tag, workWeekSection);
+                adapter.addWorkWeek(workWeek);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
