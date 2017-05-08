@@ -3,19 +3,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!--<item-->
-        <!--android:enabled="true"-->
-        <!--android:icon="@drawable/ic_history_white_24dp"-->
-        <!--android:title="Recent"-->
-        <!--app:showAsAction="always" />-->
-
     <item
+        android:id="@+id/menu_button_shifts"
         android:enabled="true"
-        android:title="Shifts"
         android:icon="@drawable/ic_view_list_white_24dp"
-        app:showAsAction="always"/>
+        android:title="Shifts"
+        app:showAsAction="always" />
 
     <item
+        android:id="@+id/menu_button_recent"
+        android:enabled="true"
+        android:icon="@drawable/ic_history_white_24dp"
+        android:title="Recent"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_button_search"
         android:enabled="true"
         android:title="Search"
         android:titleCondensed="Search"
@@ -23,6 +26,7 @@
         android:icon="@drawable/ic_search_white_24dp"/>
 
     <item
+        android:id="@+id/menu_button_calculator"
         android:enabled="true"
         android:title="Calculator"
         app:showAsAction="always"

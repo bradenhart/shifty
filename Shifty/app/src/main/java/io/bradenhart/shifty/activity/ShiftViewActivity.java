@@ -1,8 +1,10 @@
 package io.bradenhart.shifty.activity;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.widget.ImageButton;
@@ -54,17 +57,14 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     RecyclerView recyclerView;
     @BindView(R.id.button_new_shift)
     FloatingActionButton newShiftButton;
+    @BindView(R.id.bottom_navigation)
+    BottomNavigationView navView;
     @BindDimen(R.dimen.workweek_item_height)
     int itemHeight;
     @BindDimen(R.dimen.workweek_shift_progress_width)
     int progressWidth;
     @BindDimen(R.dimen.margin_5dp)
     int margin5dp;
-
-    private final int DEFAULT_DISPLAY_COUNT = 20;
-    private int weeks = DEFAULT_DISPLAY_COUNT;
-    private int offset = 0;
-    private int count = 0;
 
     private WorkWeekRecyclerViewAdapter adapter;
     private MySectionAdapter sectionedAdapter;
@@ -74,13 +74,12 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
 
     private Animation fadeInResetAnim, fadeOutResetAnim, spinLoadAnim, spinResetAnim, fadeInLoadAnim, fadeOutLoadAnim;
 
+    private boolean showCurrent = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shiftview);
-
-//        Shift[] gen = TestData.generateShifts(1);
-//        Log.e("GEN", Arrays.toString(gen));
 
         oldFmt = new SimpleDateFormat(DateUtil.FMT_DATETIME, Locale.ENGLISH);
         newFmt = new SimpleDateFormat("MMMM dd", Locale.ENGLISH);
@@ -101,12 +100,17 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
         // set up actionbar
         setUpActionBar();
 
+//        navView.getMenu().getItem(0).setTitle("Shifts").setIcon(R.drawable.ic_view_list_white_24dp);
+//        navView.inflateMenu(R.menu.menu_nav_bar_2);
+
 //        TestData.deleteAllTestData(getApplicationContext());
 //        TestData.addDataToDB(getApplicationContext());
         adapter = new WorkWeekRecyclerViewAdapter(this);
-        sectionedAdapter = new MySectionAdapter();
 
-        Map<String, List<Shift>> map = fetchWorkWeeks(weeks, offset);
+//        Map<String, List<Shift>> map = fetchWorkWeeks(weeks, offset);
+        Map<String, List<Shift>> map;
+        if (showCurrent) map = new DatabaseManager(getApplicationContext()).getShiftsFromCurrentWeek();
+        else map = new DatabaseManager(getApplicationContext()).getShiftsBeforeCurrentWeek();
 
         Log.e("DB", map.keySet().size() + "");
         displayWorkWeeks(map);
@@ -116,16 +120,49 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
         recyclerView.setAdapter(adapter);
 //        recyclerView.scrollToPosition(6);
 
-        recyclerView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onScrollChange(View view, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-//                String nextWeekDate = ((WorkWeekSection) sectionedAdapter.getSectionForPosition(sectionedAdapter.getItemCount() - 1)).getEndDate();
-//                Log.e("NEXT", nextWeekDate);
-//                count = new DatabaseManager(getApplicationContext()).countShiftsAfterDate(nextWeekDate);
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int id = item.getItemId();
 
+                switch (id) {
+                    case R.id.menu_button_shifts:
+                        Map<String, List<Shift>> map;
+//                        if (showCurrent) {
+                            // show recent shifts
+//                            makeToast(getApplicationContext(), "showing recent shifts");
+//                            navView.getMenu().getItem(0).setTitle("Shifts").setIcon(R.drawable.ic_view_list_white_24dp);
+//                            map = new DatabaseManager(getApplicationContext()).getShiftsBeforeCurrentWeek();
+//                            showCurrent = false;
+//                        } else {
+                            // show current shifts
+                            makeToast(getApplicationContext(), "showing current shifts");
+//                            navView.getMenu().getItem(0).setTitle("Recent").setIcon(R.drawable.ic_history_white_24dp);
+                            map = new DatabaseManager(getApplicationContext()).getShiftsFromCurrentWeek();
+//                            showCurrent = true;
+//                        }
+
+                        adapter.clear();
+                        displayWorkWeeks(map);
+                        adapter.notifyDataSetChanged();
+                        break;
+                    case R.id.menu_button_recent:
+                        makeToast(getApplicationContext(), "showing recent shifts");
+//                            navView.getMenu().getItem(0).setTitle("Shifts").setIcon(R.drawable.ic_view_list_white_24dp);
+                        map = new DatabaseManager(getApplicationContext()).getShiftsBeforeCurrentWeek();
+//                            showCurrent = false;
+//                        } else {
+                        // show current shifts
+//                        makeToast(getApplicationContext(), "showing current shifts");
+//                        navView.getMenu().getItem(0).setTitle("Recent").setIcon(R.drawable.ic_history_white_24dp);
+//                        map = new DatabaseManager(getApplicationContext()).getShiftsFromCurrentWeek();
+                        break;
+                }
+
+
+                return true;
             }
         });
-
     }
 
 
