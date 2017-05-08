@@ -4,8 +4,10 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,11 +44,18 @@ import static java.util.Calendar.YEAR;
 public class ShiftActivity extends AppCompatActivity {
 
     final String TAG = "NewShiftActivity";
+    private String title;
+    private final String TITLE_NEW = "Create Shift";
+    private final String TITLE_EDIT = "Edit Shift";
 
     // Keys for sending data to this activity in an Intent
     public static final String KEY_SHIFT = "KEY_SHIFT";
     public static final String KEY_EDIT_MODE = "KEY_EDIT_MODE";
 
+    @BindView(R.id.appbar_shift)
+    AppBarLayout appBar;
+    Toolbar toolbar;
+    TextView titleView;
     @BindView(R.id.textview_day)
     TextView dayTextView;
     @BindView(R.id.button_day)
@@ -88,6 +97,7 @@ public class ShiftActivity extends AppCompatActivity {
             dayTextView.setText(DateUtil.getPrettyDateString(DateUtil.getYear(shift.getId()), DateUtil.getMonth(shift.getId()), DateUtil.getDay(shift.getId())));
         }
         shiftButton.setText(editModeEnabled ? "UPDATE" : "ADD");
+        title = editModeEnabled ? TITLE_EDIT : TITLE_NEW;
 
         dayButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -101,6 +111,9 @@ public class ShiftActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        // set up actionbar
+        setUpActionBar();
 
         ViewTreeObserver observer1 = startTimeScroller.getViewTreeObserver();
         observer1.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -116,6 +129,24 @@ public class ShiftActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    /* initialisation/setup methods */
+    private void setUpActionBar() {
+        toolbar = ButterKnife.findById(appBar, R.id.toolbar);
+        titleView = ButterKnife.findById(toolbar, R.id.textview_toolbar_title);
+        // replace the default actionbar with our toolbar
+        setSupportActionBar(toolbar);
+        // disable the title that would appear in the actionbar
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        // show the desired title in the toolbar instead of the actionbar
+        titleView.setText(title);
+        // will show the back arrow/caret and make it clickable. will not return home unless parent activity is specified
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // shows logo/icon with caret/arrow if passed true. will not show logo/icon if passed false
+//        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        // set the navigation drawer icon to the hamburger icon
+//        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
     }
 
     @OnClick(R.id.button_day)
