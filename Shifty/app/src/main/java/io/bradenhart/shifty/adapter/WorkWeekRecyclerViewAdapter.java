@@ -20,9 +20,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.bradenhart.shifty.R;
+import io.bradenhart.shifty.activity.PayslipActivity;
 import io.bradenhart.shifty.database.DatabaseManager;
 import io.bradenhart.shifty.domain.Shift;
 import io.bradenhart.shifty.domain.WorkWeek;
+import io.bradenhart.shifty.util.DateUtil;
 import io.bradenhart.shifty.util.Utils;
 
 /**
@@ -116,7 +118,7 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                     .setPositiveButton("DELETE", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            List<Shift> shifts = workweeks.get(pos).getShifts();
+                            List<Shift> shifts = workweeks.get(getAdapterPosition()).getShifts();
                             String[] ids = new String[shifts.size()];
 
                             int index = 0;
@@ -140,6 +142,14 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                     })
                     .show();
 
+        }
+
+        @OnClick(R.id.textview_workweek_footer)
+        public void onClickFooter() {
+            //TODO stop using id as start date - keep start date column, change id,
+            WorkWeek workWeek = workweeks.get(getAdapterPosition());
+
+            PayslipActivity.start(context, workWeek.getPayslip());
         }
     }
 }
