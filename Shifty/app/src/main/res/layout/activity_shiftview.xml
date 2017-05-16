@@ -34,7 +34,6 @@
             app:fabSize="normal"
             app:elevation="10dp"
             android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"/>
 
     </FrameLayout>
