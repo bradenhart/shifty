@@ -61,10 +61,6 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     int margin5dp;
 
     private WorkWeekRecyclerViewAdapter adapter;
-    private MySectionAdapter sectionedAdapter;
-
-    private SimpleDateFormat oldFmt;
-    private SimpleDateFormat newFmt;
 
     private Animation fadeInResetAnim, fadeOutResetAnim, spinLoadAnim, spinResetAnim, fadeInLoadAnim, fadeOutLoadAnim;
 
@@ -74,9 +70,6 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shiftview);
-
-        oldFmt = new SimpleDateFormat(DateUtil.FMT_DATETIME, Locale.ENGLISH);
-        newFmt = new SimpleDateFormat("MMMM dd", Locale.ENGLISH);
 
         fadeInResetAnim = getAnim(this, R.anim.fade_in);
         fadeOutResetAnim = getAnim(this, R.anim.fade_out);
@@ -197,23 +190,11 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     private void displayWorkWeeks(Map<String, List<Shift>> map) {
         for (String week : map.keySet()) {
             System.out.println("week: " + week);
-            try {
-                Date date = oldFmt.parse(week);
-                String tag = UUID.randomUUID().toString();
-                Log.e("TAG", "1... " + tag);
-                System.out.println(map.get(week));
-                WorkWeek workWeek = new WorkWeek("Week of " + newFmt.format(date), map.get(week));
-//                WorkWeekSection workWeekSection = new WorkWeekSection.Builder()
-//                        .setContext(this)
-//                        .setTag(tag)
-//                        .setWorkWeek(new WorkWeek("Week of " + newFmt.format(date), map.get(week)))
-//                        .setAdapter(sectionedAdapter)
-//                        .build();
-//                sectionedAdapter.addSection(tag, workWeekSection);
-                adapter.addWorkWeek(workWeek);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            String tag = UUID.randomUUID().toString();
+            Log.e("TAG", "1... " + tag);
+            System.out.println(map.get(week));
+            WorkWeek workWeek = new WorkWeek(week, map.get(week));
+            adapter.addWorkWeek(workWeek);
         }
     }
 
