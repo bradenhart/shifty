@@ -55,10 +55,9 @@ public class PayslipActivity extends AppCompatActivity {
     TextView netTV;
 
 
-    public static void start(Context context, Payslip payslip, String start, String end) {
+    public static void start(Context context, Payslip payslip) {
         Intent intent = new Intent(context, PayslipActivity.class);
         intent.putExtra(PayslipActivity.KEY_PAYSLIP, payslip);
-        intent.putExtra(PayslipActivity.KEY_WEEK_INFO, DateUtil.getWorkWeekTitle(start, end));
         context.startActivity(intent);
     }
 
@@ -75,16 +74,13 @@ public class PayslipActivity extends AppCompatActivity {
         Bundle data = getIntent().getExtras();
         if (data != null) {
             payslip = data.containsKey(KEY_PAYSLIP) ? (Payslip) data.getSerializable(KEY_PAYSLIP) : null;
-            subtitle = data.containsKey(KEY_WEEK_INFO) ? data.getString(KEY_WEEK_INFO) : null;
         }
 
         if (payslip != null) {
             // display information
             displayPayslip(payslip);
 //      makeToast(String.format(Locale.ENGLISH, "$%.02f", payslip.getNet()), Toast.LENGTH_SHORT);
-        }
-
-        if (subtitle != null) {
+            subtitle = payslip.getTitle();
             subtitleView = ButterKnife.findById(this, R.id.textview_toolbar_subtitle);
             subtitleView.setText(subtitle);
         }
