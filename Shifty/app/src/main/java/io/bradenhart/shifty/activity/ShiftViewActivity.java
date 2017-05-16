@@ -145,7 +145,7 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
 
                         break;
                     case R.id.menu_button_calculator:
-
+                        CalculatorActivity.start(ShiftViewActivity.this);
                         break;
                 }
 
