@@ -32,7 +32,7 @@ public class PayslipActivity extends AppCompatActivity {
     private final String appName = "Payslip";
     private String subtitle;
 
-    @BindView(R.id.toolbar_payslip)
+    @BindView(R.id.appbar_payslip)
     AppBarLayout appBar;
     Toolbar toolbar;
     TextView titleView;
