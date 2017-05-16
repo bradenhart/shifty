@@ -2,7 +2,6 @@ package io.bradenhart.shifty.adapter;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,7 +15,6 @@ import android.widget.Toast;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.zip.Inflater;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,12 +23,8 @@ import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.activity.ShiftActivity;
 import io.bradenhart.shifty.database.DatabaseManager;
 import io.bradenhart.shifty.domain.Shift;
-import io.bradenhart.shifty.domain.WorkWeek;
 import io.bradenhart.shifty.util.DateUtil;
 import io.bradenhart.shifty.util.Utils;
-import io.bradenhart.shifty.view.ItemViewHolder;
-import io.bradenhart.shifty.view.WorkWeekSection;
-import io.github.luizgrp.sectionedrecyclerviewadapter.Section;
 
 /**
  * Created by bradenhart on 8/05/17.
@@ -76,8 +70,6 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
         final Shift shift = shifts.get(position);
 
         shiftHolder.shift = shift;
-        shiftHolder.shiftPos = position;
-        shiftHolder.parentPos = parentPos;
         shiftHolder.dayOfMonthTV.setText(DateUtil.getDayOfMonth(shift.getId()));
         shiftHolder.dayOfWeekTV.setText(DateUtil.getWeekday(shift.getId(), DateUtil.FMT_WEEKDAY_FULL));
         shiftHolder.startTimeTV.setText(shift.getStartTime().toString());
@@ -99,8 +91,6 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
     class ShiftViewHolder extends RecyclerView.ViewHolder {
 
         private Context context;
-        Integer shiftPos;
-        Integer parentPos;
         Shift shift;
         @BindView(R.id.layout_shift_item)
         LinearLayout itemLayout;
@@ -161,7 +151,7 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             new DatabaseManager(context.getApplicationContext()).deleteShift(shift.getId());
-                            removeShift(shiftPos);
+                            removeShift(getAdapterPosition());
                             onClickCloseButton();
                             notifyDataSetChanged();
                             Utils.makeToast(context, "Shift deleted", Toast.LENGTH_LONG);
