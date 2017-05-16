@@ -1,6 +1,14 @@
 package io.bradenhart.shifty.domain;
 
+import android.util.Log;
+
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import io.bradenhart.shifty.util.DateUtil;
 
 /**
  * Created by bradenhart on 4/04/17.
@@ -85,11 +93,12 @@ public class Payslip implements Serializable {
     Double kiwisavEmployer;
     Double studentLoan;
     Double net;
+    String weekDate;
 
     /**
      * CONSTRUCTORS
      */
-    public Payslip(Double hours) {
+    public Payslip(String weekDate, Double hours) {
         this.gross = calculateGross(hours);
         this.hours = hours;
         this.annual = calculateAnnual(gross);
@@ -99,6 +108,7 @@ public class Payslip implements Serializable {
         this.kiwisavEmployer = calculateKiwiSaver(gross, Staff.EMPLOYER);
         this.studentLoan = calculateStudentLoan(gross);
         this.net = calculateNet(gross, payeTotal, kiwisavEmployee, studentLoan);
+        this.weekDate = weekDate;
     }
 
     /**
@@ -169,6 +179,18 @@ public class Payslip implements Serializable {
         return gross - (payeTotal + kiwisavEmployee + studentLoan);
     }
 
+    public String getTitle() {
+        SimpleDateFormat fromDateFormat = new SimpleDateFormat(DateUtil.FMT_DATETIME, Locale.ENGLISH);
+        SimpleDateFormat toDateFormat = new SimpleDateFormat("MMMM dd ''yy", Locale.ENGLISH);
+
+        try {
+            Date date = fromDateFormat.parse(DateUtil.getWeekEnd(weekDate));
+            return "Period Ending " + toDateFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
 
     /**
      * GETTERS
