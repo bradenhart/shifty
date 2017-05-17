@@ -25,12 +25,14 @@ import io.bradenhart.shifty.domain.ShiftTime;
 import io.bradenhart.shifty.ui.TimeScroller;
 import io.bradenhart.shifty.util.DateUtil;
 
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.bradenhart.shifty.util.Utils;
 
 import static java.util.Calendar.DAY_OF_MONTH;
 import static java.util.Calendar.MONTH;
@@ -81,7 +83,7 @@ public class ShiftActivity extends AppCompatActivity {
     Shift shift;
     String ymdString;
 
-    public static enum Mode {
+    public enum Mode {
         CREATE, EDIT
     }
 
@@ -198,64 +200,75 @@ public class ShiftActivity extends AppCompatActivity {
     @OnClick(R.id.button_save_shift)
     public void onClickAddShiftButton() {
         if (selectedDate == null) {
-            makeToast("Please select a date", Toast.LENGTH_LONG);
+            Utils.makeToast(ShiftActivity.this, "Please select a date", Toast.LENGTH_LONG);
             return;
         }
 
-        ShiftTime startTime = startTimeScroller.getTime();
-        ShiftTime endTime = endTimeScroller.getTime();
 
-        if (endTime.before(startTime)) {
-            makeToast("Start time must be before end time", Toast.LENGTH_LONG);
-            return;
+        try {
+            int timeComparison = startTimeScroller.compareTo(endTimeScroller);
+            if (timeComparison == 0) {
+                // start time is the same as the end time
+                Utils.makeToast(ShiftActivity.this, "Start time and end time should be different", Toast.LENGTH_LONG);
+            } else if (timeComparison > 0) {
+                Utils.makeToast(ShiftActivity.this, "Start time must be before end time", Toast.LENGTH_LONG);
+                return;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
 
-        if (editModeEnabled) {
-            // edit mode is enabled
-            new DatabaseManager(getApplicationContext()).deleteShift(shift.getId());
-            // shift id has been changed (date has changed)
-            if (ymdString != null)
-                shift = new Shift(DateUtil.getDateString(ymdString, startTime), selectedDate, startTime, endTime);
-            else shift = new Shift(shift.getId(), selectedDate, startTime, endTime);
-            Log.e("EDIT_MODE", "enabled");
-            Log.e("SHIFT_ID", shift.getId());
-        } else {
+        String dateString = DateUtil.getDatestringWithFormat(DateUtil.FMT_ISO_8601_DATE, selectedDate);
+        String startTime = startTimeScroller.getTimeString();
+        String endTime = endTimeScroller.getTimeString();
+
+        String startTimeDateTime = dateString + " " + startTime;
+        String endTimeDateTime = dateString + " " + endTime;
+
+//        if (editModeEnabled) {
+//            // edit mode is enabled
+//            new DatabaseManager(getApplicationContext()).deleteShift(shift.getId());
+//            // shift id has been changed (date has changed)
+//            if (ymdString != null)
+//                shift = new Shift(DateUtil.getDateString(ymdString, startTime), selectedDate, startTime, endTime);
+//            else shift = new Shift(shift.getId(), selectedDate, startTime, endTime);
+//            Log.e("EDIT_MODE", "enabled");
+//            Log.e("SHIFT_ID", shift.getId());
+//        } else {
             // shift created for first time, use constructor that creates id internally
-            shift = new Shift(selectedDate, startTime, endTime);
+//            shift = new Shift(selectedDate, startTime, endTime);
 //            Log.e("EDIT_MODE", "not enabled");
 //            Log.e("SHIFT_ID", shift.getId());
-        }
+//        }
 
-        boolean success = new DatabaseManager(getApplicationContext()).insertShift(shift);
+//        boolean success = new DatabaseManager(getApplicationContext()).insertShift(shift);
 
-        makeToast("Insert " + (success ? "Succeeded" : "Failed"), Toast.LENGTH_SHORT);
-
-        selectedDate = null;
-        shift = null;
-        dayTextView.setText("---, -- --- --");
-        startTimeScroller.resetScroller();
-        endTimeScroller.resetScroller();
+//        makeToast("Insert " + (success ? "Succeeded" : "Failed"), Toast.LENGTH_SHORT);
 
         if (editModeEnabled) {
-            Intent intent = new Intent(ShiftActivity.this, ShiftViewActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+//            Intent intent = new Intent(ShiftActivity.this, ShiftViewActivity.class);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            startActivity(intent);
+            finish(); // go back to the parent activity
+        } else {
+            /* clean up */
+            selectedDate = null;
+            shift = null;
+            dayTextView.setText("---, -- --- --");
+            startTimeScroller.resetScroller();
+            endTimeScroller.resetScroller();
         }
 
     }
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(ShiftActivity.this, ShiftViewActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-    }
-
-    private void makeToast(String message, int length) {
-        if (length != Toast.LENGTH_SHORT && length != Toast.LENGTH_LONG) return;
-        Toast.makeText(this, message, length).show();
+//        Intent intent = new Intent(ShiftActivity.this, ShiftViewActivity.class);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        startActivity(intent);
+        finish(); // go back to the parent activity
     }
 
 }
