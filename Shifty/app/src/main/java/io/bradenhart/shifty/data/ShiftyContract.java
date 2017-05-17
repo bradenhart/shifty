@@ -12,13 +12,10 @@ public class ShiftyContract {
 
     public static class Shift implements BaseColumns {
         public static final String TABLE_NAME = "Shift";
-        public static final String COLUMN_NAME_START_HOUR = "Start_Hour";
-        public static final String COLUMN_NAME_START_MIN = "Start_Min";
-        public static final String COLUMN_NAME_START_PERIOD = "Start_Period";
-        public static final String COLUMN_NAME_END_HOUR = "End_Hour";
-        public static final String COLUMN_NAME_END_MIN = "End_Min";
-        public static final String COLUMN_NAME_END_PERIOD = "End_Period";
-        public static final String COLUMN_NAME_WEEK_START = "Week_Start";
+        public static final String COLUMN_WEEK_START_DATETIME = "week_start_datetime";
+        public static final String COLUMN_WEEK_END_DATETIME = "week_end_datetime";
+        public static final String COLUMN_SHIFT_START_DATETIME = "shift_start_datetime";
+        public static final String COLUMN_SHIFT_END_DATETIME = "shift_end_datetime";
     }
 
 }
