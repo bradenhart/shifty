@@ -21,7 +21,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.activity.ShiftActivity;
-import io.bradenhart.shifty.database.DatabaseManager;
+import io.bradenhart.shifty.data.DatabaseManager;
 import io.bradenhart.shifty.domain.Shift;
 import io.bradenhart.shifty.util.DateUtil;
 import io.bradenhart.shifty.util.Utils;

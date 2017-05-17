@@ -1,10 +1,10 @@
-package io.bradenhart.shifty.database;
+package io.bradenhart.shifty.data;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import io.bradenhart.shifty.database.ShiftyContract.*;
+import io.bradenhart.shifty.data.ShiftyContract.*;
 
 /**
  * Created by bradenhart on 27/03/17.

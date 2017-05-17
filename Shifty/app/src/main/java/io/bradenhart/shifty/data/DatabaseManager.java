@@ -1,4 +1,4 @@
-package io.bradenhart.shifty.database;
+package io.bradenhart.shifty.data;
 
 import android.content.ContentValues;
 import android.content.Context;

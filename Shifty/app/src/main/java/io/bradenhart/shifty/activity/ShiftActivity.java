@@ -19,7 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import io.bradenhart.shifty.R;
-import io.bradenhart.shifty.database.DatabaseManager;
+import io.bradenhart.shifty.data.DatabaseManager;
 import io.bradenhart.shifty.domain.Shift;
 import io.bradenhart.shifty.domain.ShiftTime;
 import io.bradenhart.shifty.ui.TimeScroller;

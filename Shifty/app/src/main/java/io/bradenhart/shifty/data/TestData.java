@@ -1,10 +1,9 @@
-package io.bradenhart.shifty.database;
+package io.bradenhart.shifty.data;
 
 import android.content.Context;
 import android.util.Log;
 
 import io.bradenhart.shifty.domain.Shift;
-import io.bradenhart.shifty.domain.ShiftDate.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,12 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-
-import static io.bradenhart.shifty.domain.ShiftDate.Month.*;
-import static io.bradenhart.shifty.domain.ShiftDate.Weekday.*;
-import static io.bradenhart.shifty.domain.ShiftTime.Hour.*;
-import static io.bradenhart.shifty.domain.ShiftTime.Minute.*;
-import static io.bradenhart.shifty.domain.ShiftTime.Period.*;
 
 /**
  * Created by bradenhart on 3/04/17.
@@ -146,7 +139,7 @@ public class TestData {
     public static Shift[] generateShifts() {
         List<Shift> shifts = new ArrayList<>();
 
-        for (int m = 0; m < 12; m++) {
+        for (int m = 4; m < 8; m++) {
             Integer[] daysOfMonth = getUniqueDaysOfMonth(m);
             for (int d = 0; d < daysOfMonth.length; d++) {
                 if (daysOfMonth[d] != 0) {
