@@ -17,7 +17,9 @@ import java.util.Locale;
 
 public class DateUtil {
 
-    public static final String FMT_ISO_8601 = "YYYY-MM-DD HH:MM:SS.sss";
+    public static final String FMT_ISO_8601_DATETIME = "YYYY-MM-DD HH:MM:SS.sss";
+    public static final String FMT_ISO_8601_DATE = "YYYY-MM-DD";
+    public static final String FMT_ISO_8601_TIME = "HH:MM:SS.sss";
     public static final String FMT_WEEKDAY_FULL = "EEEE";
     public static final String FMT_DATETIME_PD = "yyyy-MM-dd HH:mm:ss a";
     public static final String FMT_DATETIME = "yyyy-MM-dd HH:mm:ss";
@@ -41,6 +43,11 @@ public class DateUtil {
 //    public DateUtil(Date date) {
 //
 //    }
+    public static String getDatestringWithFormat(String format, Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+        return sdf.format(date);
+    }
+
 
     public static String getWeekStart(String dateString) {
         Calendar c = Calendar.getInstance();
