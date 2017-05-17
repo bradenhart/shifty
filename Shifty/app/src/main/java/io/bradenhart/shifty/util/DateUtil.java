@@ -17,6 +17,7 @@ import java.util.Locale;
 
 public class DateUtil {
 
+    public static final String FMT_ISO_8601 = "YYYY-MM-DD HH:MM:SS.sss";
     public static final String FMT_WEEKDAY_FULL = "EEEE";
     public static final String FMT_DATETIME_PD = "yyyy-MM-dd HH:mm:ss a";
     public static final String FMT_DATETIME = "yyyy-MM-dd HH:mm:ss";
