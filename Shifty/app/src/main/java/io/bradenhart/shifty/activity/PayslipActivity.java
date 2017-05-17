@@ -1,5 +1,6 @@
 package io.bradenhart.shifty.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.bradenhart.shifty.util.DateUtil;
 
 /**
  * Created by bradenhart on 20/04/17.
@@ -30,7 +32,7 @@ public class PayslipActivity extends AppCompatActivity {
     private final String appName = "Payslip";
     private String subtitle;
 
-    @BindView(R.id.toolbar_payslip)
+    @BindView(R.id.appbar_payslip)
     AppBarLayout appBar;
     Toolbar toolbar;
     TextView titleView;
@@ -53,6 +55,12 @@ public class PayslipActivity extends AppCompatActivity {
     TextView netTV;
 
 
+    public static void start(Context context, Payslip payslip) {
+        Intent intent = new Intent(context, PayslipActivity.class);
+        intent.putExtra(PayslipActivity.KEY_PAYSLIP, payslip);
+        context.startActivity(intent);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,16 +74,13 @@ public class PayslipActivity extends AppCompatActivity {
         Bundle data = getIntent().getExtras();
         if (data != null) {
             payslip = data.containsKey(KEY_PAYSLIP) ? (Payslip) data.getSerializable(KEY_PAYSLIP) : null;
-            subtitle = data.containsKey(KEY_WEEK_INFO) ? data.getString(KEY_WEEK_INFO) : null;
         }
 
         if (payslip != null) {
             // display information
             displayPayslip(payslip);
 //      makeToast(String.format(Locale.ENGLISH, "$%.02f", payslip.getNet()), Toast.LENGTH_SHORT);
-        }
-
-        if (subtitle != null) {
+            subtitle = payslip.getTitle();
             subtitleView = ButterKnife.findById(this, R.id.textview_toolbar_subtitle);
             subtitleView.setText(subtitle);
         }

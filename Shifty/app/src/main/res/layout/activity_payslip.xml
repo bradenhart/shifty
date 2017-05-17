@@ -6,7 +6,7 @@
     android:orientation="vertical">
     
     <include
-        android:id="@+id/toolbar_payslip"
+        android:id="@+id/appbar_payslip"
         layout="@layout/view_toolbar"></include>
 
     <TextView

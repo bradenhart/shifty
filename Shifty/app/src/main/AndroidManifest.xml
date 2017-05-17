@@ -9,15 +9,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.ShiftViewActivity">
+        <activity android:name=".activity.ShiftViewActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.ShiftActivity"></activity>
-        <activity android:name=".activity.PayslipActivity"></activity>
+
+        <activity android:name=".activity.ShiftActivity"
+            android:parentActivityName=".activity.ShiftViewActivity"/>
+
+        <activity android:name=".activity.PayslipActivity"
+            android:parentActivityName=".activity.ShiftViewActivity"/>
+
+        <activity
+            android:name=".activity.CalculatorActivity"
+            android:parentActivityName=".activity.ShiftViewActivity" />
     </application>
 
 </manifest>
