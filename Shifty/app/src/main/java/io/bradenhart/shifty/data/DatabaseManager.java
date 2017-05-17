@@ -1,4 +1,4 @@
-package io.bradenhart.shifty.database;
+package io.bradenhart.shifty.data;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -12,6 +12,7 @@ import io.bradenhart.shifty.domain.ShiftTime;
 import io.bradenhart.shifty.util.DateUtil;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -147,6 +148,59 @@ public class DatabaseManager {
         return shiftMap;
     }
 
+    public Map<String, List<Shift>> getShiftsFromCurrentWeek() {
+        Calendar c = Calendar.getInstance();
+        String datetime = DateUtil.getWeekStart(c.getTime());
+        Map<String, List<Shift>> shiftMap = new LinkedHashMap<>();
+
+        openForRead();
+
+        Cursor cursor = database.rawQuery("select * from " + ShiftyContract.Shift.TABLE_NAME + " where " + ShiftyContract.Shift.COLUMN_NAME_WEEK_START + " >= ? order by " + ShiftyContract.Shift._ID + " asc", new String[] {datetime});
+
+        if (cursor.moveToFirst()) {
+            do {
+                String cws = cursor.getString(cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_NAME_WEEK_START));
+                List<Shift> l = shiftMap.get(cws) == null ? new ArrayList<Shift>() : shiftMap.get(cws);
+                Shift s = getShiftFromCursor(cursor);
+                l.add(s);
+                shiftMap.put(cws, l);
+
+            }
+            while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        close();
+        return shiftMap;
+    }
+
+    public Map<String, List<Shift>> getShiftsBeforeCurrentWeek() {
+        Calendar c = Calendar.getInstance();
+        String datetime = DateUtil.getWeekStart(c.getTime());
+        Map<String, List<Shift>> shiftMap = new LinkedHashMap<>();
+
+        openForRead();
+
+        Cursor cursor = database.rawQuery("select * from " + ShiftyContract.Shift.TABLE_NAME + " where " + ShiftyContract.Shift.COLUMN_NAME_WEEK_START + " < ? order by " + ShiftyContract.Shift._ID + " desc", new String[] {datetime});
+
+        if (cursor.moveToFirst()) {
+            do {
+                String cws = cursor.getString(cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_NAME_WEEK_START));
+                List<Shift> l = shiftMap.get(cws) == null ? new ArrayList<Shift>() : shiftMap.get(cws);
+                Shift s = getShiftFromCursor(cursor);
+                l.add(s);
+                shiftMap.put(cws, l);
+
+            }
+            while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        close();
+        return shiftMap;
+    }
+
+
     public int countShiftsAfterDate(String datetime) {
         openForRead();
 
@@ -190,6 +244,20 @@ public class DatabaseManager {
         Log.e("DELETE", res == 0 ? "failed" : res + " id: " + id);
         close();
 //        return res;
+    }
+
+    public void deleteAllShifts(String[] ids) {
+        openForWrite();
+
+        String whereClause = " in (";
+        for (int i = 0; i < ids.length; i++) {
+            whereClause += "?";
+            if (i + 1 < ids.length) whereClause += ",";
+        }
+        whereClause += ")";
+
+        database.delete(ShiftyContract.Shift.TABLE_NAME, ShiftyContract.Shift._ID + whereClause, ids);
+        close();
     }
 
     public void deleteAllShifts() {

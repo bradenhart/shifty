@@ -9,6 +9,10 @@
     android:orientation="vertical"
     tools:context=".activity.ShiftActivity">
 
+    <include
+        android:id="@+id/appbar_shift"
+        layout="@layout/view_toolbar" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -25,7 +29,10 @@
                 android:background="@color/colorPrimary"
                 android:drawableStart="@drawable/ic_today_24dp"
                 android:gravity="center_vertical|start"
-                android:padding="5dp"
+                android:paddingTop="10dp"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:paddingBottom="5dp"
                 android:drawablePadding="5dp"
                 android:text="day"
                 android:textAlignment="textStart"

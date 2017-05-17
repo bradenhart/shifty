@@ -82,6 +82,16 @@ public class DateUtil {
         }
     }
 
+    public static String getWeekStart(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
+        return getWeekStart(sdf.format(date));
+    }
+
+    public static String getWeekEnd(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
+        return getWeekEnd(sdf.format(date));
+    }
+
     // -ve offset means start in the past, +ve offset means start in the future,
     // 0 means start in current week
     public static String[] getDateTimesForRange(int weeks, int offset) {
