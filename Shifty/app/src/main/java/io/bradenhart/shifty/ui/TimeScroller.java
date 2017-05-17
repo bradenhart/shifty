@@ -16,6 +16,8 @@ import android.widget.TextView;
 import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.domain.ShiftTime;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import butterknife.ButterKnife;
@@ -232,6 +234,14 @@ public class TimeScroller extends FrameLayout {
         delay += scrollPeriodTo(period, delay);
         Log.e("DELAY", delay + "");
         return delay;
+    }
+
+    public int compareTo(TimeScroller otherScroller) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm a", Locale.ENGLISH);
+        String thisTime = getHour() + ":" + getMin() + " " + getPeriod();
+        String otherTime = otherScroller.getHour() + ":" + otherScroller.getMin() + " " + otherScroller.getPeriod();
+
+        return sdf.parse(thisTime).compareTo(sdf.parse(otherTime));
     }
 
 }
