@@ -165,6 +165,15 @@ public class TimeScroller extends FrameLayout {
     }
 
     public String getHour() {
+        if (getPeriod().equalsIgnoreCase("PM")) {
+            try {
+                Integer hourVal = Integer.parseInt(hour);
+                hourVal += 12;
+                return hourVal.toString();
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "NumberFormatException converting " + hour + " to Integer");
+            }
+        }
         return hour;
     }
 
@@ -178,7 +187,7 @@ public class TimeScroller extends FrameLayout {
 
     public String getTimeString() {
         updateTimeInfo();
-        return String.format(Locale.ENGLISH, "%s:%s %s", getHour(), getMin(), getPeriod());
+        return String.format(Locale.ENGLISH, "%s:%s:00.000", getHour(), getMin());
     }
 
     public ShiftTime getTime() {
@@ -237,9 +246,9 @@ public class TimeScroller extends FrameLayout {
     }
 
     public int compareTo(TimeScroller otherScroller) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm a", Locale.ENGLISH);
-        String thisTime = getHour() + ":" + getMin() + " " + getPeriod();
-        String otherTime = otherScroller.getHour() + ":" + otherScroller.getMin() + " " + otherScroller.getPeriod();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
+        String thisTime = getHour() + ":" + getMin();
+        String otherTime = otherScroller.getHour() + ":" + otherScroller.getMin();
 
         return sdf.parse(thisTime).compareTo(sdf.parse(otherTime));
     }
