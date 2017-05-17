@@ -19,15 +19,12 @@ class ShiftyDbHelper extends SQLiteOpenHelper {
     private Context context;
 
     private final String SQL_CREATE_SHIFT = "create table " + Shift.TABLE_NAME + "("
-            + Shift._ID                         + " text primary key, "
-            + Shift.COLUMN_NAME_START_HOUR      + " text not null, "
-            + Shift.COLUMN_NAME_START_MIN       + " text not null, "
-            + Shift.COLUMN_NAME_START_PERIOD    + " text not null, "
-            + Shift.COLUMN_NAME_END_HOUR        + " text not null, "
-            + Shift.COLUMN_NAME_END_MIN         + " text not null, "
-            + Shift.COLUMN_NAME_END_PERIOD      + " text not null, "
-            + Shift.COLUMN_NAME_WEEK_START      + " text not null"
-                                                + ")";
+            + Shift._ID                             + " integer autoincrement primary key, "
+            + Shift.COLUMN_WEEK_START_DATETIME      + " text not null, "
+            + Shift.COLUMN_WEEK_END_DATETIME        + " text not null, "
+            + Shift.COLUMN_SHIFT_START_DATETIME     + " text not null, "
+            + Shift.COLUMN_SHIFT_END_DATETIME       + " text not null"
+                                                    + ")";
 
     private final String SQL_DELETE_SHIFT = "drop table if exists " + Shift.TABLE_NAME;
 
@@ -39,7 +36,10 @@ class ShiftyDbHelper extends SQLiteOpenHelper {
     }
 
     static synchronized ShiftyDbHelper getInstance(Context context) {
-        return dbHelper == null ? new ShiftyDbHelper(context) : dbHelper;
+        if (dbHelper == null) {
+            dbHelper = new ShiftyDbHelper(context);
+        }
+        return dbHelper;
     }
 
     @Override
