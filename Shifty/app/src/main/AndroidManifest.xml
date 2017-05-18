@@ -27,6 +27,12 @@
         <activity
             android:name=".activity.CalculatorActivity"
             android:parentActivityName=".activity.ShiftViewActivity" />
+
+        <provider
+            android:authorities="io.bradenhart.shifty"
+            android:name=".data.ShiftyContentProvider"
+            android:exported="false"/>
+
     </application>
 
 </manifest>
