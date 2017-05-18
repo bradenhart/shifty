@@ -2,6 +2,7 @@ package io.bradenhart.shifty.adapter;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,7 +13,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -22,8 +26,10 @@ import butterknife.OnClick;
 import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.activity.PayslipActivity;
 import io.bradenhart.shifty.data.DatabaseManager;
+import io.bradenhart.shifty.data.ShiftyContract;
 import io.bradenhart.shifty.domain.Shift;
 import io.bradenhart.shifty.domain.WorkWeek;
+import io.bradenhart.shifty.util.DateUtil;
 import io.bradenhart.shifty.util.Utils;
 
 /**
@@ -34,6 +40,7 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
     private Context context;
     private List<WorkWeek> workweeks;
+    private Cursor cursor;
 
     public WorkWeekRecyclerViewAdapter(Context context, List<WorkWeek> workWeeks) {
         this.context = context;
@@ -43,6 +50,12 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     public WorkWeekRecyclerViewAdapter(Context context) {
         this.context = context;
         this.workweeks = new ArrayList<>();
+    }
+
+    public WorkWeekRecyclerViewAdapter(Context context, Cursor cursor) {
+        this.context = context;
+        this.workweeks = new ArrayList<>();
+        this.cursor = cursor;
     }
 
     public void addWorkWeek(WorkWeek workWeek) {
@@ -72,21 +85,35 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         WorkWeekViewHolder weekHolder = (WorkWeekViewHolder) holder;
 
-        WorkWeek workWeek = workweeks.get(position);
-        weekHolder.pos = position;
-        ShiftRecyclerViewAdapter adapter = new ShiftRecyclerViewAdapter(context, workWeek.getShifts());
+        cursor.moveToPosition(position);
+        int weekStartCol = cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_WEEK_START_DATETIME);
+        String weekStart = cursor.getString(weekStartCol);
+
+        SimpleDateFormat iso8601Format = new SimpleDateFormat(DateUtil.FMT_ISO_8601_DATETIME, Locale.ENGLISH);
+        SimpleDateFormat headerFormat = new SimpleDateFormat(DateUtil.FMT_DAY_DATE, Locale.ENGLISH);
+        try {
+            Date date = iso8601Format.parse(weekStart);
+            String headerString = "Week of " + headerFormat.format(date);
+            weekHolder.header.setText(headerString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+//        WorkWeek workWeek = workweeks.get(position);
+//        weekHolder.pos = position;
+        ShiftRecyclerViewAdapter adapter = new ShiftRecyclerViewAdapter(context, weekStart);
         adapter.setParentPos(position);
         adapter.setParentAdapter(this);
-        weekHolder.header.setText(workWeek.getTitle());
+//        weekHolder.header.setText(workWeek.getTitle());
         weekHolder.recyclerView.setLayoutManager(new LinearLayoutManager(context.getApplicationContext()));
         weekHolder.recyclerView.setAdapter(adapter);
         weekHolder.recyclerView.setHasFixedSize(true);
-        weekHolder.footer.setText(String.format(Locale.ENGLISH, "$%.02f", workWeek.getPayslip().getNet()));
+//        weekHolder.footer.setText(String.format(Locale.ENGLISH, "$%.02f", workWeek.getPayslip().getNet()));
     }
 
     @Override
     public int getItemCount() {
-        return workweeks.size();
+        return cursor.getCount();
     }
 
     class WorkWeekViewHolder extends RecyclerView.ViewHolder {
