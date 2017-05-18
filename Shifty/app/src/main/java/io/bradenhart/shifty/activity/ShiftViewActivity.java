@@ -1,5 +1,7 @@
 package io.bradenhart.shifty.activity;
 
+import android.content.ContentValues;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
@@ -26,10 +28,12 @@ import butterknife.OnClick;
 import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.adapter.WorkWeekRecyclerViewAdapter;
 import io.bradenhart.shifty.data.DatabaseManager;
+import io.bradenhart.shifty.data.ShiftyContract;
 import io.bradenhart.shifty.data.TestData;
 import io.bradenhart.shifty.domain.Shift;
 import io.bradenhart.shifty.domain.WorkWeek;
 import io.bradenhart.shifty.util.DateUtil;
+import io.bradenhart.shifty.util.Utils;
 
 import static io.bradenhart.shifty.util.Utils.*;
 
@@ -85,62 +89,78 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
 //        navView.getMenu().getItem(0).setTitle("Shifts").setIcon(R.drawable.ic_view_list_white_24dp);
 //        navView.inflateMenu(R.menu.menu_nav_bar_2);
 
-        TestData.deleteAllTestData(getApplicationContext());
-        TestData.addDataToDB(getApplicationContext());
-        adapter = new WorkWeekRecyclerViewAdapter(this);
+//        TestData.deleteAllTestData(getApplicationContext());
+//        TestData.addDataToDB(getApplicationContext());
+
+        /* TEST */
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ShiftyContract.Shift.COLUMN_WEEK_START_DATETIME, "2017-05-15 00:00:00.000");
+        contentValues.put(ShiftyContract.Shift.COLUMN_WEEK_END_DATETIME, "2017-05-21 11:59:59.999");
+        contentValues.put(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME, "2017-05-18 09:00:00.000");
+        contentValues.put(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME, "2017-05-18 16:00:00.000");
+        // Insert the content values via a ContentResolver
+        Uri uri = getContentResolver().insert(ShiftyContract.Shift.CONTENT_URI, contentValues);
+
+        // Display the URI that's returned with a Toast
+        if(uri != null) {
+            Utils.makeToast(this, uri.toString());
+        }
+        /**/
+
+//        adapter = new WorkWeekRecyclerViewAdapter(this);
 
 //        Map<String, List<Shift>> map = fetchWorkWeeks(weeks, offset);
-        Map<String, List<Shift>> map;
-        if (showCurrent)
-            map = new DatabaseManager(getApplicationContext()).getShiftsFromCurrentWeek();
-        else map = new DatabaseManager(getApplicationContext()).getShiftsBeforeCurrentWeek();
+//        Map<String, List<Shift>> map;
+//        if (showCurrent)
+//            map = new DatabaseManager(getApplicationContext()).getShiftsFromCurrentWeek();
+//        else map = new DatabaseManager(getApplicationContext()).getShiftsBeforeCurrentWeek();
 
-        Log.e("DB", map.keySet().size() + "");
-        displayWorkWeeks(map);
+//        Log.e("DB", map.keySet().size() + "");
+//        displayWorkWeeks(map);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+//        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 //        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(adapter);
+//        recyclerView.setAdapter(adapter);
 //        recyclerView.scrollToPosition(6);
 
-        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int id = item.getItemId();
+//        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//                int id = item.getItemId();
+//
+//                Map<String, List<Shift>> map;
 
-                Map<String, List<Shift>> map;
-
-                switch (id) {
-                    case R.id.menu_button_shifts:
-                        // show current shifts
-                        newShiftButton.setVisibility(View.VISIBLE);
-                        makeToast(getApplicationContext(), "showing current shifts");
-                        map = new DatabaseManager(getApplicationContext()).getShiftsFromCurrentWeek();
-                        adapter.clear();
-                        displayWorkWeeks(map);
-                        adapter.notifyDataSetChanged();
-                        break;
-                    case R.id.menu_button_recent:
-                        // show recent shifts
-                        newShiftButton.setVisibility(View.GONE);
-                        makeToast(getApplicationContext(), "showing recent shifts");
-                        map = new DatabaseManager(getApplicationContext()).getShiftsBeforeCurrentWeek();
-                        adapter.clear();
-                        displayWorkWeeks(map);
-                        adapter.notifyDataSetChanged();
-                        break;
-                    case R.id.menu_button_search:
-
-                        break;
-                    case R.id.menu_button_calculator:
-                        CalculatorActivity.start(ShiftViewActivity.this);
-                        break;
-                }
-
-
-                return true;
-            }
-        });
+//                switch (id) {
+//                    case R.id.menu_button_shifts:
+//                        // show current shifts
+//                        newShiftButton.setVisibility(View.VISIBLE);
+//                        makeToast(getApplicationContext(), "showing current shifts");
+//                        map = new DatabaseManager(getApplicationContext()).getShiftsFromCurrentWeek();
+//                        adapter.clear();
+//                        displayWorkWeeks(map);
+//                        adapter.notifyDataSetChanged();
+//                        break;
+//                    case R.id.menu_button_recent:
+//                        // show recent shifts
+//                        newShiftButton.setVisibility(View.GONE);
+//                        makeToast(getApplicationContext(), "showing recent shifts");
+//                        map = new DatabaseManager(getApplicationContext()).getShiftsBeforeCurrentWeek();
+//                        adapter.clear();
+//                        displayWorkWeeks(map);
+//                        adapter.notifyDataSetChanged();
+//                        break;
+//                    case R.id.menu_button_search:
+//
+//                        break;
+//                    case R.id.menu_button_calculator:
+//                        CalculatorActivity.start(ShiftViewActivity.this);
+//                        break;
+//                }
+//
+//
+//                return true;
+//            }
+//        });
     }
 
 
