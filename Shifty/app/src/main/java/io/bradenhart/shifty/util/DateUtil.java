@@ -21,14 +21,14 @@ public class DateUtil {
     public static final String FMT_ISO_8601_DATE = "YYYY-MM-DD";
     public static final String FMT_ISO_8601_TIME = "HH:MM:SS.sss";
     public static final String FMT_WEEKDAY_FULL = "EEEE";
-    public static final String FMT_DATETIME_PD = "yyyy-MM-dd HH:mm:ss a";
+    //    public static final String FMT_DATETIME_PD = "yyyy-MM-dd HH:mm:ss a";
     public static final String FMT_DATETIME = "yyyy-MM-dd HH:mm:ss";
     private static final String FMT_YEAR_FULL = "yyyy";
     private static final String FMT_MONTH_SHORT = "M";
     private static final String FMT_DAY_SHORT = "d";
     private static final String FMT_DAY_DATE = "dd MMM ''yy";
 
-//    public DateUtil() {
+    //    public DateUtil() {
 //
 //    }
 //
@@ -90,9 +90,22 @@ public class DateUtil {
         }
     }
 
-    public static String getWeekStart(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
-        return getWeekStart(sdf.format(date));
+    public static String getWeekStart(Date date, String format) {
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+        c.setTime(date);
+        c.set(Calendar.HOUR, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.AM_PM, Calendar.AM);
+
+        if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            c.add(Calendar.DAY_OF_WEEK, -6);
+        } else {
+            c.add(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek() - c.get(Calendar.DAY_OF_WEEK) + 1);
+        }
+
+        return sdf.format(c.getTime());
     }
 
     public static String getWeekEnd(Date date) {
@@ -121,7 +134,7 @@ public class DateUtil {
 
         SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
 
-        String[] datetimes = new String[weeks+1];
+        String[] datetimes = new String[weeks + 1];
         datetimes[0] = sdf.format(c.getTime());
 
         for (int i = 1; i <= weeks; i++) {
@@ -143,10 +156,10 @@ public class DateUtil {
 
     public static String getDateString(String ymd, ShiftTime time) {
         return String.format(Locale.ENGLISH,
-                            "%s %02d:%02d:00",
-                            ymd,
-                            time.getHour().value(),
-                            time.getMinute().value());
+                "%s %02d:%02d:00",
+                ymd,
+                time.getHour().value(),
+                time.getMinute().value());
     }
 
     public static String getPrettyDateString(int year, int month, int day) {
@@ -267,9 +280,9 @@ public class DateUtil {
         if (now.after(start) && now.before(end)) {
 //            Log.e("Progress", shift.getId() + " Equal");
 //            return (int) ((end.getTimeInMillis() - now.getTimeInMillis()));
-            long mins = ((end.getTimeInMillis() - start.getTimeInMillis())/1000)/60; //mins for shift
-            long diff = ((now.getTimeInMillis() - start.getTimeInMillis())/1000)/60; //mins passed
-            return (double) diff/mins;
+            long mins = ((end.getTimeInMillis() - start.getTimeInMillis()) / 1000) / 60; //mins for shift
+            long diff = ((now.getTimeInMillis() - start.getTimeInMillis()) / 1000) / 60; //mins passed
+            return (double) diff / mins;
         }
 
 //        Log.e("Progress", "Nothing");
@@ -325,5 +338,10 @@ public class DateUtil {
 
         return range;
     }*/
+
+    public static String getStartDateForCurrentWeek() {
+        Calendar c = Calendar.getInstance();
+        return getWeekStart(c.getTime(), FMT_ISO_8601_DATETIME);
+    }
 
 }
