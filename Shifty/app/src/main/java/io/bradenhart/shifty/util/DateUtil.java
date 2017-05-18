@@ -17,7 +17,7 @@ import java.util.Locale;
 
 public class DateUtil {
 
-    public static final String FMT_ISO_8601_DATETIME = "YYYY-MM-DD HH:MM:SS.sss";
+    public static final String FMT_ISO_8601_DATETIME = "yyyy-MM-dd HH:mm:ss.sss";
     public static final String FMT_ISO_8601_DATE = "YYYY-MM-DD";
     public static final String FMT_ISO_8601_TIME = "HH:MM:SS.sss";
     public static final String FMT_WEEKDAY_FULL = "EEEE";
@@ -26,7 +26,8 @@ public class DateUtil {
     private static final String FMT_YEAR_FULL = "yyyy";
     private static final String FMT_MONTH_SHORT = "M";
     private static final String FMT_DAY_SHORT = "d";
-    private static final String FMT_DAY_DATE = "dd MMM ''yy";
+    public static final String FMT_TIME_SHORT = "hh:mm a";
+    public static final String FMT_DAY_DATE = "dd MMM ''yy";
 
     //    public DateUtil() {
 //
@@ -169,10 +170,10 @@ public class DateUtil {
         return sdf.format(c.getTime());
     }
 
-    public static String getDayOfMonth(String dateString) {
+    public static String getDayOfMonth(String dateString, String format) {
         Date date;
         try {
-            date = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH).parse(dateString);
+            date = new SimpleDateFormat(format, Locale.ENGLISH).parse(dateString);
         } catch (ParseException e) {
             e.printStackTrace();
             return "-1";
@@ -180,21 +181,21 @@ public class DateUtil {
         return new SimpleDateFormat("d", Locale.ENGLISH).format(date);
     }
 
-    public static String getWeekday(String dateString, String format) {
+    public static String getWeekday(String dateString, String fromformat, String toFormat) {
         Date date;
         try {
-            date = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH).parse(dateString);
+            date = new SimpleDateFormat(fromformat, Locale.ENGLISH).parse(dateString);
         } catch (ParseException e) {
             e.printStackTrace();
             return "ERR";
         }
-        return new SimpleDateFormat(format, Locale.ENGLISH).format(date);
+        return new SimpleDateFormat(toFormat, Locale.ENGLISH).format(date);
     }
 
-    public static Integer getYear(String dateString) {
+    public static Integer getYear(String dateString, String format) {
         Date date;
         try {
-            date = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH).parse(dateString);
+            date = new SimpleDateFormat(format, Locale.ENGLISH).parse(dateString);
         } catch (ParseException e) {
             e.printStackTrace();
             return 1994;
@@ -248,14 +249,53 @@ public class DateUtil {
         return day;
     }
 
-    public static double getShiftProgress(Shift shift) {
+    public static String getTime(String dateString, String fromFormat, String toFormat) {
+        Date date;
+        try {
+            date = new SimpleDateFormat(fromFormat, Locale.ENGLISH).parse(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return "ERR";
+        }
+        return new SimpleDateFormat(toFormat, Locale.ENGLISH).format(date);
+    }
+
+    public static double getHoursBetween(String dateString1, String dateString2, String format) {
+        Date date1;
+        Date date2;
+
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+
+        try {
+            date1 = sdf.parse(dateString1);
+            date2 = sdf.parse(dateString2);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return 0.0;
+        }
+
+        long diff;
+
+        int order = date2.compareTo(date1);
+        if (order == 0) return 0.0;
+        else if (order > 0) {
+            diff = date2.getTime() - date1.getTime();
+        } else {
+            diff = date1.getTime() - date2.getTime();
+        }
+
+        // ms / 1000 = s; s / 60 = m; m / 60 = h
+        return (double) diff / 1000 / 60 / 60;
+    }
+
+    public static double getShiftProgress(String startTime, String endTime, String format) {
         // shift's datetime
         Calendar start = Calendar.getInstance();
         Calendar end = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
         try {
-            start.setTime(sdf.parse(shift.getStartDateTimeString()));
-            end.setTime(sdf.parse(shift.getEndDateTimeString()));
+            start.setTime(sdf.parse(startTime));
+            end.setTime(sdf.parse(endTime));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -290,7 +330,6 @@ public class DateUtil {
     }
 
     public static Date getDateFromDateTime(String datetime) {
-        Calendar c = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
         try {
             Date date = sdf.parse(datetime);
