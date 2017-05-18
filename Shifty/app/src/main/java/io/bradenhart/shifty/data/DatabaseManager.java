@@ -45,7 +45,7 @@ public class DatabaseManager {
     }
 
 
-//    public boolean insertShift(Shift shift) {
+    public boolean insertShift(Shift shift) {
 ////        Log.e("DatabaseManager", "<<--" + shift.toString() + " -->>");
 //        ContentValues values = new ContentValues();
 //        values.put(ShiftyContract.Shift._ID, shift.getId());
@@ -60,7 +60,8 @@ public class DatabaseManager {
 //        long l = database.insert(ShiftyContract.Shift.TABLE_NAME, null, values);
 //        close();
 //        return l != -1;
-//    }
+        return false;
+    }
 
 //    public Shift retrieveShift(String _id) {
 //        openForRead();
@@ -114,7 +115,7 @@ public class DatabaseManager {
 //        return shifts;
 //    }
 
-//    public Map<String, List<Shift>> getShiftsInDateRange(final String[] datetimes) {
+    public Map<String, List<Shift>> getShiftsInDateRange(final String[] datetimes) {
 //        Map<String, List<Shift>> shiftMap = new LinkedHashMap<>();
 //
 //        openForRead();
@@ -146,9 +147,10 @@ public class DatabaseManager {
 //        close();
 //
 //        return shiftMap;
-//    }
+        return null;
+    }
 
-//    public Map<String, List<Shift>> getShiftsFromCurrentWeek() {
+    public Map<String, List<Shift>> getShiftsFromCurrentWeek() {
 //        Calendar c = Calendar.getInstance();
 //        String datetime = DateUtil.getWeekStart(c.getTime());
 //        Map<String, List<Shift>> shiftMap = new LinkedHashMap<>();
@@ -172,9 +174,10 @@ public class DatabaseManager {
 //        cursor.close();
 //        close();
 //        return shiftMap;
-//    }
+        return null;
+    }
 
-//    public Map<String, List<Shift>> getShiftsBeforeCurrentWeek() {
+    public Map<String, List<Shift>> getShiftsBeforeCurrentWeek() {
 //        Calendar c = Calendar.getInstance();
 //        String datetime = DateUtil.getWeekStart(c.getTime());
 //        Map<String, List<Shift>> shiftMap = new LinkedHashMap<>();
@@ -198,10 +201,11 @@ public class DatabaseManager {
 //        cursor.close();
 //        close();
 //        return shiftMap;
-//    }
+        return null;
+    }
 
 
-//    public int countShiftsAfterDate(String datetime) {
+    public int countShiftsAfterDate(String datetime) {
 //        openForRead();
 //
 //        int count = 0;
@@ -217,7 +221,8 @@ public class DatabaseManager {
 //        close();
 //
 //        return count;
-//    }
+    return -1;
+    }
 
 //    private Shift getShiftFromCursor(Cursor cursor) {
 //        String id = cursor.getString(cursor.getColumnIndex(ShiftyContract.Shift._ID));
@@ -237,16 +242,16 @@ public class DatabaseManager {
 //        return shift;
 //    }
 
-//    public void deleteShift(String id) {
+    public void deleteShift(String id) {
 //        openForWrite();
 ////        Log.e("DELETE", id);
 //        int res = database.delete(ShiftyContract.Shift.TABLE_NAME, ShiftyContract.Shift._ID + " = ?", new String[] { id });
 //        Log.e("DELETE", res == 0 ? "failed" : res + " id: " + id);
 //        close();
 ////        return res;
-//    }
+    }
 
-//    public void deleteAllShifts(String[] ids) {
+    public void deleteAllShifts(String[] ids) {
 //        openForWrite();
 //
 //        String whereClause = " in (";
@@ -258,12 +263,12 @@ public class DatabaseManager {
 //
 //        database.delete(ShiftyContract.Shift.TABLE_NAME, ShiftyContract.Shift._ID + whereClause, ids);
 //        close();
-//    }
+    }
 
-//    public void deleteAllShifts() {
+    public void deleteAllShifts() {
 //        openForWrite();
 //        database.execSQL("delete from " + ShiftyContract.Shift.TABLE_NAME);
 //        close();
-//    }
+    }
 
 }
