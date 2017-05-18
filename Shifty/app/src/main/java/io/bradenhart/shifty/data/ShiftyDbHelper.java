@@ -19,7 +19,7 @@ class ShiftyDbHelper extends SQLiteOpenHelper {
     private Context context;
 
     private final String SQL_CREATE_SHIFT = "create table " + Shift.TABLE_NAME + "("
-            + Shift._ID                             + " integer autoincrement primary key, "
+            + Shift._ID                             + " integer primary key autoincrement, "
             + Shift.COLUMN_WEEK_START_DATETIME      + " text not null, "
             + Shift.COLUMN_WEEK_END_DATETIME        + " text not null, "
             + Shift.COLUMN_SHIFT_START_DATETIME     + " text not null, "
@@ -30,7 +30,7 @@ class ShiftyDbHelper extends SQLiteOpenHelper {
 
 //    private final String SQL_DELETE_WEEK = "drop table if exists " + Week.TABLE_NAME;
 
-    private ShiftyDbHelper(Context context) {
+    public ShiftyDbHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         this.context = context;
     }
