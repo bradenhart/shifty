@@ -114,7 +114,7 @@ public class ShiftActivity extends AppCompatActivity {
         }
         if (shift != null) {
             selectedDate = shift.getDate();
-            dayTextView.setText(DateUtil.getPrettyDateString(DateUtil.getYear(shift.getId()), DateUtil.getMonth(shift.getId()), DateUtil.getDay(shift.getId())));
+//            dayTextView.setText(DateUtil.getPrettyDateString(DateUtil.getYear(shift.getId()), DateUtil.getMonth(shift.getId()), DateUtil.getDay(shift.getId())));
         }
         shiftButton.setText(editModeEnabled ? "UPDATE" : "ADD");
         title = editModeEnabled ? TITLE_EDIT : TITLE_NEW;
@@ -175,7 +175,7 @@ public class ShiftActivity extends AppCompatActivity {
         Log.e("Calendar", c.toString());
 
         if (shift != null) {
-            c.set(DateUtil.getYear(shift.getId()), DateUtil.getMonth(shift.getId()), DateUtil.getDay(shift.getId()));
+//            c.set(DateUtil.getYear(shift.getId()), DateUtil.getMonth(shift.getId()), DateUtil.getDay(shift.getId()));
         }
         DatePickerDialog datePickerFragment = new DatePickerDialog(this,
                 android.R.style.Theme_DeviceDefault_Light_Dialog,
