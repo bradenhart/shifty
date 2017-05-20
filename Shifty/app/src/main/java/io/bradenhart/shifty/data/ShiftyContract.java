@@ -30,13 +30,21 @@ public class ShiftyContract {
         public static final String COLUMN_WEEK_END_DATETIME = "week_end_datetime";
         public static final String COLUMN_SHIFT_START_DATETIME = "shift_start_datetime";
         public static final String COLUMN_SHIFT_END_DATETIME = "shift_end_datetime";
+        public static final String COLUMN_TOTAL_SHIFT_HOURS = "total_shift_hours";
+        public static final String COLUMN_PAID_HOURS = "paid_hours";
+        public static final String COLUMN_WORKWEEK_ID = "workweek_id";
     }
 
-    public static class Workweek {
+    public static class Workweek implements BaseColumns {
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
                 .appendPath(PATH_WORKWEEK)
                 .build();
+
+        public static final String TABLE_NAME = "Workweek";
+        public static final String COLUMN_WEEK_START_DATETIME = "week_start_datetime";
+        public static final String COLUMN_WEEK_END_DATETIME = "week_end_datetime";
+        public static final String COLUMN_TOTAL_PAID_HOURS = "total_paid_hours";
 
     }
 
