@@ -6,10 +6,12 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 /**
  * Created by bradenhart on 18/05/17.
@@ -43,7 +45,7 @@ public class ShiftyContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        dbHelper = new ShiftyDbHelper(getContext());
+        dbHelper = ShiftyDbHelper.getInstance(getContext());
         return true;
     }
 
@@ -67,7 +69,7 @@ public class ShiftyContentProvider extends ContentProvider {
                         null,
                         sortOrder
                 );
-            break;
+                break;
             // query the shift table and return results in the form of workweeks
 //            case CODE_WORKWEEK:
 //                cursor = db.query(
@@ -98,14 +100,29 @@ public class ShiftyContentProvider extends ContentProvider {
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         int match = sUriMatcher.match(uri);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Uri returnUri;
+        Uri returnUri = null;
+
+        long id;
 
         switch (match) {
             // insert into /shift (Shift table)
             case CODE_SHIFT:
-                long id = db.insert(ShiftyContract.Shift.TABLE_NAME, null, values);
+                id = db.insert(ShiftyContract.Shift.TABLE_NAME, null, values);
                 if (id > 0) {
                     returnUri = ContentUris.withAppendedId(ShiftyContract.Shift.CONTENT_URI, id);
+                } else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            case CODE_WORKWEEK:
+                try {
+                    id = db.insertOrThrow(ShiftyContract.Workweek.TABLE_NAME, null, values);
+                } catch (SQLiteConstraintException ex) {
+                    Log.i("ShiftContentProvider", "workweek already exists");
+                    break;
+                }
+                if (id > 0) {
+                    returnUri = ContentUris.withAppendedId(ShiftyContract.Workweek.CONTENT_URI, id);
                 } else {
                     throw new SQLException("Failed to insert row into " + uri);
                 }
@@ -114,7 +131,7 @@ public class ShiftyContentProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
-        getContext().getContentResolver().notifyChange(uri, null);
+        if (returnUri != null) getContext().getContentResolver().notifyChange(uri, null);
 
         return returnUri;
     }
@@ -156,7 +173,7 @@ public class ShiftyContentProvider extends ContentProvider {
                         ShiftyContract.Shift.TABLE_NAME,
                         values,
                         "_id = ?",
-                        new String[]{ id }
+                        new String[]{id}
                 );
                 break;
             default:
