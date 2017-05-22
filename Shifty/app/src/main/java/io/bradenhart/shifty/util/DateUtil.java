@@ -50,15 +50,16 @@ public class DateUtil {
     }
 
 
-    public static String getWeekStart(String dateString) {
+    public static String getWeekStart(String dateString, String format) {
         Calendar c = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
         try {
             c.setTime(sdf.parse(dateString));
-            c.set(Calendar.HOUR, 0);
-            c.set(Calendar.MINUTE, 0);
-            c.set(Calendar.SECOND, 0);
-            c.set(Calendar.AM_PM, Calendar.AM);
+            c.set(Calendar.HOUR, c.getMinimum(Calendar.HOUR_OF_DAY));
+            c.set(Calendar.MINUTE, c.getMinimum(Calendar.MINUTE));
+            c.set(Calendar.SECOND, c.getMinimum(Calendar.SECOND));
+            c.set(Calendar.MILLISECOND, c.getMinimum(Calendar.MILLISECOND));
+//            c.set(Calendar.AM_PM, Calendar.AM);
 //            c.setFirstDayOfWeek(Calendar.MONDAY);
             if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
                 c.add(Calendar.DAY_OF_WEEK, -6);
@@ -72,16 +73,17 @@ public class DateUtil {
         }
     }
 
-    public static String getWeekEnd(String dateString) {
+    public static String getWeekEnd(String dateString, String format) {
         Calendar c = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
         try {
-            c.setTime(sdf.parse(getWeekStart(dateString)));
+            c.setTime(sdf.parse(getWeekStart(dateString, format)));
 //            c.setFirstDayOfWeek(Calendar.MONDAY);
-            c.set(Calendar.HOUR, 11);
-            c.set(Calendar.MINUTE, 59);
-            c.set(Calendar.SECOND, 59);
-            c.set(Calendar.AM_PM, Calendar.PM);
+            c.set(Calendar.HOUR, c.getMaximum(Calendar.HOUR_OF_DAY));
+            c.set(Calendar.MINUTE, c.getMaximum(Calendar.MINUTE));
+            c.set(Calendar.SECOND, c.getMaximum(Calendar.SECOND));
+            c.set(Calendar.MILLISECOND, c.getMaximum(Calendar.MILLISECOND));
+//            c.set(Calendar.AM_PM, Calendar.PM);
             c.add(Calendar.DAY_OF_YEAR, 6);
 //            c.set(Calendar.DAY_OF_MONTH, 6);
             return sdf.format(c.getTime());
@@ -109,9 +111,9 @@ public class DateUtil {
         return sdf.format(c.getTime());
     }
 
-    public static String getWeekEnd(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
-        return getWeekEnd(sdf.format(date));
+    public static String getWeekEnd(Date date, String format) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+        return getWeekEnd(sdf.format(date), format);
     }
 
     // -ve offset means start in the past, +ve offset means start in the future,
