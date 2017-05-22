@@ -184,7 +184,7 @@ public class Payslip implements Serializable {
         SimpleDateFormat toDateFormat = new SimpleDateFormat("MMMM dd ''yy", Locale.ENGLISH);
 
         try {
-            Date date = fromDateFormat.parse(DateUtil.getWeekEnd(weekDate));
+            Date date = fromDateFormat.parse(DateUtil.getWeekEnd(weekDate, DateUtil.FMT_ISO_8601_DATETIME));
             return "Period Ending " + toDateFormat.format(date);
         } catch (ParseException e) {
             e.printStackTrace();

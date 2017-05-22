@@ -207,7 +207,7 @@ public class Shift implements Serializable {
         return "Shift{" +
                 "id='" + id + '\'' +
                 ", date=" + date +
-                ", weekStart=" + DateUtil.getWeekStart(id) +
+                ", weekStart=" + DateUtil.getWeekStart(id, DateUtil.FMT_ISO_8601_DATETIME) +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", shiftLength=" + shiftLength +
