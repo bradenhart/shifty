@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.List;
@@ -63,8 +64,6 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
 
     private WorkWeekRecyclerViewAdapter adapter;
 
-    private Animation fadeInResetAnim, fadeOutResetAnim, spinLoadAnim, spinResetAnim, fadeInLoadAnim, fadeOutLoadAnim;
-
     private boolean showCurrent = true;
 
     @Override
@@ -72,24 +71,10 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shiftview);
 
-        fadeInResetAnim = getAnim(this, R.anim.fade_in);
-        fadeOutResetAnim = getAnim(this, R.anim.fade_out);
-        fadeInLoadAnim = getAnim(this, R.anim.fade_in);
-        fadeOutLoadAnim = getAnim(this, R.anim.fade_out);
-        spinLoadAnim = getAnim(this, R.anim.spin);
-        spinResetAnim = getAnim(this, R.anim.spin);
-        setAnimationListener(spinResetAnim,
-                fadeInResetAnim, fadeOutResetAnim,
-                fadeInLoadAnim, fadeOutLoadAnim,
-                spinLoadAnim);
-
         ButterKnife.bind(ShiftViewActivity.this);
 
         // set up actionbar
         setUpActionBar();
-
-//        navView.getMenu().getItem(0).setTitle("Shifts").setIcon(R.drawable.ic_view_list_white_24dp);
-//        navView.inflateMenu(R.menu.menu_nav_bar_2);
 
 //        TestData.deleteAllTestData(getApplicationContext());
 //        TestData.addDataToDB(getApplicationContext());
@@ -98,22 +83,61 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
 //        int deleted = getContentResolver().delete(ShiftyContract.Shift.CONTENT_URI, null, null);
 //        Log.d("TESTDATA", "deleted " + deleted + " shifts before inserting test data");
 //        TestData.addDataToDB(getContentResolver());
+        ContentValues values = new ContentValues();
+        values.put(ShiftyContract.Workweek._ID, "2017-05-22 00:00:00.000");
+        values.put(ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME, "2017-05-22 00:00:00.000");
+        values.put(ShiftyContract.Workweek.COLUMN_WEEK_END_DATETIME, "2017-05-28 23:59:59.999");
+
+//        getContentResolver().insert(ShiftyContract.Workweek.CONTENT_URI, values);
+
+        ContentValues values2 = new ContentValues();
+//        values2.put(ShiftyContract.Shift.COLUMN_WORKWEEK_ID, "2017-05-22 00:00:00.000");
+//        values2.put(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME, "2017-05-23 08:00:00.000");
+//        values2.put(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME, "2017-05-23 16:30:00.000");
+        values2.put(ShiftyContract.Shift.COLUMN_WORKWEEK_ID, "2017-05-22 00:00:00.000");
+        values2.put(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME, "2017-05-25 08:00:00.000");
+        values2.put(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME, "2017-05-25 16:30:00.000");
+
+
+//        getContentResolver().delete(ShiftyContract.Shift.CONTENT_URI, null, null);
+//        getContentResolver().insert(ShiftyContract.Shift.CONTENT_URI, values2);
+
+        ContentValues values3 = new ContentValues();
+        values3.put(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME, "2017-05-25 10:00:00.000");
+        values3.put(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME, "2017-05-25 16:30:00.000");
+
+//        getContentResolver().update(Uri.withAppendedPath(ShiftyContract.Shift.CONTENT_URI, "1"), values3, null, null);
+
+        ContentValues values4 = new ContentValues();
+        values4.put(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME, "2017-05-16 8:00:00.000");
+        values4.put(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME, "2017-05-16 16:30:00.000");
+        values4.put(ShiftyContract.Shift.COLUMN_WORKWEEK_ID, "2017-05-15 00:00:00.000");
+
+        getContentResolver().update(Uri.withAppendedPath(ShiftyContract.Shift.CONTENT_URI, "1"), values4, null, null);
+
         /**/
 
-        adapter = new WorkWeekRecyclerViewAdapter(this, getCurrentWorkWeeks());
-
-//        Map<String, List<Shift>> map = fetchWorkWeeks(weeks, offset);
-//        Map<String, List<Shift>> map;
-//        if (showCurrent)
-//            map = new DatabaseManager(getApplicationContext()).getShiftsFromCurrentWeek();
-//        else map = new DatabaseManager(getApplicationContext()).getShiftsBeforeCurrentWeek();
-
-//        Log.e("DB", map.keySet().size() + "");
-//        displayWorkWeeks(map);
+//        adapter = new WorkWeekRecyclerViewAdapter(this, getCurrentWorkWeeks());
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 //        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(adapter);
+//        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(new RecyclerView.Adapter() {
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                return null;
+            }
+
+            @Override
+            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+
+            }
+
+            @Override
+            public int getItemCount() {
+                return 0;
+            }
+        });
 //        recyclerView.scrollToPosition(6);
 
 //        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -245,46 +269,46 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     private Cursor getCurrentWorkWeeks() {
         // get the ISO8601 formatted string for Monday 00:00 of the current week
         String datetimeString = DateUtil.getStartDateForCurrentWeek();
-        String[] projection = new String[] { "DISTINCT " + ShiftyContract.Shift.COLUMN_WEEK_START_DATETIME };
-        String selection = ShiftyContract.Shift.COLUMN_WEEK_START_DATETIME + " >= ?";
+//        String[] projection = new String[] { ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME };
+//        String selection = ShiftyContract.Shift.COLUMN_WEEK_START_DATETIME + " >= ?";
         String[] selectionArgs = new String[] { datetimeString };
 
         return getContentResolver().query(
                 ShiftyContract.Shift.CONTENT_URI, // query Shift table (/shift)
-                projection, // get only distinct week start values
-                selection, // get all shifts from this week onwards
-                selectionArgs,
-                ShiftyContract.Shift.COLUMN_WEEK_START_DATETIME + " asc" // order by shift start time, earliest to latest
-        );
-    }
-
-    private Cursor getCurrentShifts() {
-        // get the ISO8601 formatted string for Monday 00:00 of the current week
-        String datetimeString = DateUtil.getStartDateForCurrentWeek();
-        String selection = ShiftyContract.Shift.COLUMN_WEEK_START_DATETIME + " >= ?";
-        String[] selectionArgs = new String[] { datetimeString };
-
-        return getContentResolver().query(
-                ShiftyContract.Shift.CONTENT_URI, // query Shift table (/shift)
+                null,
                 null, // get all columns
-                selection, // get all shifts from this week onwards
                 selectionArgs,
-                ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME + " asc" // order by shift start time, earliest to latest
+                ShiftyContract.Workweek._ID + " asc" // order by week start date, earliest to latest
         );
     }
 
-    private void testGetCurrentShifts() {
-        Log.d(TAG, "start testGetCurrentShifts");
-        Cursor cursor = getCurrentShifts();
-        if (cursor.moveToFirst()) {
-            do {
-                int dateCol = cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME);
-                String date = cursor.getString(dateCol);
-                Log.d(TAG, date);
-            } while (cursor.moveToNext());
-        } else {
-            Log.d(TAG, "cursor was empty");
-        }
-    }
+//    private Cursor getCurrentShifts() {
+//        // get the ISO8601 formatted string for Monday 00:00 of the current week
+//        String datetimeString = DateUtil.getStartDateForCurrentWeek();
+//        String selection = ShiftyContract.Shift.COLUMN_WEEK_START_DATETIME + " >= ?";
+//        String[] selectionArgs = new String[] { datetimeString };
+//
+//        return getContentResolver().query(
+//                ShiftyContract.Shift.CONTENT_URI, // query Shift table (/shift)
+//                null, // get all columns
+//                selection, // get all shifts from this week onwards
+//                selectionArgs,
+//                ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME + " asc" // order by shift start time, earliest to latest
+//        );
+//    }
+
+//    private void testGetCurrentShifts() {
+//        Log.d(TAG, "start testGetCurrentShifts");
+//        Cursor cursor = getCurrentShifts();
+//        if (cursor.moveToFirst()) {
+//            do {
+//                int dateCol = cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME);
+//                String date = cursor.getString(dateCol);
+//                Log.d(TAG, date);
+//            } while (cursor.moveToNext());
+//        } else {
+//            Log.d(TAG, "cursor was empty");
+//        }
+//    }
 
 }
