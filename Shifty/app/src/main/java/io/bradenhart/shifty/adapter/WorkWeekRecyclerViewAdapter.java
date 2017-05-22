@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -86,7 +87,16 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         WorkWeekViewHolder weekHolder = (WorkWeekViewHolder) holder;
 
         cursor.moveToPosition(position);
-        int weekStartCol = cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_WEEK_START_DATETIME);
+
+        // get the id for the workweek
+        int idCol = cursor.getColumnIndex(ShiftyContract.Workweek._ID);
+        String id = cursor.getString(idCol);
+
+        // set the viewholder's root view tag to the id
+        weekHolder.root.setTag(id);
+
+        // get the date for the start of the week
+        int weekStartCol = cursor.getColumnIndex(ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME);
         String weekStart = cursor.getString(weekStartCol);
 
         SimpleDateFormat iso8601Format = new SimpleDateFormat(DateUtil.FMT_ISO_8601_DATETIME, Locale.ENGLISH);
@@ -120,6 +130,8 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
         private Context context;
         Integer pos;
+        @BindView(R.id.root_section_workweek_base)
+        CardView root;
         @BindView(R.id.textview_workweek_header)
         TextView header;
         @BindView(R.id.button_delete_workweek)
@@ -155,7 +167,7 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
                             new DatabaseManager(context).deleteAllShifts(ids);
 
-                            removeWorkWeek(pos);
+                            removeWorkWeek(getAdapterPosition());
                             notifyDataSetChanged();
                             Utils.makeToast(context, "Workweek deleted", Toast.LENGTH_LONG);
                         }
