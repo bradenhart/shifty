@@ -57,7 +57,7 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
     private Cursor getShiftsInWeek(String weekDate) {
         // get the ISO8601 formatted string for Monday 00:00 of the current week
-        String selection = ShiftyContract.Shift.COLUMN_WEEK_START_DATETIME + " = ?";
+        String selection = ShiftyContract.Shift.COLUMN_WORKWEEK_ID + " = ?";
         String[] selectionArgs = new String[] { weekDate };
 
         return context.getContentResolver().query(
