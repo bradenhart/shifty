@@ -26,6 +26,7 @@ public class ShiftyContentProvider extends ContentProvider {
     public static final int CODE_SHIFT_WITH_DATE = 102;
 
     public static final int CODE_WORKWEEK = 200;
+    public static final int CODE_WORKWEEK_WITH_ID = 201;
 
     private ShiftyDbHelper dbHelper;
 
@@ -41,6 +42,7 @@ public class ShiftyContentProvider extends ContentProvider {
         uriMatcher.addURI(authority, ShiftyContract.PATH_SHIFT + "/*", CODE_SHIFT_WITH_DATE);
 
         uriMatcher.addURI(authority, ShiftyContract.PATH_WORKWEEK, CODE_WORKWEEK);
+        uriMatcher.addURI(authority, ShiftyContract.PATH_WORKWEEK + "/*", CODE_WORKWEEK_WITH_ID);
 
         return uriMatcher;
     }
@@ -97,33 +99,26 @@ public class ShiftyContentProvider extends ContentProvider {
         return null;
     }
 
-    @Nullable
     @Override
-    public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+    public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         int match = sUriMatcher.match(uri);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Uri returnUri = null;
-
-        long id = 0;
 
         switch (match) {
-            // insert into /shift (Shift table)
             case CODE_SHIFT:
-                // finish if the content values is null
-                if (values != null) {
-
-                    db.beginTransaction();
-                    try {
-                        String shiftStartDatetime = values.getAsString(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME);
-                        String shiftEndDatetime = values.getAsString(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME);
+                db.beginTransaction();
+                int rowsInserted = 0;
+                try {
+                    for (ContentValues value : values) {
+                        String shiftStartDatetime = value.getAsString(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME);
+                        String shiftEndDatetime = value.getAsString(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME);
                         String weekStartDatetime;
                         String weekEndDatetime;
                         Double totalShiftHours; // Shift column
                         Double paidHours; // Shift column
-                        Double totalPaidHours = 0.0; // Workweek column
 
-                        // if the content values contains a null values for the shift start or end times, break
-                        if (shiftStartDatetime == null || shiftEndDatetime == null) throw new SQLException("Failed to insert row into " + uri);
+                        // if the content value contains null values for the shift start or end times, go to next content value
+                        if (shiftStartDatetime == null || shiftEndDatetime == null) continue;
 
                         // calculate shift hours
                         totalShiftHours = DateUtil.getHoursBetween(shiftStartDatetime, shiftEndDatetime, DateUtil.FMT_ISO_8601_DATETIME);
@@ -150,7 +145,91 @@ public class ShiftyContentProvider extends ContentProvider {
                                     ShiftyContract.Workweek._ID + "," + ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + "," + ShiftyContract.Workweek.COLUMN_WEEK_END_DATETIME,
                                     workweekValues);
                         } catch (SQLiteConstraintException ex) {
-                            Log.i("ShiftContentProvider", "workweek already exists");
+                            Log.i("ShiftContentProvider", "workweek already exists, no insert performed");
+                        }
+
+                        // insert shift row
+                        value.put(ShiftyContract.Shift.COLUMN_WORKWEEK_ID, weekStartDatetime);
+                        value.put(ShiftyContract.Shift.COLUMN_TOTAL_SHIFT_HOURS, totalShiftHours);
+                        value.put(ShiftyContract.Shift.COLUMN_PAID_HOURS, paidHours);
+                        long id = db.insert(ShiftyContract.Shift.TABLE_NAME, null, value);
+
+                        // update the workweek row that the shift references
+                        String updateSQL = "update " + ShiftyContract.Workweek.TABLE_NAME
+                                + " set " + ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS + " = "
+                                + ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS + " + ?"
+                                + " where " + ShiftyContract.Workweek._ID + " = ?";
+                        String[] updateArgs = new String[]{paidHours + "", weekStartDatetime};
+                        db.execSQL(updateSQL, updateArgs);
+
+                        if (id != -1) rowsInserted++;
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+
+                if (rowsInserted > 0) getContext().getContentResolver().notifyChange(uri, null);
+                return rowsInserted;
+            default:
+                return super.bulkInsert(uri, values);
+        }
+    }
+
+    @Nullable
+    @Override
+    public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+        int match = sUriMatcher.match(uri);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Uri returnUri;
+
+        long id = 0;
+
+        switch (match) {
+            // insert into /shift (Shift table)
+            case CODE_SHIFT:
+                // finish if the content values is null
+                if (values != null) {
+
+                    db.beginTransaction();
+                    try {
+                        String shiftStartDatetime = values.getAsString(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME);
+                        String shiftEndDatetime = values.getAsString(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME);
+                        String weekStartDatetime;
+                        String weekEndDatetime;
+                        Double totalShiftHours; // Shift column
+                        Double paidHours; // Shift column
+
+                        // if the content values contains a null values for the shift start or end times, break
+                        if (shiftStartDatetime == null || shiftEndDatetime == null)
+                            throw new SQLException("Failed to insert row into " + uri + ", null start or end date provided");
+
+                        // calculate shift hours
+                        totalShiftHours = DateUtil.getHoursBetween(shiftStartDatetime, shiftEndDatetime, DateUtil.FMT_ISO_8601_DATETIME);
+                        paidHours = totalShiftHours <= 5.0 ? totalShiftHours : totalShiftHours - 0.5;
+
+                        // get the week start datetime for the shift
+                        weekStartDatetime = DateUtil.getWeekStart(shiftStartDatetime, DateUtil.FMT_ISO_8601_DATETIME);
+
+                        // get the week end datetime for the shift
+                        weekEndDatetime = DateUtil.getWeekEnd(shiftStartDatetime, DateUtil.FMT_ISO_8601_DATETIME);
+
+                        // insert workweek row
+                        ContentValues workweekValues = new ContentValues();
+                        workweekValues.put(ShiftyContract.Workweek._ID, weekStartDatetime);
+                        workweekValues.put(ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME, weekStartDatetime);
+                        workweekValues.put(ShiftyContract.Workweek.COLUMN_WEEK_END_DATETIME, weekEndDatetime);
+                        // the workweek row needs to exist before the shift is inserted because the
+                        // Shift has a foreign key column referencing the _id column in the workweek
+                        // table.
+                        // if the workweek row already exists, an SQLiteConstraintException will be thrown
+                        // the transaction should continue so the exception is caught and logged.
+                        try {
+                            db.insertOrThrow(ShiftyContract.Workweek.TABLE_NAME,
+                                    ShiftyContract.Workweek._ID + "," + ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + "," + ShiftyContract.Workweek.COLUMN_WEEK_END_DATETIME,
+                                    workweekValues);
+                        } catch (SQLiteConstraintException ex) {
+                            Log.i("ShiftContentProvider", "workweek already exists, no insert performed");
                         }
 
                         // insert shift row
@@ -164,7 +243,7 @@ public class ShiftyContentProvider extends ContentProvider {
                                 + " set " + ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS + " = "
                                 + ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS + " + ?"
                                 + " where " + ShiftyContract.Workweek._ID + " = ?";
-                        String[] updateArgs = new String[] { paidHours + "", weekStartDatetime};
+                        String[] updateArgs = new String[]{paidHours + "", weekStartDatetime};
                         db.execSQL(updateSQL, updateArgs);
 
                         db.setTransactionSuccessful();
@@ -212,7 +291,72 @@ public class ShiftyContentProvider extends ContentProvider {
         switch (match) {
             // delete all shifts
             case CODE_SHIFT:
-                numRowsDeleted = db.delete(ShiftyContract.Shift.TABLE_NAME, selection, selectionArgs);
+                numRowsDeleted = db.delete(ShiftyContract.Shift.TABLE_NAME, null, null);
+                break;
+            case CODE_SHIFT_WITH_ID:
+                // get the shift id from the uri
+                String shiftID = uri.getPathSegments().get(1);
+
+                db.beginTransaction();
+                try {
+                    // retrieve the paid hours for the shift being deleted
+                    Cursor shiftCursor = db.query(ShiftyContract.Shift.TABLE_NAME,
+                            new String[]{ShiftyContract.Shift.COLUMN_PAID_HOURS, ShiftyContract.Shift.COLUMN_WORKWEEK_ID},
+                            ShiftyContract.Shift._ID + " = ?",
+                            new String[]{shiftID},
+                            null,
+                            null,
+                            null);
+
+                    Double paidHours = 0.0;
+                    String workweekID = null;
+                    if (shiftCursor.moveToFirst()) {
+                        int paidHoursCol = shiftCursor.getColumnIndex(ShiftyContract.Shift.COLUMN_PAID_HOURS);
+                        int workweekIDCol = shiftCursor.getColumnIndex(ShiftyContract.Shift.COLUMN_WORKWEEK_ID);
+                        paidHours = shiftCursor.getDouble(paidHoursCol);
+                        workweekID = shiftCursor.getString(workweekIDCol);
+                    }
+                    shiftCursor.close();
+
+                    // delete the shift
+                    int tempNumRowsDeleted = db.delete(ShiftyContract.Shift.TABLE_NAME,
+                            ShiftyContract.Shift._ID,
+                            new String[]{shiftID});
+
+                    // update the workweek row that the shift references
+                    String updateSQL = "update " + ShiftyContract.Workweek.TABLE_NAME
+                            + " set " + ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS + " = "
+                            + ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS + " - ?"
+                            + " where " + ShiftyContract.Workweek._ID + " = ?";
+                    String[] updateArgs = new String[]{paidHours + "", workweekID};
+                    db.execSQL(updateSQL, updateArgs);
+
+                    numRowsDeleted = tempNumRowsDeleted;
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                break;
+            case CODE_WORKWEEK_WITH_ID:
+                // get the workweek id from the uri
+                String workweekID = uri.getPathSegments().get(1);
+
+                db.beginTransaction();
+                try {
+                    // delete the shifts that reference the workweek
+                    db.delete(ShiftyContract.Shift.TABLE_NAME,
+                            ShiftyContract.Shift.COLUMN_WORKWEEK_ID,
+                            new String[]{workweekID});
+
+                    // delete the workweek
+                    numRowsDeleted = db.delete(ShiftyContract.Workweek.TABLE_NAME,
+                            ShiftyContract.Workweek._ID + " = ?",
+                            new String[]{workweekID});
+
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -296,7 +440,7 @@ public class ShiftyContentProvider extends ContentProvider {
                     Double oldPaidHours = 0.0; // holds the old paid hours value, set to 0.0 in case there is no value;
                     String oldWorkweekID = null;
                     Cursor oldShiftCursor = db.query(ShiftyContract.Shift.TABLE_NAME,
-                            new String[] {ShiftyContract.Shift.COLUMN_PAID_HOURS, ShiftyContract.Shift.COLUMN_WORKWEEK_ID},
+                            new String[]{ShiftyContract.Shift.COLUMN_PAID_HOURS, ShiftyContract.Shift.COLUMN_WORKWEEK_ID},
                             "_id = ?",
                             new String[]{id},
                             null, null, null, "1");
@@ -316,13 +460,13 @@ public class ShiftyContentProvider extends ContentProvider {
                                         + " set " + ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS
                                         + " = " + ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS + " - ?"
                                         + " where " + ShiftyContract.Workweek._ID + " = ?",
-                                new String[] { oldPaidHours + "", oldWorkweekID});
+                                new String[]{oldPaidHours + "", oldWorkweekID});
                     }
 
                     // update the shift
                     values.put(ShiftyContract.Shift.COLUMN_TOTAL_SHIFT_HOURS, totalShiftHours);
                     values.put(ShiftyContract.Shift.COLUMN_PAID_HOURS, paidHours);
-                    numRowsUpdated = db.update(
+                    int tempNumRowsUpdated = db.update(
                             ShiftyContract.Shift.TABLE_NAME,
                             values,
                             "_id = ?",
@@ -333,7 +477,7 @@ public class ShiftyContentProvider extends ContentProvider {
                     // get the old value of workweek's total paid hours
                     Double oldTotalPaidHours = 0.0; // holds the old paid hours value, set to 0.0 incase there is no value;
                     Cursor oldWorkweekCursor = db.query(ShiftyContract.Workweek.TABLE_NAME,
-                            new String[] {ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS},
+                            new String[]{ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS},
                             "_id = ?",
                             new String[]{weekStartDatetime},
                             null, null, null, "1"
@@ -355,7 +499,7 @@ public class ShiftyContentProvider extends ContentProvider {
                                 new String[]{oldWorkweekID});
                     }
 
-                    if (numRowsUpdated > 0) {
+                    if (tempNumRowsUpdated > 0) {
                         db.update(ShiftyContract.Workweek.TABLE_NAME,
                                 updateWorkweekValues,
                                 "_id = ?",
@@ -363,6 +507,7 @@ public class ShiftyContentProvider extends ContentProvider {
                         );
                     }
 
+                    numRowsUpdated = tempNumRowsUpdated;
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
