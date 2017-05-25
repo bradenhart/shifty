@@ -1,28 +1,21 @@
 package io.bradenhart.shifty.activity;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.widget.BaseAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import butterknife.BindDimen;
 import butterknife.BindView;
@@ -30,20 +23,13 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.adapter.WorkWeekRecyclerViewAdapter;
-import io.bradenhart.shifty.data.DatabaseManager;
 import io.bradenhart.shifty.data.ShiftyContract;
-import io.bradenhart.shifty.data.TestData;
-import io.bradenhart.shifty.domain.Shift;
-import io.bradenhart.shifty.domain.WorkWeek;
-import io.bradenhart.shifty.util.DateUtil;
-import io.bradenhart.shifty.util.Utils;
 
-import static io.bradenhart.shifty.util.Utils.*;
-
-public class ShiftViewActivity extends AppCompatActivity implements Animation.AnimationListener {
+public class ShiftViewActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     final String TAG = "ShiftViewActivity.class";
     private final String title = "Shifty";
+    private static final int ID_WORKWEEK_LOADER = 44;
 
     @BindView(R.id.appbar_shiftview)
     AppBarLayout appBar;
@@ -55,6 +41,8 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     FloatingActionButton newShiftButton;
     @BindView(R.id.bottom_navigation)
     BottomNavigationView navView;
+    @BindView(R.id.progressbar_shiftview)
+    ProgressBar progressBar;
     @BindDimen(R.dimen.workweek_item_height)
     int itemHeight;
     @BindDimen(R.dimen.workweek_shift_progress_width)
@@ -62,6 +50,13 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
     @BindDimen(R.dimen.margin_5dp)
     int margin5dp;
 
+    public static final String[] MAIN_WORKWEEK_PROJECTION = {
+            ShiftyContract.Workweek._ID,
+            ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME,
+            ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS,
+    };
+
+    private int position = RecyclerView.NO_POSITION;
     private WorkWeekRecyclerViewAdapter adapter;
 
     private boolean showCurrent = true;
@@ -76,69 +71,34 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
         // set up actionbar
         setUpActionBar();
 
-//        TestData.deleteAllTestData(getApplicationContext());
-//        TestData.addDataToDB(getApplicationContext());
+//        TestData.addDataToDB(getContentResolver());
 
         /* TEST */
-//        int deleted = getContentResolver().delete(ShiftyContract.Shift.CONTENT_URI, null, null);
-//        Log.d("TESTDATA", "deleted " + deleted + " shifts before inserting test data");
-//        TestData.addDataToDB(getContentResolver());
-        ContentValues values = new ContentValues();
-        values.put(ShiftyContract.Workweek._ID, "2017-05-22 00:00:00.000");
-        values.put(ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME, "2017-05-22 00:00:00.000");
-        values.put(ShiftyContract.Workweek.COLUMN_WEEK_END_DATETIME, "2017-05-28 23:59:59.999");
-
-//        getContentResolver().insert(ShiftyContract.Workweek.CONTENT_URI, values);
-
-        ContentValues values2 = new ContentValues();
-//        values2.put(ShiftyContract.Shift.COLUMN_WORKWEEK_ID, "2017-05-22 00:00:00.000");
-//        values2.put(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME, "2017-05-23 08:00:00.000");
-//        values2.put(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME, "2017-05-23 16:30:00.000");
-        values2.put(ShiftyContract.Shift.COLUMN_WORKWEEK_ID, "2017-05-22 00:00:00.000");
-        values2.put(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME, "2017-05-25 08:00:00.000");
-        values2.put(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME, "2017-05-25 16:30:00.000");
-
-
-//        getContentResolver().delete(ShiftyContract.Shift.CONTENT_URI, null, null);
-//        getContentResolver().insert(ShiftyContract.Shift.CONTENT_URI, values2);
-
-        ContentValues values3 = new ContentValues();
-        values3.put(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME, "2017-05-25 10:00:00.000");
-        values3.put(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME, "2017-05-25 16:30:00.000");
-
-//        getContentResolver().update(Uri.withAppendedPath(ShiftyContract.Shift.CONTENT_URI, "1"), values3, null, null);
-
-        ContentValues values4 = new ContentValues();
-        values4.put(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME, "2017-05-16 8:00:00.000");
-        values4.put(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME, "2017-05-16 16:30:00.000");
-        values4.put(ShiftyContract.Shift.COLUMN_WORKWEEK_ID, "2017-05-15 00:00:00.000");
-
-        getContentResolver().update(Uri.withAppendedPath(ShiftyContract.Shift.CONTENT_URI, "1"), values4, null, null);
 
         /**/
 
-//        adapter = new WorkWeekRecyclerViewAdapter(this, getCurrentWorkWeeks());
+        adapter = new WorkWeekRecyclerViewAdapter(this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 //        recyclerView.setHasFixedSize(true);
-//        recyclerView.setAdapter(adapter);
-        recyclerView.setAdapter(new RecyclerView.Adapter() {
-            @Override
-            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                return null;
-            }
-
-            @Override
-            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
-            }
-
-            @Override
-            public int getItemCount() {
-                return 0;
-            }
-        });
-//        recyclerView.scrollToPosition(6);
+        recyclerView.setAdapter(adapter);
+//        recyclerView.setAdapter(new RecyclerView.Adapter() {
+//            @Override
+//            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+//                return null;
+//            }
+//
+//            @Override
+//            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+//
+//            }
+//
+//            @Override
+//            public int getItemCount() {
+//                return 0;
+//            }
+//        });
+////        recyclerView.scrollToPosition(6);
 
 //        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
 //            @Override
@@ -181,6 +141,15 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
 
 //        testGetCurrentShifts();
 
+        showLoading();
+
+        /*
+         * Ensures a loader is initialized and active. If the loader doesn't already exist, one is
+         * created and (if the activity is currently started) starts the loader. Otherwise
+         * the last created loader is re-used.
+         */
+        getSupportLoaderManager().initLoader(ID_WORKWEEK_LOADER, null, this);
+
     }
 
 
@@ -212,103 +181,63 @@ public class ShiftViewActivity extends AppCompatActivity implements Animation.An
         ShiftActivity.start(getApplicationContext(), ShiftActivity.Mode.CREATE);
     }
 
-    private Map<String, List<Shift>> fetchWorkWeeks(int weeks, int offset) {
-        String[] datetimes = DateUtil.getDateTimesForRange(weeks, offset);
+    @Override
+    public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
 
-        return new DatabaseManager(getApplicationContext()).getShiftsInDateRange(datetimes);
-    }
+        switch (loaderId) {
+            case ID_WORKWEEK_LOADER:
+                /* URI for all rows of workweek data in our workweek table */
+                Uri workweekQueryUri = ShiftyContract.Workweek.CONTENT_URI;
+                /* Sort order: ascending by start date */
+                String sortOrder = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " ASC";
+                /* Select all workweeks from the this week onwards */
+                String selection = ShiftyContract.Workweek.getSQLSelectForThisWeekOnwards();
 
-    private Map<String, List<Shift>> fetchWorkWeeks(int offset) {
-        return fetchWorkWeeks(1, offset);
-    }
+                return new CursorLoader(this,
+                        workweekQueryUri,
+                        MAIN_WORKWEEK_PROJECTION,
+                        selection,
+                        null,
+                        sortOrder);
 
-    private void displayWorkWeeks(Map<String, List<Shift>> map) {
-        for (String week : map.keySet()) {
-            System.out.println("week: " + week);
-            String tag = UUID.randomUUID().toString();
-            Log.e("TAG", "1... " + tag);
-            System.out.println(map.get(week));
-            WorkWeek workWeek = new WorkWeek(week, map.get(week));
-            adapter.addWorkWeek(workWeek);
+            default:
+                throw new RuntimeException("Loader Not Implemented: " + loaderId);
         }
-    }
-
-    @Override
-    public void onAnimationStart(Animation animation) {
-
-        /** RESET button animations START */
-        /** */
-
-        /** LOAD MORE button animations START */
-        /** */
 
     }
 
     @Override
-    public void onAnimationEnd(Animation animation) {
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        adapter.swapCursor(data);
+        if (position == RecyclerView.NO_POSITION) position = 0;
+//        recyclerView.smoothScrollToPosition(position);
 
-        /** RESET button animations END */
-        /** */
-
-        /** LOAD MORE button animations END */
-        /** */
-
-    }
-
-    @Override
-    public void onAnimationRepeat(Animation animation) {
-
-    }
-
-    private void setAnimationListener(Animation... animations) {
-        for (Animation a : animations) {
-            if (a != null) a.setAnimationListener(this);
+        if (data.getCount() != 0) {
+            showRecyclerView();
+        } else {
+            hideLoading();
         }
+
+//        makeToast(ShiftViewActivity.this, "loaded " + data.getCount() + " workweeks");
     }
 
-    private Cursor getCurrentWorkWeeks() {
-        // get the ISO8601 formatted string for Monday 00:00 of the current week
-        String datetimeString = DateUtil.getStartDateForCurrentWeek();
-//        String[] projection = new String[] { ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME };
-//        String selection = ShiftyContract.Shift.COLUMN_WEEK_START_DATETIME + " >= ?";
-        String[] selectionArgs = new String[] { datetimeString };
-
-        return getContentResolver().query(
-                ShiftyContract.Shift.CONTENT_URI, // query Shift table (/shift)
-                null,
-                null, // get all columns
-                selectionArgs,
-                ShiftyContract.Workweek._ID + " asc" // order by week start date, earliest to latest
-        );
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter.swapCursor(null);
     }
 
-//    private Cursor getCurrentShifts() {
-//        // get the ISO8601 formatted string for Monday 00:00 of the current week
-//        String datetimeString = DateUtil.getStartDateForCurrentWeek();
-//        String selection = ShiftyContract.Shift.COLUMN_WEEK_START_DATETIME + " >= ?";
-//        String[] selectionArgs = new String[] { datetimeString };
-//
-//        return getContentResolver().query(
-//                ShiftyContract.Shift.CONTENT_URI, // query Shift table (/shift)
-//                null, // get all columns
-//                selection, // get all shifts from this week onwards
-//                selectionArgs,
-//                ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME + " asc" // order by shift start time, earliest to latest
-//        );
-//    }
+    private void showRecyclerView() {
+        progressBar.setVisibility(View.INVISIBLE);
+        recyclerView.setVisibility(View.VISIBLE);
+    }
 
-//    private void testGetCurrentShifts() {
-//        Log.d(TAG, "start testGetCurrentShifts");
-//        Cursor cursor = getCurrentShifts();
-//        if (cursor.moveToFirst()) {
-//            do {
-//                int dateCol = cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME);
-//                String date = cursor.getString(dateCol);
-//                Log.d(TAG, date);
-//            } while (cursor.moveToNext());
-//        } else {
-//            Log.d(TAG, "cursor was empty");
-//        }
-//    }
+    private void showLoading() {
+        recyclerView.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void hideLoading() {
+        progressBar.setVisibility(View.INVISIBLE);
+    }
 
 }
