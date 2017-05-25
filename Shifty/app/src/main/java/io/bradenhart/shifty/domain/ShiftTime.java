@@ -87,6 +87,7 @@ public class ShiftTime implements Serializable {
         }
 
         public static Hour get(int h) {
+            if (h > 12) h -= 12;
             switch (h) {
                 case 1:
                     return ONE;
