@@ -105,7 +105,7 @@
             android:tint="#fff" />
 
         <TextView
-            android:id="@+id/textview_shift_length"
+            android:id="@+id/textview_paid_hours"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"

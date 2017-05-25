@@ -2,9 +2,6 @@ package io.bradenhart.shifty.util;
 
 import android.util.Log;
 
-import io.bradenhart.shifty.domain.Shift;
-import io.bradenhart.shifty.domain.ShiftTime;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -17,40 +14,32 @@ import java.util.Locale;
 
 public class DateUtil {
 
+    public static final String FMT_ISO_8601_DATETIME = "yyyy-MM-dd HH:mm:ss.sss";
+    public static final String FMT_ISO_8601_DATE = "yyyy-MM-dd";
+    public static final String FMT_ISO_8601_TIME = "HH:MM:SS.sss";
     public static final String FMT_WEEKDAY_FULL = "EEEE";
-    public static final String FMT_DATETIME_PD = "yyyy-MM-dd HH:mm:ss a";
+    //    public static final String FMT_DATETIME_PD = "yyyy-MM-dd HH:mm:ss a";
     public static final String FMT_DATETIME = "yyyy-MM-dd HH:mm:ss";
     private static final String FMT_YEAR_FULL = "yyyy";
     private static final String FMT_MONTH_SHORT = "M";
     private static final String FMT_DAY_SHORT = "d";
-    private static final String FMT_DAY_DATE = "dd MMM ''yy";
+    public static final String FMT_TIME_SHORT = "hh:mm a";
+    public static final String FMT_DAY_DATE = "dd MMM ''yy";
 
-//    public DateUtil() {
-//
-//    }
-//
-//    public DateUtil(Calendar calendar) {
-//
-//    }
-//
-//    public DateUtil(Shift shift) {
-//
-//    }
-//
-//    public DateUtil(Date date) {
-//
-//    }
+    public static String getDatestringWithFormat(String format, Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+        return sdf.format(date);
+    }
 
-    public static String getWeekStart(String dateString) {
+    public static String getWeekStart(String dateString, String format) {
         Calendar c = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
         try {
             c.setTime(sdf.parse(dateString));
-            c.set(Calendar.HOUR, 0);
-            c.set(Calendar.MINUTE, 0);
-            c.set(Calendar.SECOND, 0);
-            c.set(Calendar.AM_PM, Calendar.AM);
-//            c.setFirstDayOfWeek(Calendar.MONDAY);
+            c.set(Calendar.HOUR_OF_DAY, c.getMinimum(Calendar.HOUR_OF_DAY));
+            c.set(Calendar.MINUTE, c.getMinimum(Calendar.MINUTE));
+            c.set(Calendar.SECOND, c.getMinimum(Calendar.SECOND));
+            c.set(Calendar.MILLISECOND, c.getMinimum(Calendar.MILLISECOND));
             if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
                 c.add(Calendar.DAY_OF_WEEK, -6);
             } else {
@@ -63,18 +52,21 @@ public class DateUtil {
         }
     }
 
-    public static String getWeekEnd(String dateString) {
+    public String getStartOfCurrentWeek(String format) {
         Calendar c = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
+        return getWeekStart(c.getTime(), format);
+    }
+
+    public static String getWeekEnd(String dateString, String format) {
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
         try {
-            c.setTime(sdf.parse(getWeekStart(dateString)));
-//            c.setFirstDayOfWeek(Calendar.MONDAY);
-            c.set(Calendar.HOUR, 11);
-            c.set(Calendar.MINUTE, 59);
-            c.set(Calendar.SECOND, 59);
-            c.set(Calendar.AM_PM, Calendar.PM);
+            c.setTime(sdf.parse(getWeekStart(dateString, format)));
+            c.set(Calendar.HOUR_OF_DAY, c.getMaximum(Calendar.HOUR_OF_DAY));
+            c.set(Calendar.MINUTE, c.getMaximum(Calendar.MINUTE));
+            c.set(Calendar.SECOND, c.getMaximum(Calendar.SECOND));
+            c.set(Calendar.MILLISECOND, c.getMaximum(Calendar.MILLISECOND));
             c.add(Calendar.DAY_OF_YEAR, 6);
-//            c.set(Calendar.DAY_OF_MONTH, 6);
             return sdf.format(c.getTime());
         } catch (ParseException e) {
             e.printStackTrace();
@@ -82,14 +74,27 @@ public class DateUtil {
         }
     }
 
-    public static String getWeekStart(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
-        return getWeekStart(sdf.format(date));
+    public static String getWeekStart(Date date, String format) {
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+        c.setTime(date);
+        c.set(Calendar.HOUR, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.AM_PM, Calendar.AM);
+
+        if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            c.add(Calendar.DAY_OF_WEEK, -6);
+        } else {
+            c.add(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek() - c.get(Calendar.DAY_OF_WEEK) + 1);
+        }
+
+        return sdf.format(c.getTime());
     }
 
-    public static String getWeekEnd(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
-        return getWeekEnd(sdf.format(date));
+    public static String getWeekEnd(Date date, String format) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+        return getWeekEnd(sdf.format(date), format);
     }
 
     // -ve offset means start in the past, +ve offset means start in the future,
@@ -113,7 +118,7 @@ public class DateUtil {
 
         SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
 
-        String[] datetimes = new String[weeks+1];
+        String[] datetimes = new String[weeks + 1];
         datetimes[0] = sdf.format(c.getTime());
 
         for (int i = 1; i <= weeks; i++) {
@@ -126,19 +131,20 @@ public class DateUtil {
         return datetimes;
     }
 
-    public static String getYMDString(int year, int month, int day) {
+    public static String getPrettyDateString(String dateString, String format) {
         Calendar c = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        c.set(year, month, day);
-        return sdf.format(c.getTime());
-    }
+        Date date = null;
+        try {
+            date = new SimpleDateFormat(format, Locale.ENGLISH).parse(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
-    public static String getDateString(String ymd, ShiftTime time) {
-        return String.format(Locale.ENGLISH,
-                            "%s %02d:%02d:00",
-                            ymd,
-                            time.getHour().value(),
-                            time.getMinute().value());
+        if (date != null) {
+            return new SimpleDateFormat("EEEE, d MMMM yyyy", Locale.ENGLISH).format(date);
+        }
+
+        return "";
     }
 
     public static String getPrettyDateString(int year, int month, int day) {
@@ -148,10 +154,10 @@ public class DateUtil {
         return sdf.format(c.getTime());
     }
 
-    public static String getDayOfMonth(String dateString) {
+    public static String getDayOfMonth(String dateString, String format) {
         Date date;
         try {
-            date = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH).parse(dateString);
+            date = new SimpleDateFormat(format, Locale.ENGLISH).parse(dateString);
         } catch (ParseException e) {
             e.printStackTrace();
             return "-1";
@@ -159,21 +165,21 @@ public class DateUtil {
         return new SimpleDateFormat("d", Locale.ENGLISH).format(date);
     }
 
-    public static String getWeekday(String dateString, String format) {
+    public static String getWeekday(String dateString, String fromformat, String toFormat) {
         Date date;
         try {
-            date = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH).parse(dateString);
+            date = new SimpleDateFormat(fromformat, Locale.ENGLISH).parse(dateString);
         } catch (ParseException e) {
             e.printStackTrace();
             return "ERR";
         }
-        return new SimpleDateFormat(format, Locale.ENGLISH).format(date);
+        return new SimpleDateFormat(toFormat, Locale.ENGLISH).format(date);
     }
 
-    public static Integer getYear(String dateString) {
+    public static Integer getYear(String dateString, String format) {
         Date date;
         try {
-            date = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH).parse(dateString);
+            date = new SimpleDateFormat(format, Locale.ENGLISH).parse(dateString);
         } catch (ParseException e) {
             e.printStackTrace();
             return 1994;
@@ -189,10 +195,10 @@ public class DateUtil {
         return year;
     }
 
-    public static Integer getMonth(String dateString) {
+    public static Integer getMonth(String dateString, String format) {
         Date date;
         try {
-            date = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH).parse(dateString);
+            date = new SimpleDateFormat(format, Locale.ENGLISH).parse(dateString);
         } catch (ParseException e) {
             e.printStackTrace();
             return 1;
@@ -208,10 +214,10 @@ public class DateUtil {
         return month;
     }
 
-    public static Integer getDay(String dateString) {
+    public static Integer getDay(String dateString, String format) {
         Date date;
         try {
-            date = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH).parse(dateString);
+            date = new SimpleDateFormat(format, Locale.ENGLISH).parse(dateString);
         } catch (ParseException e) {
             e.printStackTrace();
             return 1;
@@ -227,49 +233,119 @@ public class DateUtil {
         return day;
     }
 
-    public static double getShiftProgress(Shift shift) {
+    public static Integer getHour(String dateString, String format) {
+        Date date;
+        try {
+            date = new SimpleDateFormat(format, Locale.ENGLISH).parse(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return 1;
+        }
+        String dayString = new SimpleDateFormat("HH", Locale.ENGLISH).format(date);
+        Integer hour;
+        try {
+            hour = Integer.parseInt(dayString);
+        } catch (NumberFormatException ex) {
+            ex.printStackTrace();
+            return 1;
+        }
+        return hour;
+    }
+
+    public static Integer getMinute(String dateString, String format) {
+        Date date;
+        try {
+            date = new SimpleDateFormat(format, Locale.ENGLISH).parse(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return 1;
+        }
+        String dayString = new SimpleDateFormat("mm", Locale.ENGLISH).format(date);
+        Integer minute;
+        try {
+            minute = Integer.parseInt(dayString);
+        } catch (NumberFormatException ex) {
+            ex.printStackTrace();
+            return 0;
+        }
+        return minute;
+    }
+
+    public static String getPeriod(String dateString, String format) {
+        return getHour(dateString, format) < 12 ? "AM" : "PM";
+    }
+
+    public static String getTime(String dateString, String fromFormat, String toFormat) {
+        Date date;
+        try {
+            date = new SimpleDateFormat(fromFormat, Locale.ENGLISH).parse(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return "ERR";
+        }
+        return new SimpleDateFormat(toFormat, Locale.ENGLISH).format(date);
+    }
+
+    public static double getHoursBetween(String dateString1, String dateString2, String format) {
+        Date date1;
+        Date date2;
+
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+
+        try {
+            date1 = sdf.parse(dateString1);
+            date2 = sdf.parse(dateString2);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return 0.0;
+        }
+
+        long diff;
+
+        int order = date2.compareTo(date1);
+        if (order == 0) return 0.0;
+        else if (order > 0) {
+            diff = date2.getTime() - date1.getTime();
+        } else {
+            diff = date1.getTime() - date2.getTime();
+        }
+
+        // ms / 1000 = s; s / 60 = m; m / 60 = h
+        return (double) diff / 1000 / 60 / 60;
+    }
+
+    public static double getShiftProgress(String startTime, String endTime, String format) {
         // shift's datetime
         Calendar start = Calendar.getInstance();
         Calendar end = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
         try {
-            start.setTime(sdf.parse(shift.getStartDateTimeString()));
-            end.setTime(sdf.parse(shift.getEndDateTimeString()));
+            start.setTime(sdf.parse(startTime));
+            end.setTime(sdf.parse(endTime));
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
         // current datetime
         Calendar now = Calendar.getInstance();
-//        try {
-//            now.setTime(sdf.parse("2017-04-18 09:00:00"));
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
         if (now.before(start)) {
-//            Log.e("Progress", sdf.format(now.getTime()) + " Before " + shift.getStartDateTimeString());
             return 0;
         }
 
         if (now.after(end)) {
-//            Log.e("Progress", sdf.format(now.getTime()) + " After " + shift.getEndDateTimeString());
             return 1;
         }
 
         if (now.after(start) && now.before(end)) {
-//            Log.e("Progress", shift.getId() + " Equal");
-//            return (int) ((end.getTimeInMillis() - now.getTimeInMillis()));
-            long mins = ((end.getTimeInMillis() - start.getTimeInMillis())/1000)/60; //mins for shift
-            long diff = ((now.getTimeInMillis() - start.getTimeInMillis())/1000)/60; //mins passed
-            return (double) diff/mins;
+            long mins = ((end.getTimeInMillis() - start.getTimeInMillis()) / 1000) / 60; //mins for shift
+            long diff = ((now.getTimeInMillis() - start.getTimeInMillis()) / 1000) / 60; //mins passed
+            return (double) diff / mins;
         }
 
-//        Log.e("Progress", "Nothing");
         return 0;
     }
 
     public static Date getDateFromDateTime(String datetime) {
-        Calendar c = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
         try {
             Date date = sdf.parse(datetime);
@@ -294,28 +370,9 @@ public class DateUtil {
         return title;
     }
 
-    /*public static String[] getDateRange(int weeks) {
-        String[] range = new String[2];
-        SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
-
+    public static String getStartDateForCurrentWeek() {
         Calendar c = Calendar.getInstance();
-        c.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        c.set(Calendar.HOUR, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.AM_PM, Calendar.AM);
-        range[0] = sdf.format(c.getTime());
-
-        c = Calendar.getInstance();
-        c.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        c.set(Calendar.HOUR, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.AM_PM, Calendar.AM);
-        c.add(Calendar.WEEK_OF_YEAR, weeks);
-        range[1] = sdf.format(c.getTime());
-
-        return range;
-    }*/
+        return getWeekStart(c.getTime(), FMT_ISO_8601_DATETIME);
+    }
 
 }

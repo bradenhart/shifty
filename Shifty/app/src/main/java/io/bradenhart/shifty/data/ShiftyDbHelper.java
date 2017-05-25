@@ -19,19 +19,34 @@ class ShiftyDbHelper extends SQLiteOpenHelper {
     private Context context;
 
     private final String SQL_CREATE_SHIFT = "create table " + Shift.TABLE_NAME + "("
-            + Shift._ID                         + " text primary key, "
-            + Shift.COLUMN_NAME_START_HOUR      + " text not null, "
-            + Shift.COLUMN_NAME_START_MIN       + " text not null, "
-            + Shift.COLUMN_NAME_START_PERIOD    + " text not null, "
-            + Shift.COLUMN_NAME_END_HOUR        + " text not null, "
-            + Shift.COLUMN_NAME_END_MIN         + " text not null, "
-            + Shift.COLUMN_NAME_END_PERIOD      + " text not null, "
-            + Shift.COLUMN_NAME_WEEK_START      + " text not null"
-                                                + ")";
+            + Shift._ID + " integer primary key autoincrement, "
+            + Shift.COLUMN_WORKWEEK_ID + " text not null, "
+            + Shift.COLUMN_SHIFT_START_DATETIME + " text not null, "
+            + Shift.COLUMN_SHIFT_END_DATETIME + " text not null, "
+            + Shift.COLUMN_TOTAL_SHIFT_HOURS + " real, "
+            + Shift.COLUMN_PAID_HOURS + " real, "
+            + "constraint shift_unique unique("
+                + Shift.COLUMN_SHIFT_START_DATETIME + ", "
+                + Shift.COLUMN_SHIFT_END_DATETIME + "), "
+            + "foreign key(" + Shift.COLUMN_WORKWEEK_ID + ")"
+            + " references " + Workweek.TABLE_NAME + "(" + Workweek._ID + ")"
+            + ");";
+
+    private final String SQL_CREATE_WORKWEEK = "create table " + Workweek.TABLE_NAME + "("
+            + Workweek._ID + " text primary key, "
+            + Workweek.COLUMN_WEEK_START_DATETIME + " text not null, "
+            + Workweek.COLUMN_WEEK_END_DATETIME + " text not null, "
+            + Workweek.COLUMN_TOTAL_PAID_HOURS + " real default 0.0, "
+            + "constraint week_unique unique("
+            + Workweek.COLUMN_WEEK_START_DATETIME + ", "
+            + Workweek.COLUMN_WEEK_END_DATETIME + ") "
+            + ");";
+
+
+
 
     private final String SQL_DELETE_SHIFT = "drop table if exists " + Shift.TABLE_NAME;
-
-//    private final String SQL_DELETE_WEEK = "drop table if exists " + Week.TABLE_NAME;
+    private final String SQL_DELETE_WORKWEEK = "drop table if exists " + Shift.TABLE_NAME;
 
     private ShiftyDbHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -39,19 +54,42 @@ class ShiftyDbHelper extends SQLiteOpenHelper {
     }
 
     static synchronized ShiftyDbHelper getInstance(Context context) {
-        return dbHelper == null ? new ShiftyDbHelper(context) : dbHelper;
+        if (dbHelper == null) {
+            dbHelper = new ShiftyDbHelper(context);
+        }
+        return dbHelper;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_WORKWEEK);
         db.execSQL(SQL_CREATE_SHIFT);
-//        db.execSQL(SQL_CREATE_WEEK);
+
+//        db.execSQL(SQL_CREATE_TR_BI_SHIFT);
+//        db.execSQL(SQL_CREATE_TR_AI_SHIFT);
+//        db.execSQL(SQL_CREATE_TR_AU_SHIFT_TSH);
+//        db.execSQL(SQL_CREATE_TR_AU_SHIFT_PH_VALID);
+//        db.execSQL(SQL_CREATE_TR_AD_SHIFT_PH_VALID);
+//        db.execSQL(SQL_CREATE_TR_AD_WORKWEEK);
+//        db.execSQL(SQL_CREATE_TR_AU_WORKWEEK_TPS_ZERO);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-//        db.execSQL(SQL_DELETE_WEEK);
-        db.execSQL(SQL_DELETE_SHIFT);
-        onCreate(db);
+//        if (oldVersion == 1 && newVersion == 2) {
+//            db.execSQL(SQL_CREATE_TR_AU_SHIFT_TSH);
+//        } else if (oldVersion == 2 && newVersion == 3) {
+//            db.execSQL(SQL_CREATE_TR_AI_SHIFT);
+//        } else if (oldVersion == 3 && newVersion == 4) {
+//            db.execSQL(SQL_CREATE_TR_AU_SHIFT_TSH);
+//            db.execSQL(SQL_CREATE_TR_AU_SHIFT_PH_VALID);
+//            db.execSQL(SQL_CREATE_TR_AD_SHIFT_PH_VALID);
+//            db.execSQL(SQL_CREATE_TR_AD_WORKWEEK);
+//            db.execSQL(SQL_CREATE_TR_AU_WORKWEEK_TPS_ZERO);
+//        } //else {
+            db.execSQL(SQL_DELETE_WORKWEEK);
+            db.execSQL(SQL_DELETE_SHIFT);
+            onCreate(db);
+//        }
     }
 }

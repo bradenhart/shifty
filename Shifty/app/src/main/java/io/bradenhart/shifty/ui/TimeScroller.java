@@ -14,11 +14,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import io.bradenhart.shifty.R;
-import io.bradenhart.shifty.domain.ShiftTime;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
-
-import butterknife.ButterKnife;
 
 /**
  * Created by bradenhart on 25/03/17.
@@ -29,29 +28,21 @@ public class TimeScroller extends FrameLayout {
     final String TAG = "TimeScroller";
 
     View rootView;
-    LinearLayout hourLayout, minLayout, periodLayout;
-    MyScrollView hourScrollView, minScrollView, periodScrollView;
+    LinearLayout hourLayout, minuteLayout, periodLayout;
+    MyScrollView hourScrollView, minuteScrollView, periodScrollView;
 
     String hour = "1";
-    String min = "00";
+    String minute = "00";
     String period = "AM";
-
-//    @BindDimen(R.dimen.timeScrollerTextViewHeight) int unitHeight;
-
-//    private enum Scroller {
-//        HOUR, MIN, PERIOD;
-//    }
 
     public TimeScroller(@NonNull Context context) {
         super(context);
         init(context);
-//        ButterKnife.bind(this);
     }
 
     public TimeScroller(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context);
-        ButterKnife.bind(this);
     }
 
     /* initialise the components of the TimeScroller here */
@@ -59,15 +50,15 @@ public class TimeScroller extends FrameLayout {
         rootView = inflate(context, R.layout.view_time_scroller, this);
 
         hourLayout = (LinearLayout) rootView.findViewById(R.id.llayout_hours);
-        minLayout = (LinearLayout) rootView.findViewById(R.id.llayout_mins);
+        minuteLayout = (LinearLayout) rootView.findViewById(R.id.llayout_mins);
         periodLayout = (LinearLayout) rootView.findViewById(R.id.llayout_period);
 
         hourScrollView = (MyScrollView) rootView.findViewById(R.id.scrollview_hours);
-        minScrollView = (MyScrollView) rootView.findViewById(R.id.scrollview_mins);
+        minuteScrollView = (MyScrollView) rootView.findViewById(R.id.scrollview_mins);
         periodScrollView = (MyScrollView) rootView.findViewById(R.id.scrollview_period);
 
         initScrollViewActions(hourScrollView, hourLayout);
-        initScrollViewActions(minScrollView, minLayout);
+        initScrollViewActions(minuteScrollView, minuteLayout);
         initScrollViewActions(periodScrollView, periodLayout);
 
     }
@@ -92,37 +83,15 @@ public class TimeScroller extends FrameLayout {
                 int childHeight = layout.getHeight() / layout.getChildCount();
                 int scrollY = scrollView.getScrollY();
                 int offset = scrollY % childHeight;
-//                Log.e(TAG, "layout height: " + layout.getHeight());
-//                Log.e(TAG, "child count: " + layout.getChildCount());
-//                Log.e(TAG, "child height: " + childHeight);
-//                Log.e(TAG, "offset: " + offset);
-//                Log.e(TAG, "scrollY: " + scrollY);
-//                Log.e(TAG, "index: " );
 
                 int newY;
-                int index = 0;
                 if (offset >= 0 && offset < (0.6 * childHeight)) {
                     newY = scrollY - offset;
                     scrollView.scrollTo(0, newY);
-                    //index = newY / childHeight + 1;
-                    //System.out.println(((TextView) layout.getChildAt(newY/childHeight)).getText().toString());
                 } else if (offset >= (0.6 * childHeight) && offset < childHeight) {
                     newY = scrollY + (childHeight - offset);
                     scrollView.scrollTo(0, newY);
-                    //index = newY / childHeight;
-                    //System.out.println(((TextView) layout.getChildAt(newY/childHeight)).getText().toString());
                 }
-
-//                if (layout.getChildAt(index) instanceof TextView) {
-//                    String textVal = ((TextView) layout.getChildAt(index)).getText().toString();
-//                    switch (scroller) {
-//                        case HOUR: hour = textVal; break;
-//                        case MIN: min = textVal; break;
-//                        case PERIOD: period = textVal; break;
-//                    }
-//                }
-
-                //Log.e(TAG, "time: " + getTime());
             }
 
         });
@@ -142,13 +111,13 @@ public class TimeScroller extends FrameLayout {
             hour = ((TextView) hourLayout.getChildAt(index)).getText().toString();
         }
 
-        // update min
-        childHeight = minLayout.getHeight() / minLayout.getChildCount();
-        scrollY = minScrollView.getScrollY();
+        // update minute
+        childHeight = minuteLayout.getHeight() / minuteLayout.getChildCount();
+        scrollY = minuteScrollView.getScrollY();
         index = scrollY / childHeight + 1;
 
-        if (minLayout.getChildAt(index) instanceof TextView) {
-            min = ((TextView) minLayout.getChildAt(index)).getText().toString();
+        if (minuteLayout.getChildAt(index) instanceof TextView) {
+            minute = ((TextView) minuteLayout.getChildAt(index)).getText().toString();
         }
 
         // update period
@@ -163,30 +132,37 @@ public class TimeScroller extends FrameLayout {
     }
 
     public String getHour() {
+        updateTimeInfo();
+        if (getPeriod().equalsIgnoreCase("PM")) {
+            try {
+                Integer hourVal = Integer.parseInt(hour);
+                hourVal += 12;
+                return hourVal.toString();
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "NumberFormatException converting " + hour + " to Integer");
+            }
+        }
         return hour;
     }
 
-    public String getMin() {
-        return min;
+    public String getMinute() {
+        updateTimeInfo();
+        return minute;
     }
 
     public String getPeriod() {
+        updateTimeInfo();
         return period;
     }
 
     public String getTimeString() {
         updateTimeInfo();
-        return String.format(Locale.ENGLISH, "%s:%s %s", getHour(), getMin(), getPeriod());
-    }
-
-    public ShiftTime getTime() {
-        updateTimeInfo();
-        return new ShiftTime(ShiftTime.Hour.get(getHour()), ShiftTime.Minute.get(getMin()), ShiftTime.Period.get(getPeriod()));
+        return String.format(Locale.ENGLISH, "%s:%s:00.000", getHour(), getMinute());
     }
 
     public void resetScroller() {
         ObjectAnimator hourAnimator = ObjectAnimator.ofInt(hourScrollView, "scrollY", hourScrollView.getScrollY(), 0).setDuration(1500);
-        ObjectAnimator minuteAnimator = ObjectAnimator.ofInt(minScrollView, "scrollY", minScrollView.getScrollY(), 0).setDuration(1500);
+        ObjectAnimator minuteAnimator = ObjectAnimator.ofInt(minuteScrollView, "scrollY", minuteScrollView.getScrollY(), 0).setDuration(1500);
         ObjectAnimator periodAnimator = ObjectAnimator.ofInt(periodScrollView, "scrollY", periodScrollView.getScrollY(), 0).setDuration(1000);
         hourAnimator.start();
         minuteAnimator.start();
@@ -194,44 +170,64 @@ public class TimeScroller extends FrameLayout {
         updateTimeInfo();
     }
 
-    public long scrollHourTo(ShiftTime.Hour hour, long delay) {
-        Log.e("HOUR", delay + "");
-        if (hour == ShiftTime.Hour.ONE) return 0;
+    private long scrollHourTo(Integer hour, long delay) {
+        // if the hour is 1, no scrolling needs to be done
+        if (hour == 1) return 0;
+        if (hour > 12) hour -= 13;
+        else hour -= 1;
         int unitHeight = hourScrollView.getUnitHeight();
-        ObjectAnimator objectAnimator = ObjectAnimator.ofInt(hourScrollView, "scrollY", 0, hour.ordinal() * unitHeight).setDuration(1500);
+        ObjectAnimator objectAnimator = ObjectAnimator.ofInt(hourScrollView, "scrollY", 0, hour * unitHeight).setDuration(1500);
         objectAnimator.setStartDelay(delay);
         objectAnimator.start();
 
         return objectAnimator.getDuration();
     }
 
-    public long scrollMinTo(ShiftTime.Minute minute, long delay) {
-//        Log.e("MINUTE", delay + "");
-        if (minute == ShiftTime.Minute.ZERO) return 0;
-        int unitHeight = minScrollView.getUnitHeight();
-        ObjectAnimator objectAnimator = ObjectAnimator.ofInt(minScrollView, "scrollY", 0, minute.ordinal() * unitHeight).setDuration(1500);
+    private long scrollMinTo(Integer minute, long delay) {
+        // if the minute is 0, no scrolling needs to be done
+        if (minute == 0) return 0;
+        int unitHeight = minuteScrollView.getUnitHeight();
+        ObjectAnimator objectAnimator = ObjectAnimator.ofInt(minuteScrollView, "scrollY", 0, (minute/5) * unitHeight).setDuration(1500);
         objectAnimator.setStartDelay(delay);
         objectAnimator.start();
         return objectAnimator.getDuration();
     }
 
-    public long scrollPeriodTo(ShiftTime.Period period, long delay) {
-//        Log.e("PERIOD", delay + "");
-        if (period == ShiftTime.Period.AM) return 0;
+    private long scrollPeriodTo(String period, long delay) {
+        // if the period is AM, no scrolling needs to be done
+        if (period.equals("AM")) return 0;
         int unitHeight = periodScrollView.getUnitHeight();
-        ObjectAnimator objectAnimator = ObjectAnimator.ofInt(periodScrollView, "scrollY", 0, period.ordinal() * unitHeight).setDuration(1000);
+        ObjectAnimator objectAnimator = ObjectAnimator.ofInt(periodScrollView, "scrollY", 0, unitHeight).setDuration(1000);
         objectAnimator.setStartDelay(delay);
         objectAnimator.start();
         return objectAnimator.getDuration();
     }
 
-    public long scrollAllTo(long startDelay, ShiftTime.Hour hour, ShiftTime.Minute minute, ShiftTime.Period period) {
+    public long scrollAllTo(long startDelay, Integer hour, Integer minute, String period) {
         long delay = startDelay;
         delay += scrollHourTo(hour, startDelay);
         delay += scrollMinTo(minute, delay);
         delay += scrollPeriodTo(period, delay);
-        Log.e("DELAY", delay + "");
         return delay;
+    }
+
+    public void scrollAllAtOnce(long startDelay, Integer hour, Integer minute, String period) {
+        scrollHourTo(hour, startDelay);
+        scrollMinTo(minute, startDelay);
+        scrollPeriodTo(period, startDelay);
+    }
+
+    public int compareTo(TimeScroller otherScroller) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
+        String thisTime = getHour() + ":" + getMinute();
+        String otherTime = otherScroller.getHour() + ":" + otherScroller.getMinute();
+
+        Log.d("TimeScroller", "comparing " + thisTime + " and " + otherTime);
+
+        int result = sdf.parse(thisTime).compareTo(sdf.parse(otherTime));
+
+        Log.d("TimeScoller", "result: " + result);
+        return result;
     }
 
 }

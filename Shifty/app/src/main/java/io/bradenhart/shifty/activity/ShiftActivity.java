@@ -1,8 +1,11 @@
 package io.bradenhart.shifty.activity;
 
 import android.app.DatePickerDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -19,18 +22,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import io.bradenhart.shifty.R;
-import io.bradenhart.shifty.data.DatabaseManager;
-import io.bradenhart.shifty.domain.Shift;
-import io.bradenhart.shifty.domain.ShiftTime;
+import io.bradenhart.shifty.data.ShiftyContract;
 import io.bradenhart.shifty.ui.TimeScroller;
 import io.bradenhart.shifty.util.DateUtil;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.bradenhart.shifty.util.Utils;
 
 import static java.util.Calendar.DAY_OF_MONTH;
 import static java.util.Calendar.MONTH;
@@ -68,27 +73,21 @@ public class ShiftActivity extends AppCompatActivity {
     @BindView(R.id.button_save_shift)
     AppCompatButton shiftButton;
 
-    private String[] monthsFull = {"January", "February", "March", "April", "May", "June", "July",
-            "August", "September", "November", "December"};
-    private String[] monthsShort = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
-            "Nov", "Dec"};
-    private String[] daysFull = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
-            "Sunday"};
-    private String[] daysShort = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-
-    Date selectedDate;
+    Date shiftDate;
     Boolean editModeEnabled = false;
-    Shift shift;
-    String ymdString;
+    String shiftID;
+    Cursor cursor;
+    String startDatetime;
+    String endDatetime;
 
-    public static enum Mode {
+    public enum Mode {
         CREATE, EDIT
     }
 
-    public static void start(Context context, Mode mode, Shift shift) {
+    public static void start(Context context, Mode mode, String shiftID) {
         Intent intent = new Intent(context, ShiftActivity.class);
         intent.putExtra(ShiftActivity.KEY_EDIT_MODE, mode == Mode.EDIT);
-        intent.putExtra(ShiftActivity.KEY_SHIFT, shift);
+        intent.putExtra(ShiftActivity.KEY_SHIFT, shiftID);
         context.startActivity(intent);
     }
 
@@ -108,12 +107,34 @@ public class ShiftActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             editModeEnabled = bundle.getBoolean(KEY_EDIT_MODE, false);
-            if (bundle.containsKey(KEY_SHIFT)) shift = (Shift) bundle.getSerializable(KEY_SHIFT);
+            if (bundle.containsKey(KEY_SHIFT)) shiftID = bundle.getString(KEY_SHIFT);
         }
-        if (shift != null) {
-            selectedDate = shift.getDate();
-            dayTextView.setText(DateUtil.getPrettyDateString(DateUtil.getYear(shift.getId()), DateUtil.getMonth(shift.getId()), DateUtil.getDay(shift.getId())));
+        if (shiftID != null) {
+            Uri shiftUri = Uri.withAppendedPath(ShiftyContract.Shift.CONTENT_URI, shiftID);
+            String selection = ShiftyContract.Shift._ID + " = ?";
+            String[] selectionArgs = new String[] {shiftID};
+            cursor = getContentResolver().query(shiftUri,
+                    null,
+                    selection,
+                    selectionArgs,
+                    null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int startCol = cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME);
+                int endCol = cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME);
+                startDatetime = cursor.getString(startCol);
+                endDatetime = cursor.getString(endCol);
+            }
         }
+
+        if (startDatetime != null) {
+            dayTextView.setText(DateUtil.getPrettyDateString(startDatetime, DateUtil.FMT_ISO_8601_DATETIME));
+            try {
+                shiftDate = new SimpleDateFormat(DateUtil.FMT_ISO_8601_DATETIME, Locale.ENGLISH).parse(startDatetime);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
         shiftButton.setText(editModeEnabled ? "UPDATE" : "ADD");
         title = editModeEnabled ? TITLE_EDIT : TITLE_NEW;
 
@@ -138,11 +159,31 @@ public class ShiftActivity extends AppCompatActivity {
             @Override
             public void onGlobalLayout() {
                 startTimeScroller.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                if (editModeEnabled && shift != null) {
-                    ShiftTime startTime = shift.getStartTime();
-                    ShiftTime endTime = shift.getEndTime();
-                    long endTimeDelay = startTimeScroller.scrollAllTo(500, startTime.getHour(), startTime.getMinute(), startTime.getPeriod());
-                    endTimeScroller.scrollAllTo(endTimeDelay, endTime.getHour(), endTime.getMinute(), endTime.getPeriod());
+
+                if (editModeEnabled && shiftID != null) {
+                    String fmt = DateUtil.FMT_ISO_8601_DATETIME;
+
+//                    long endTimeDelay = startTimeScroller.scrollAllTo(500,
+//                            DateUtil.getHour(startDatetime, fmt),
+//                            DateUtil.getMinute(startDatetime, fmt),
+//                            DateUtil.getPeriod(startDatetime, fmt));
+//
+//                    endTimeScroller.scrollAllTo(endTimeDelay,
+//                            DateUtil.getHour(endDatetime, fmt),
+//                            DateUtil.getMinute(endDatetime, fmt),
+//                            DateUtil.getPeriod(endDatetime, fmt));
+
+                    startTimeScroller.scrollAllAtOnce(500,
+                            DateUtil.getHour(startDatetime, fmt),
+                            DateUtil.getMinute(startDatetime, fmt),
+                            DateUtil.getPeriod(startDatetime, fmt));
+
+                    endTimeScroller.scrollAllAtOnce(500,
+                            DateUtil.getHour(endDatetime, fmt),
+                            DateUtil.getMinute(endDatetime, fmt),
+                            DateUtil.getPeriod(endDatetime, fmt));
+
+//                    Utils.makeToast(ShiftActivity.this, "end hour: " + DateUtil.getHour(endDatetime, fmt));
                 }
             }
         });
@@ -170,23 +211,22 @@ public class ShiftActivity extends AppCompatActivity {
     @OnClick(R.id.button_day)
     public void onClickDayButton() {
         final Calendar c = Calendar.getInstance();
-        Log.e("Calendar", c.toString());
 
-        if (shift != null) {
-            c.set(DateUtil.getYear(shift.getId()), DateUtil.getMonth(shift.getId()), DateUtil.getDay(shift.getId()));
+        if (shiftDate != null) {
+            c.setTime(shiftDate);
         }
+
         DatePickerDialog datePickerFragment = new DatePickerDialog(this,
                 android.R.style.Theme_DeviceDefault_Light_Dialog,
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                        // display the selected date
                         dayTextView.setText(DateUtil.getPrettyDateString(year, month, day));
-
-                        if (editModeEnabled) ymdString = DateUtil.getYMDString(year, month, day);
 
                         Calendar chosen = (Calendar) c.clone();
                         chosen.set(year, month, day);
-                        selectedDate = chosen.getTime();
+                        shiftDate = chosen.getTime();
                     }
                 },
                 c.get(YEAR),
@@ -197,65 +237,84 @@ public class ShiftActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_save_shift)
     public void onClickAddShiftButton() {
-        if (selectedDate == null) {
-            makeToast("Please select a date", Toast.LENGTH_LONG);
+        if (shiftDate == null) {
+            Utils.makeToast(ShiftActivity.this, "Please select a date", Toast.LENGTH_LONG);
             return;
         }
 
-        ShiftTime startTime = startTimeScroller.getTime();
-        ShiftTime endTime = endTimeScroller.getTime();
-
-        if (endTime.before(startTime)) {
-            makeToast("Start time must be before end time", Toast.LENGTH_LONG);
-            return;
+        try {
+            int timeComparison = startTimeScroller.compareTo(endTimeScroller);
+            if (timeComparison == 0) {
+                // start time is the same as the end time
+                Utils.makeToast(ShiftActivity.this, "Start time and end time should be different", Toast.LENGTH_LONG);
+                return;
+            } else if (timeComparison > 0) {
+                // start time is after the end time
+                Utils.makeToast(ShiftActivity.this, "Start time must be before end time", Toast.LENGTH_LONG);
+                return;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
 
+        String dateString = DateUtil.getDatestringWithFormat(DateUtil.FMT_ISO_8601_DATE, shiftDate);
+        String startTime = startTimeScroller.getTimeString();
+        String endTime = endTimeScroller.getTimeString();
+
+        String startDatetime = dateString + " " + startTime;
+        String endDatetime = dateString + " " + endTime;
+
+        ContentValues values = new ContentValues();
+        values.put(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME, startDatetime);
+        values.put(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME, endDatetime);
         if (editModeEnabled) {
-            // edit mode is enabled
-            new DatabaseManager(getApplicationContext()).deleteShift(shift.getId());
-            // shift id has been changed (date has changed)
-            if (ymdString != null)
-                shift = new Shift(DateUtil.getDateString(ymdString, startTime), selectedDate, startTime, endTime);
-            else shift = new Shift(shift.getId(), selectedDate, startTime, endTime);
-            Log.e("EDIT_MODE", "enabled");
-            Log.e("SHIFT_ID", shift.getId());
+            int numRowsUpdated = getContentResolver().update(
+                    Uri.withAppendedPath(ShiftyContract.Shift.CONTENT_URI, shiftID),
+                    values,
+                    ShiftyContract.Shift._ID + " = ?",
+                    new String[] {shiftID}
+            );
+
+            if (numRowsUpdated == 1) {
+                Utils.makeToast(ShiftActivity.this, "Shift updated");
+            } else {
+                Utils.makeToast(ShiftActivity.this, "Update failed", Toast.LENGTH_LONG);
+            }
+
+//            Intent intent = new Intent(ShiftActivity.this, ShiftViewActivity.class);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            startActivity(intent);
+            finish(); // go back to the parent activity
         } else {
-            // shift created for first time, use constructor that creates id internally
-            shift = new Shift(selectedDate, startTime, endTime);
-//            Log.e("EDIT_MODE", "not enabled");
-//            Log.e("SHIFT_ID", shift.getId());
-        }
+            Uri newUri = getContentResolver().insert(
+                    ShiftyContract.Shift.CONTENT_URI,
+                    values
+            );
 
-        boolean success = new DatabaseManager(getApplicationContext()).insertShift(shift);
+            if (newUri != null) {
+                Utils.makeToast(ShiftActivity.this, "Shift added successfully", Toast.LENGTH_LONG);
+            } else {
+                Utils.makeToast(ShiftActivity.this, "Failed to add shift", Toast.LENGTH_LONG);
+            }
 
-        makeToast("Insert " + (success ? "Succeeded" : "Failed"), Toast.LENGTH_SHORT);
-
-        selectedDate = null;
-        shift = null;
-        dayTextView.setText("---, -- --- --");
-        startTimeScroller.resetScroller();
-        endTimeScroller.resetScroller();
-
-        if (editModeEnabled) {
-            Intent intent = new Intent(ShiftActivity.this, ShiftViewActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+            /* clean up */
+            shiftDate = null;
+            shiftID = null;
+            dayTextView.setText("---, -- --- --");
+            startTimeScroller.resetScroller();
+            endTimeScroller.resetScroller();
         }
 
     }
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(ShiftActivity.this, ShiftViewActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-    }
-
-    private void makeToast(String message, int length) {
-        if (length != Toast.LENGTH_SHORT && length != Toast.LENGTH_LONG) return;
-        Toast.makeText(this, message, length).show();
+//        Intent intent = new Intent(ShiftActivity.this, ShiftViewActivity.class);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        startActivity(intent);
+        finish(); // go back to the parent activity
     }
 
 }

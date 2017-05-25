@@ -3,6 +3,7 @@
     package="io.bradenhart.shifty">
 
     <application
+        android:name=".ShiftyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -27,6 +28,12 @@
         <activity
             android:name=".activity.CalculatorActivity"
             android:parentActivityName=".activity.ShiftViewActivity" />
+
+        <provider
+            android:authorities="io.bradenhart.shifty"
+            android:name=".data.ShiftyContentProvider"
+            android:exported="false"/>
+
     </application>
 
 </manifest>
