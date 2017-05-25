@@ -111,6 +111,18 @@ public class Payslip implements Serializable {
         this.weekDate = weekDate;
     }
 
+    public Payslip(Double hours) {
+        this.gross = calculateGross(hours);
+        this.hours = hours;
+        this.annual = calculateAnnual(gross);
+        this.rate = getTaxRate(annual);
+        this.payeTotal = calculatePaye(gross, getTaxRate(annual), 0.0, rate.getBracket());
+        this.kiwisavEmployee = calculateKiwiSaver(gross, Staff.EMPLOYEE);
+        this.kiwisavEmployer = calculateKiwiSaver(gross, Staff.EMPLOYER);
+        this.studentLoan = calculateStudentLoan(gross);
+        this.net = calculateNet(gross, payeTotal, kiwisavEmployee, studentLoan);
+    }
+
     /**
      * METHODS
      */
