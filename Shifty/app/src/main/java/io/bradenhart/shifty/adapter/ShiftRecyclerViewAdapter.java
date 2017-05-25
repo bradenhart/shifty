@@ -181,6 +181,7 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
         @OnClick(R.id.button_edit_shift)
         void onClickEditButton() {
+            onClickCloseButton();
             ShiftActivity.start(context, ShiftActivity.Mode.EDIT, String.valueOf(root.getTag()));
         }
 
