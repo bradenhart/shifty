@@ -154,9 +154,4 @@ public class ExampleUnitTest {
         }
     }
 
-    @Test
-    public void convertToIntAndBackToString() {
-        String date = "2017-03-29 09:30:00.000";
-        Utils.convertDateTimeStringToInt();
-    }
 }
