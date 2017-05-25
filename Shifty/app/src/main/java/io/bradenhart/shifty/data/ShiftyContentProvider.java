@@ -74,17 +74,31 @@ public class ShiftyContentProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
-            // query the shift table and return results in the form of workweeks
-//            case CODE_WORKWEEK:
-//                cursor = db.query(
-//                        ShiftyContract.Shift.TABLE_NAME,
-//                        projection,
-//                        selection,
-//                        selectionArgs,
-//                        null,
-//                        null,
-//                        sortOrder
-//                );
+            case CODE_SHIFT_WITH_ID:
+                String id = uri.getPathSegments().get(1);
+                cursor = db.query(
+                        ShiftyContract.Shift.TABLE_NAME,
+                        projection,
+                        ShiftyContract.Shift._ID + " = ?",
+                        new String[] {id},
+                        null,
+                        null,
+                        sortOrder,
+                        "1"
+                );
+                break;
+            // query the workweek table
+            case CODE_WORKWEEK:
+                cursor = db.query(
+                        ShiftyContract.Workweek.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -152,17 +166,23 @@ public class ShiftyContentProvider extends ContentProvider {
                         value.put(ShiftyContract.Shift.COLUMN_WORKWEEK_ID, weekStartDatetime);
                         value.put(ShiftyContract.Shift.COLUMN_TOTAL_SHIFT_HOURS, totalShiftHours);
                         value.put(ShiftyContract.Shift.COLUMN_PAID_HOURS, paidHours);
-                        long id = db.insert(ShiftyContract.Shift.TABLE_NAME, null, value);
 
-                        // update the workweek row that the shift references
-                        String updateSQL = "update " + ShiftyContract.Workweek.TABLE_NAME
-                                + " set " + ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS + " = "
-                                + ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS + " + ?"
-                                + " where " + ShiftyContract.Workweek._ID + " = ?";
-                        String[] updateArgs = new String[]{paidHours + "", weekStartDatetime};
-                        db.execSQL(updateSQL, updateArgs);
+                        try {
+                            long id = db.insertOrThrow(ShiftyContract.Shift.TABLE_NAME, null, value);
 
-                        if (id != -1) rowsInserted++;
+                            // update the workweek row that the shift references
+                            String updateSQL = "update " + ShiftyContract.Workweek.TABLE_NAME
+                                    + " set " + ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS + " = "
+                                    + ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS + " + ?"
+                                    + " where " + ShiftyContract.Workweek._ID + " = ?";
+                            String[] updateArgs = new String[]{paidHours + "", weekStartDatetime};
+                            db.execSQL(updateSQL, updateArgs);
+
+                            if (id != -1) rowsInserted++;
+                        } catch (SQLiteConstraintException ex) {
+                            Log.i("ShiftyContentProvider", "shift not inserted, duplicate row already exists");
+                        }
+
                     }
                     db.setTransactionSuccessful();
                 } finally {
@@ -286,6 +306,8 @@ public class ShiftyContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int numRowsDeleted;
 
+        String workweekID = null;
+
         if (selection == null) selection = "1";
 
         switch (match) {
@@ -309,7 +331,7 @@ public class ShiftyContentProvider extends ContentProvider {
                             null);
 
                     Double paidHours = 0.0;
-                    String workweekID = null;
+                    workweekID = null;
                     if (shiftCursor.moveToFirst()) {
                         int paidHoursCol = shiftCursor.getColumnIndex(ShiftyContract.Shift.COLUMN_PAID_HOURS);
                         int workweekIDCol = shiftCursor.getColumnIndex(ShiftyContract.Shift.COLUMN_WORKWEEK_ID);
@@ -320,7 +342,7 @@ public class ShiftyContentProvider extends ContentProvider {
 
                     // delete the shift
                     int tempNumRowsDeleted = db.delete(ShiftyContract.Shift.TABLE_NAME,
-                            ShiftyContract.Shift._ID,
+                            ShiftyContract.Shift._ID + " = ?",
                             new String[]{shiftID});
 
                     // update the workweek row that the shift references
@@ -339,13 +361,13 @@ public class ShiftyContentProvider extends ContentProvider {
                 break;
             case CODE_WORKWEEK_WITH_ID:
                 // get the workweek id from the uri
-                String workweekID = uri.getPathSegments().get(1);
+                workweekID = uri.getPathSegments().get(1);
 
                 db.beginTransaction();
                 try {
                     // delete the shifts that reference the workweek
                     db.delete(ShiftyContract.Shift.TABLE_NAME,
-                            ShiftyContract.Shift.COLUMN_WORKWEEK_ID,
+                            ShiftyContract.Shift.COLUMN_WORKWEEK_ID + " = ?",
                             new String[]{workweekID});
 
                     // delete the workweek
@@ -363,7 +385,17 @@ public class ShiftyContentProvider extends ContentProvider {
         }
 
 
-        if (numRowsDeleted != 0) getContext().getContentResolver().notifyChange(uri, null);
+        if (numRowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+            if (match == CODE_SHIFT_WITH_ID && workweekID != null) {
+                getContext().getContentResolver().notifyChange(
+//                        Uri.withAppendedPath(ShiftyContract.Workweek.CONTENT_URI, workweekID),
+                        ShiftyContract.Workweek.CONTENT_URI,
+                        null
+                );
+                Log.i("ShiftyContentProvider", "updated workweek uri for " + workweekID);
+            }
+        }
 
         return numRowsDeleted;
     }
