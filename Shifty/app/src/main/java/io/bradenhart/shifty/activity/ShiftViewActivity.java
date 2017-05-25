@@ -178,7 +178,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     @OnClick(R.id.button_new_shift)
     public void onClickNewShiftButton() {
-        ShiftActivity.start(getApplicationContext(), ShiftActivity.Mode.CREATE);
+        ShiftActivity.start(ShiftViewActivity.this, ShiftActivity.Mode.CREATE);
     }
 
     @Override
