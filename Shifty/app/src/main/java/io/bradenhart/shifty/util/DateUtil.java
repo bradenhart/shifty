@@ -2,8 +2,6 @@ package io.bradenhart.shifty.util;
 
 import android.util.Log;
 
-import io.bradenhart.shifty.domain.ShiftTime;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -133,12 +131,20 @@ public class DateUtil {
         return datetimes;
     }
 
-    public static String getDateString(String ymd, ShiftTime time) {
-        return String.format(Locale.ENGLISH,
-                "%s %02d:%02d:00",
-                ymd,
-                time.getHour().value(),
-                time.getMinute().value());
+    public static String getPrettyDateString(String dateString, String format) {
+        Calendar c = Calendar.getInstance();
+        Date date = null;
+        try {
+            date = new SimpleDateFormat(format, Locale.ENGLISH).parse(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        if (date != null) {
+            return new SimpleDateFormat("EEEE, d MMMM yyyy", Locale.ENGLISH).format(date);
+        }
+
+        return "";
     }
 
     public static String getPrettyDateString(int year, int month, int day) {
