@@ -157,7 +157,13 @@ public class TimeScroller extends FrameLayout {
 
     public String getTimeString() {
         updateTimeInfo();
-        return String.format(Locale.ENGLISH, "%s:%s:00.000", getHour(), getMinute());
+        String hour = getHour();
+        String minute = getMinute();
+
+        return String.format(Locale.ENGLISH,
+                "%s:%s:00.000",
+                hour.length() == 1 ? "0" + hour : hour,
+                minute.length() == 1 ? "0" + minute : minute);
     }
 
     public void resetScroller() {
