@@ -1,5 +1,7 @@
 package io.bradenhart.shifty.activity;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -13,8 +15,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -112,9 +117,6 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
                         startLoader(ID_RECENT_WORKWEEK_LOADER);
                         makeToast(getApplicationContext(), "showing recent shifts");
                         break;
-                    case R.id.menu_button_search:
-
-                        break;
                     case R.id.menu_button_calculator:
                         CalculatorActivity.start(ShiftViewActivity.this);
                         break;
@@ -133,8 +135,33 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
          */
         startLoader(showCurrent ? ID_CURRENT_WORKWEEK_LOADER : ID_RECENT_WORKWEEK_LOADER);
 
+        if (showCurrent) navView.setSelectedItemId(R.id.menu_button_shifts);
+        else navView.setSelectedItemId(R.id.menu_button_recent);
+
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.action_search:
+                SearchActivity.start(ShiftViewActivity.this);
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+        return true;
+    }
 
     /* initialisation/setup methods */
     private void setUpActionBar() {
@@ -259,6 +286,9 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
         Log.d(TAG, "onRestart()");
 //        restartLoader(ID_CURRENT_WORKWEEK_LOADER);
+
+        if (showCurrent) navView.setSelectedItemId(R.id.menu_button_shifts);
+        else navView.setSelectedItemId(R.id.menu_button_recent);
     }
 
     @Override
