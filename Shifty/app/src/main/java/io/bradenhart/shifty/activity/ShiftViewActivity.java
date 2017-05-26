@@ -2,6 +2,7 @@ package io.bradenhart.shifty.activity;
 
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +14,8 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -24,12 +27,16 @@ import butterknife.OnClick;
 import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.adapter.WorkWeekRecyclerViewAdapter;
 import io.bradenhart.shifty.data.ShiftyContract;
+import io.bradenhart.shifty.data.TestData;
+
+import static io.bradenhart.shifty.util.Utils.*;
 
 public class ShiftViewActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     final String TAG = "ShiftViewActivity.class";
     private final String title = "Shifty";
-    private static final int ID_WORKWEEK_LOADER = 44;
+    private static final int ID_CURRENT_WORKWEEK_LOADER = 88;
+    private static final int ID_RECENT_WORKWEEK_LOADER = 44;
 
     @BindView(R.id.appbar_shiftview)
     AppBarLayout appBar;
@@ -73,73 +80,44 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
 //        TestData.addDataToDB(getContentResolver());
 
-        /* TEST */
-
-        /**/
-
         adapter = new WorkWeekRecyclerViewAdapter(this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-//        recyclerView.setHasFixedSize(true);
+        recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
-//        recyclerView.setAdapter(new RecyclerView.Adapter() {
-//            @Override
-//            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-//                return null;
-//            }
-//
-//            @Override
-//            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-//
-//            }
-//
-//            @Override
-//            public int getItemCount() {
-//                return 0;
-//            }
-//        });
-////        recyclerView.scrollToPosition(6);
 
-//        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-//            @Override
-//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//                int id = item.getItemId();
-//
-//                Map<String, List<Shift>> map;
+        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int id = item.getItemId();
+                if (navView.getSelectedItemId() == id) return false;
 
-//                switch (id) {
-//                    case R.id.menu_button_shifts:
-//                        // show current shifts
-//                        newShiftButton.setVisibility(View.VISIBLE);
-//                        makeToast(getApplicationContext(), "showing current shifts");
-//                        map = new DatabaseManager(getApplicationContext()).getShiftsFromCurrentWeek();
-//                        adapter.clear();
-//                        displayWorkWeeks(map);
-//                        adapter.notifyDataSetChanged();
-//                        break;
-//                    case R.id.menu_button_recent:
-//                        // show recent shifts
-//                        newShiftButton.setVisibility(View.GONE);
-//                        makeToast(getApplicationContext(), "showing recent shifts");
-//                        map = new DatabaseManager(getApplicationContext()).getShiftsBeforeCurrentWeek();
-//                        adapter.clear();
-//                        displayWorkWeeks(map);
-//                        adapter.notifyDataSetChanged();
-//                        break;
-//                    case R.id.menu_button_search:
-//
-//                        break;
-//                    case R.id.menu_button_calculator:
-//                        CalculatorActivity.start(ShiftViewActivity.this);
-//                        break;
-//                }
-//
-//
-//                return true;
-//            }
-//        });
+                switch (id) {
+                    case R.id.menu_button_shifts:
+                        // show current shifts
+                        showCurrent = true;
+                        newShiftButton.setVisibility(View.VISIBLE);
+                        restartLoader(ID_CURRENT_WORKWEEK_LOADER);
+                        makeToast(getApplicationContext(), "showing current shifts");
+                        break;
+                    case R.id.menu_button_recent:
+                        // show recent shifts
+                        showCurrent = false;
+                        newShiftButton.setVisibility(View.GONE);
+                        startLoader(ID_RECENT_WORKWEEK_LOADER);
+                        makeToast(getApplicationContext(), "showing recent shifts");
+                        break;
+                    case R.id.menu_button_search:
 
-//        testGetCurrentShifts();
+                        break;
+                    case R.id.menu_button_calculator:
+                        CalculatorActivity.start(ShiftViewActivity.this);
+                        break;
+                }
+
+                return true;
+            }
+        });
 
         showLoading();
 
@@ -148,7 +126,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
          * created and (if the activity is currently started) starts the loader. Otherwise
          * the last created loader is re-used.
          */
-        getSupportLoaderManager().initLoader(ID_WORKWEEK_LOADER, null, this);
+        startLoader(showCurrent ? ID_CURRENT_WORKWEEK_LOADER : ID_RECENT_WORKWEEK_LOADER);
 
     }
 
@@ -183,18 +161,31 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
+        String sortOrder;
+        String selection;
 
         switch (loaderId) {
-            case ID_WORKWEEK_LOADER:
-                /* URI for all rows of workweek data in our workweek table */
-                Uri workweekQueryUri = ShiftyContract.Workweek.CONTENT_URI;
+            case ID_CURRENT_WORKWEEK_LOADER:
                 /* Sort order: ascending by start date */
-                String sortOrder = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " ASC";
+                sortOrder = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " ASC";
                 /* Select all workweeks from the this week onwards */
-                String selection = ShiftyContract.Workweek.getSQLSelectForThisWeekOnwards();
+                selection = ShiftyContract.Workweek.getSQLSelectForThisWeekOnwards();
 
                 return new CursorLoader(this,
-                        workweekQueryUri,
+                        ShiftyContract.Workweek.CONTENT_URI,
+                        MAIN_WORKWEEK_PROJECTION,
+                        selection,
+                        null,
+                        sortOrder);
+
+            case ID_RECENT_WORKWEEK_LOADER:
+                /* Sort order: ascending by start date */
+                sortOrder = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " DESC";
+                /* Select all workweeks from the this week onwards */
+                selection = ShiftyContract.Workweek.getSQLSelectForBeforeThisWeek();
+
+                return new CursorLoader(this,
+                        ShiftyContract.Workweek.CONTENT_URI,
                         MAIN_WORKWEEK_PROJECTION,
                         selection,
                         null,
@@ -210,7 +201,6 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         adapter.swapCursor(data);
         if (position == RecyclerView.NO_POSITION) position = 0;
-//        recyclerView.smoothScrollToPosition(position);
 
         if (data.getCount() != 0) {
             showRecyclerView();
@@ -218,7 +208,6 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
             hideLoading();
         }
 
-//        makeToast(ShiftViewActivity.this, "loaded " + data.getCount() + " workweeks");
     }
 
     @Override
@@ -240,4 +229,31 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
         progressBar.setVisibility(View.INVISIBLE);
     }
 
+    private void startLoader(int loaderID) {
+        LoaderManager lm = getSupportLoaderManager();
+        if (lm.getLoader(loaderID) == null || !lm.getLoader(loaderID).isStarted()) {
+            lm.initLoader(loaderID, null, this);
+        } else {
+            lm.restartLoader(loaderID, null, this);
+        }
+    }
+
+    private void restartLoader(int loaderID) {
+        LoaderManager lm = getSupportLoaderManager();
+        if (lm.getLoader(loaderID) == null || !lm.getLoader(loaderID).isStarted()) {
+            lm.initLoader(loaderID, null, this);
+        } else {
+            getSupportLoaderManager().restartLoader(loaderID, null, this);
+        }
+
+    }
+
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        Log.d(TAG, "onRestart()");
+        restartLoader(ID_RECENT_WORKWEEK_LOADER);
+    }
 }
