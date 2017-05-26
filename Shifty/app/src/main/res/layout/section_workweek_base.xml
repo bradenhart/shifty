@@ -20,6 +20,17 @@
             android:orientation="horizontal">
 
             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-2.5dp"
+                android:background="@color/colorPrimary"
+                android:padding="5dp"
+                android:text="Week"
+                android:textColor="@color/text_off_white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
                 android:id="@+id/textview_workweek_header"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -36,10 +47,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:background="@drawable/selector_delete_workweek_button"
-                android:layout_marginStart="0dp"
                 android:layout_marginEnd="5dp"
-                android:clickable="true"/>
+                android:layout_marginStart="0dp"
+                android:background="@drawable/selector_delete_workweek_button"
+                android:clickable="true" />
 
         </LinearLayout>
 
@@ -59,7 +70,7 @@
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_gravity="center"
-                android:visibility="invisible"/>
+                android:visibility="invisible" />
 
         </FrameLayout>
 

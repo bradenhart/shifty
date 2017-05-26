@@ -25,6 +25,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.bradenhart.shifty.R;
+import io.bradenhart.shifty.activity.PayslipActivity;
 import io.bradenhart.shifty.data.ShiftyContract;
 import io.bradenhart.shifty.domain.Payslip;
 import io.bradenhart.shifty.util.DateUtil;
@@ -74,7 +75,7 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         SimpleDateFormat headerFormat = new SimpleDateFormat(DateUtil.FMT_DAY_DATE, Locale.ENGLISH);
         try {
             Date date = iso8601Format.parse(weekStart);
-            String headerString = "Week of " + headerFormat.format(date);
+            String headerString = headerFormat.format(date);
             weekHolder.header.setText(headerString);
         } catch (ParseException e) {
             e.printStackTrace();
@@ -93,6 +94,8 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         int totalPaidHoursCol = cursor.getColumnIndex(ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS);
         Double totalPaidHours = cursor.getDouble(totalPaidHoursCol);
         Payslip payslip = new Payslip(totalPaidHours);
+        weekHolder.weekStartDatetime = weekStart;
+        weekHolder.paidHours = totalPaidHours;
         weekHolder.footer.setText(String.format(Locale.ENGLISH, "$%.02f", payslip.getNet()));
 
     }
@@ -112,6 +115,8 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     class WorkWeekViewHolder extends RecyclerView.ViewHolder {
 
         private Context context;
+        String weekStartDatetime;
+        Double paidHours;
         View root;
         @BindView(R.id.textview_workweek_header)
         TextView header;
@@ -159,6 +164,12 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                     })
                     .show();
 
+        }
+
+        @OnClick(R.id.textview_workweek_footer)
+        public void onClickFooter() {
+            String shiftID = String.valueOf(root.getId());
+            PayslipActivity.start(context, weekStartDatetime, paidHours);
         }
 
         private void showLoading() {

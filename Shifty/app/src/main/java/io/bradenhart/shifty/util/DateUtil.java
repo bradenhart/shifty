@@ -26,7 +26,7 @@ public class DateUtil {
     private static final String FMT_MONTH_SHORT = "M";
     private static final String FMT_DAY_SHORT = "d";
     public static final String FMT_TIME_SHORT = "hh:mm a";
-    public static final String FMT_DAY_DATE = "dd MMM ''yy";
+    public static final String FMT_DAY_DATE = "dd MMM yyyy";
 
     public static String getDatestringWithFormat(String format, Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
