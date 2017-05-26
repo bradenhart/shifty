@@ -14,6 +14,8 @@ import android.widget.Toast;
 import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.domain.Payslip;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -26,9 +28,9 @@ import io.bradenhart.shifty.util.DateUtil;
 
 public class PayslipActivity extends AppCompatActivity {
 
-    public static final String KEY_PAYSLIP = "KEY_PAYSLIP";
-    public static final String KEY_WEEK_INFO = "KEY_WEEK_INFO";
-    private Payslip payslip;
+    public static final String KEY_WEEK_START_DATE = "KEY_WEEK_START_DATE";
+    public static final String KEY_PAID_HOURS = "KEY_PAID_HOURS";
+
     private final String appName = "Payslip";
     private String subtitle;
 
@@ -54,10 +56,14 @@ public class PayslipActivity extends AppCompatActivity {
     @BindView(R.id.textview_payslip_net)
     TextView netTV;
 
+    private Payslip payslip;
+    private String weekStartDatetime;
+    private Double paidHours;
 
-    public static void start(Context context, Payslip payslip) {
+    public static void start(Context context, String weekStartDatetime, Double paidHours) {
         Intent intent = new Intent(context, PayslipActivity.class);
-        intent.putExtra(PayslipActivity.KEY_PAYSLIP, payslip);
+        intent.putExtra(PayslipActivity.KEY_WEEK_START_DATE, weekStartDatetime);
+        intent.putExtra(PayslipActivity.KEY_PAID_HOURS, paidHours);
         context.startActivity(intent);
     }
 
@@ -68,21 +74,29 @@ public class PayslipActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
+        subtitleView = ButterKnife.findById(this, R.id.textview_toolbar_subtitle);
+
         // set up actionbar
         setUpActionBar();
 
         Bundle data = getIntent().getExtras();
         if (data != null) {
-            payslip = data.containsKey(KEY_PAYSLIP) ? (Payslip) data.getSerializable(KEY_PAYSLIP) : null;
-        }
+            if (data.containsKey(KEY_WEEK_START_DATE) && data.containsKey(KEY_PAID_HOURS)) {
+                weekStartDatetime = data.getString(KEY_WEEK_START_DATE);
+                paidHours = data.getDouble(KEY_PAID_HOURS);
+                payslip = new Payslip(paidHours);
+                String weekEndDatetime = DateUtil.getWeekEnd(weekStartDatetime, DateUtil.FMT_ISO_8601_DATETIME);
+                SimpleDateFormat fromFmt = new SimpleDateFormat(DateUtil.FMT_ISO_8601_DATETIME, Locale.ENGLISH);
+                SimpleDateFormat toFmt = new SimpleDateFormat("dd MMM", Locale.ENGLISH);
+                try {
+                    subtitle = toFmt.format(fromFmt.parse(weekStartDatetime)) + " - " + toFmt.format(fromFmt.parse(weekEndDatetime));
+                    subtitleView.setText(subtitle);
+                } catch (ParseException ex) {
+                    ex.printStackTrace();
+                }
+                displayPayslip(payslip);
+            }
 
-        if (payslip != null) {
-            // display information
-            displayPayslip(payslip);
-//      makeToast(String.format(Locale.ENGLISH, "$%.02f", payslip.getNet()), Toast.LENGTH_SHORT);
-            subtitle = payslip.getTitle();
-            subtitleView = ButterKnife.findById(this, R.id.textview_toolbar_subtitle);
-            subtitleView.setText(subtitle);
         }
 
     }
@@ -93,10 +107,7 @@ public class PayslipActivity extends AppCompatActivity {
 
         switch (id) {
             case android.R.id.home:
-                Intent homeIntent = new Intent(PayslipActivity.this, ShiftViewActivity.class);
-                homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(homeIntent);
+                finish();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -132,8 +143,4 @@ public class PayslipActivity extends AppCompatActivity {
         netTV.setText(String.format(Locale.ENGLISH, "$%.02f", payslip.getNet()));
     }
 
-    private void makeToast(String message, int length) {
-        if (length != Toast.LENGTH_SHORT && length != Toast.LENGTH_LONG) return;
-        Toast.makeText(this, message, length).show();
-    }
 }
