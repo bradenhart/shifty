@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="io.bradenhart.shifty.activity.ShiftViewActivity">
+
+    <include
+        android:id="@+id/appbar_shiftview"
+        layout="@layout/view_toolbar" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_shift_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#bababa" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/button_new_shift"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_add_black_24dp"
+            android:tint="#fff"
+            android:visibility="visible"
+            app:elevation="10dp"
+            app:fabSize="normal" />
+
+        <ProgressBar
+            android:id="@+id/progressbar_shiftview"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_gravity="center"
+            android:visibility="invisible"/>
+
+    </FrameLayout>
+
+
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:itemBackground="@color/colorPrimary"
+        app:itemIconTint="#fff"
+        app:itemTextColor="#fff"
+        android:background="@color/colorPrimary"
+        app:menu="@menu/menu_nav_bar" />
+
+</LinearLayout>
