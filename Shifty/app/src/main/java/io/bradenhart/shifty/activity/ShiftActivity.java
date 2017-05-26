@@ -281,10 +281,6 @@ public class ShiftActivity extends AppCompatActivity {
                 Utils.makeToast(ShiftActivity.this, "Update failed", Toast.LENGTH_LONG);
             }
 
-//            Intent intent = new Intent(ShiftActivity.this, ShiftViewActivity.class);
-//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            startActivity(intent);
             finish(); // go back to the parent activity
         } else {
             Uri newUri = getContentResolver().insert(
@@ -306,15 +302,6 @@ public class ShiftActivity extends AppCompatActivity {
             endTimeScroller.resetScroller();
         }
 
-    }
-
-    @Override
-    public void onBackPressed() {
-//        Intent intent = new Intent(ShiftActivity.this, ShiftViewActivity.class);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//        startActivity(intent);
-        finish(); // go back to the parent activity
     }
 
 }
