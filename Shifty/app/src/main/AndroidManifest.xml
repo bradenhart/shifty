@@ -10,7 +10,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.ShiftViewActivity"
+        <activity
+            android:name=".activity.ShiftViewActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,20 +20,26 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.ShiftActivity"
-            android:parentActivityName=".activity.ShiftViewActivity"/>
+        <activity
+            android:name=".activity.ShiftActivity"
+            android:parentActivityName=".activity.ShiftViewActivity" />
 
-        <activity android:name=".activity.PayslipActivity"
-            android:parentActivityName=".activity.ShiftViewActivity"/>
+        <activity
+            android:name=".activity.PayslipActivity"
+            android:parentActivityName=".activity.ShiftViewActivity" />
 
         <activity
             android:name=".activity.CalculatorActivity"
             android:parentActivityName=".activity.ShiftViewActivity" />
 
+        <activity
+            android:name=".activity.SearchActivity"
+            android:parentActivityName=".activity.ShiftViewActivity" />
+
         <provider
-            android:authorities="io.bradenhart.shifty"
             android:name=".data.ShiftyContentProvider"
-            android:exported="false"/>
+            android:authorities="io.bradenhart.shifty"
+            android:exported="false" />
 
     </application>
 
