@@ -50,6 +50,10 @@ public class ShiftyContract {
             return COLUMN_WEEK_START_DATETIME + " >= '" + DateUtil.getStartDateForCurrentWeek() + "'";
         }
 
+        public static String getSQLSelectForBeforeThisWeek() {
+            return COLUMN_WEEK_START_DATETIME + " < '" + DateUtil.getStartDateForCurrentWeek() + "'";
+        }
+
     }
 
 }
