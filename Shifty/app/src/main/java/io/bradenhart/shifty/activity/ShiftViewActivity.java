@@ -35,6 +35,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     final String TAG = "ShiftViewActivity.class";
     private final String title = "Shifty";
+    private final String KEY_DISPLAY_STATE = "KEY_DISPLAY_STATE";
     private static final int ID_CURRENT_WORKWEEK_LOADER = 88;
     private static final int ID_RECENT_WORKWEEK_LOADER = 44;
 
@@ -74,6 +75,10 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
         setContentView(R.layout.activity_shiftview);
 
         ButterKnife.bind(ShiftViewActivity.this);
+
+        if (savedInstanceState != null) {
+            showCurrent = savedInstanceState.getBoolean(KEY_DISPLAY_STATE, true);
+        }
 
         // set up actionbar
         setUpActionBar();
@@ -248,12 +253,29 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     }
 
-
     @Override
     protected void onRestart() {
         super.onRestart();
 
         Log.d(TAG, "onRestart()");
-        restartLoader(ID_RECENT_WORKWEEK_LOADER);
+//        restartLoader(ID_CURRENT_WORKWEEK_LOADER);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        Log.d(TAG, "onRestoreInstanceState()");
+
+        if (savedInstanceState != null) {
+            showCurrent = savedInstanceState.getBoolean(KEY_DISPLAY_STATE, true);
+            restartLoader(showCurrent ? ID_CURRENT_WORKWEEK_LOADER : ID_RECENT_WORKWEEK_LOADER);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_DISPLAY_STATE, showCurrent);
     }
 }
