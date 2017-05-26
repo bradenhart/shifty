@@ -51,8 +51,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:itemBackground="@color/colorPrimary"
-        app:itemIconTint="#fff"
-        app:itemTextColor="#fff"
+        app:itemIconTint="@drawable/selector_nav_bar_item"
+        app:itemTextColor="@drawable/selector_nav_bar_item"
         app:menu="@menu/menu_nav_bar" />
 
 </LinearLayout>
