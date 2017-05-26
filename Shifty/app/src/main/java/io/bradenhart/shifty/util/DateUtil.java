@@ -2,6 +2,8 @@ package io.bradenhart.shifty.util;
 
 import android.util.Log;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -310,8 +312,11 @@ public class DateUtil {
             diff = date1.getTime() - date2.getTime();
         }
 
+        BigDecimal result = new BigDecimal((double) diff / 1000 / 60 / 60);
+        result = result.setScale(2, RoundingMode.DOWN);
+
         // ms / 1000 = s; s / 60 = m; m / 60 = h
-        return (double) diff / 1000 / 60 / 60;
+        return result.doubleValue();
     }
 
     public static double getShiftProgress(String startTime, String endTime, String format) {
