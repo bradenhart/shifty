@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Shifty</string>
+    <string name="shared_preferences_name">ShiftySharedPreferences</string>
 </resources>

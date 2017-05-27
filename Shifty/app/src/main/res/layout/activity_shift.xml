@@ -11,7 +11,7 @@
 
     <include
         android:id="@+id/appbar_shift"
-        layout="@layout/view_toolbar" />
+        layout="@layout/view_appbarlayout" />
 
     <ScrollView
         android:layout_width="match_parent"

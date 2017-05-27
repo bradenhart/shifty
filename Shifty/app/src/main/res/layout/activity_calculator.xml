@@ -8,6 +8,241 @@
 
     <include
         android:id="@+id/appbar_calculator"
-        layout="@layout/view_toolbar"/>
+        layout="@layout/view_appbarlayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
+        android:id="@+id/bottomnavigation_calculator"
+        layout="@layout/view_bottomnavigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Hour"
+        app:layout_constraintTop_toBottomOf="@+id/appbar_calculator"
+        android:id="@+id/button_hour_mode"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/button_gross_mode" />
+
+    <Button
+        android:id="@+id/button_gross_mode"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Gross"
+        app:layout_constraintLeft_toRightOf="@+id/button_hour_mode"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appbar_calculator" />
+
+    <Button
+        android:id="@+id/button_calculate"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Calculate"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottomnavigation_calculator" />
+
+    <EditText
+        android:id="@+id/edittext_calculator_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:ems="10"
+        android:inputType="numberDecimal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_hour_mode"
+        app:layout_constraintRight_toLeftOf="@+id/button_add_value"
+        android:layout_marginRight="8dp" />
+
+    <ImageButton
+        android:id="@+id/button_add_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:visibility="visible"
+        app:layout_constraintRight_toLeftOf="@+id/button_clear_calculator"
+        app:layout_constraintTop_toTopOf="@+id/edittext_calculator_input"
+        app:srcCompat="@drawable/ic_add_black_24dp" />
+
+    <ImageButton
+        android:id="@+id/button_clear_calculator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_close_black_24dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/edittext_calculator_input"
+        android:layout_marginEnd="8dp" />
+
+    <TextView
+        android:id="@+id/textview2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="base rate"
+        app:layout_constraintBottom_toTopOf="@+id/textView4"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/textview_calculator_base_rate"
+        app:layout_constraintTop_toBottomOf="@+id/edittext_calculator_input"
+        tools:text="base rate" />
+
+    <TextView
+        android:id="@+id/textview_calculator_base_rate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/textview_calculator_pay_rate"
+        app:layout_constraintLeft_toRightOf="@+id/textview2"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_add_value" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="pay rate"
+        app:layout_constraintBottom_toTopOf="@+id/textView6"
+        app:layout_constraintRight_toRightOf="@+id/textview2"
+        app:layout_constraintTop_toBottomOf="@+id/textview2"
+        tools:text="pay rate" />
+
+    <TextView
+        android:id="@+id/textview_calculator_pay_rate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/textview_calculator_hours"
+        app:layout_constraintLeft_toLeftOf="@+id/textview_calculator_base_rate"
+        app:layout_constraintTop_toBottomOf="@+id/textview_calculator_base_rate" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="hours"
+        app:layout_constraintBottom_toTopOf="@+id/textView8"
+        app:layout_constraintRight_toRightOf="@+id/textView4"
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
+        tools:text="hours" />
+
+    <TextView
+        android:id="@+id/textview_calculator_hours"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/textview_calculator_paye"
+        app:layout_constraintLeft_toLeftOf="@+id/textview_calculator_pay_rate"
+        app:layout_constraintTop_toBottomOf="@+id/textview_calculator_pay_rate" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="p.a.y.e"
+        app:layout_constraintBottom_toTopOf="@+id/textView10"
+        app:layout_constraintRight_toRightOf="@+id/textView6"
+        app:layout_constraintTop_toBottomOf="@+id/textView6"
+        tools:text="p.a.y.e" />
+
+    <TextView
+        android:id="@+id/textview_calculator_paye"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/textview_calculator_kiwisaver"
+        app:layout_constraintLeft_toLeftOf="@+id/textview_calculator_hours"
+        app:layout_constraintTop_toBottomOf="@+id/textview_calculator_hours" />
+
+    <TextView
+        android:id="@+id/textView10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="kiwisaver"
+        app:layout_constraintBottom_toTopOf="@+id/textView12"
+        app:layout_constraintRight_toRightOf="@+id/textView8"
+        app:layout_constraintTop_toBottomOf="@+id/textView8"
+        tools:text="kiwisaver" />
+
+    <TextView
+        android:id="@+id/textview_calculator_kiwisaver"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/textview_calculator_loan"
+        app:layout_constraintLeft_toLeftOf="@+id/textview_calculator_paye"
+        app:layout_constraintTop_toBottomOf="@+id/textview_calculator_paye" />
+
+    <TextView
+        android:id="@+id/textView12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="loan"
+        app:layout_constraintBottom_toTopOf="@+id/textView14"
+        app:layout_constraintRight_toRightOf="@+id/textView10"
+        app:layout_constraintTop_toBottomOf="@+id/textView10"
+        tools:text="loan" />
+
+    <TextView
+        android:id="@+id/textview_calculator_loan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/textview_calculator_gross"
+        app:layout_constraintLeft_toLeftOf="@+id/textview_calculator_kiwisaver"
+        app:layout_constraintTop_toBottomOf="@+id/textview_calculator_kiwisaver" />
+
+    <TextView
+        android:id="@+id/textView14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="gross"
+        app:layout_constraintBottom_toTopOf="@+id/textView16"
+        app:layout_constraintRight_toRightOf="@+id/textView12"
+        app:layout_constraintTop_toBottomOf="@+id/textView12"
+        tools:text="gross" />
+
+    <TextView
+        android:id="@+id/textview_calculator_gross"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/textview_calculator_net"
+        app:layout_constraintLeft_toLeftOf="@+id/textview_calculator_loan"
+        app:layout_constraintTop_toBottomOf="@+id/textview_calculator_loan" />
+
+    <TextView
+        android:id="@+id/textView16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="net"
+        app:layout_constraintBottom_toTopOf="@+id/button_calculate"
+        app:layout_constraintRight_toRightOf="@+id/textView14"
+        app:layout_constraintTop_toBottomOf="@+id/textView14"
+        tools:text="net" />
+
+    <TextView
+        android:id="@+id/textview_calculator_net"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/button_calculate"
+        app:layout_constraintLeft_toLeftOf="@+id/textview_calculator_gross"
+        app:layout_constraintTop_toBottomOf="@+id/textview_calculator_gross" />
 
 </android.support.constraint.ConstraintLayout>
