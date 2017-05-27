@@ -91,7 +91,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
         // set up actionbar
         setUpActionBar();
 
-        TestData.addDataToDB(getContentResolver());
+//        TestData.addDataToDB(getContentResolver());
 
         adapter = new WorkWeekRecyclerViewAdapter(this);
 
@@ -111,14 +111,12 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
                         saveDisplayMode(MODE_CURRENT);
                         newShiftButton.setVisibility(View.VISIBLE);
                         restartLoader(getLoaderIDForDisplayMode());
-                        makeToast(getApplicationContext(), "showing current shifts");
                         break;
                     case R.id.menu_button_recent:
                         // show recent shifts
                         saveDisplayMode(MODE_RECENT);
                         newShiftButton.setVisibility(View.GONE);
                         startLoader(getLoaderIDForDisplayMode());
-                        makeToast(getApplicationContext(), "showing recent shifts");
                         break;
                     case R.id.menu_button_calculator:
                         CalculatorActivity.start(ShiftViewActivity.this);
