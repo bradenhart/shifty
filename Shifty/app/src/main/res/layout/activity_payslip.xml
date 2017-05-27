@@ -7,7 +7,7 @@
     
     <include
         android:id="@+id/appbar_payslip"
-        layout="@layout/view_toolbar"></include>
+        layout="@layout/view_appbarlayout"></include>
 
     <TextView
         android:id="@+id/textview_toolbar_subtitle"
