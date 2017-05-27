@@ -2,15 +2,22 @@ package io.bradenhart.shifty.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.bradenhart.shifty.R;
+
+import static io.bradenhart.shifty.util.Utils.makeToast;
 
 public class CalculatorActivity extends AppCompatActivity {
 
@@ -20,6 +27,8 @@ public class CalculatorActivity extends AppCompatActivity {
     AppBarLayout appBar;
     Toolbar toolbar;
     TextView titleView;
+    @BindView(R.id.bottomnavigation_calculator)
+    BottomNavigationView navView;
 
 
     public static void start(Context context) {
@@ -34,8 +43,30 @@ public class CalculatorActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         setUpActionBar();
-    }
 
+        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int id = item.getItemId();
+                if (navView.getSelectedItemId() == id) return false;
+
+                switch (id) {
+                    case R.id.menu_button_shifts:
+                        saveDisplayMode(ShiftViewActivity.MODE_CURRENT);
+                        finish();
+                        break;
+                    case R.id.menu_button_recent:
+                        saveDisplayMode(ShiftViewActivity.MODE_RECENT);
+                        finish();
+                        break;
+                }
+
+                return true;
+            }
+        });
+
+        navView.setSelectedItemId(R.id.menu_button_calculator);
+    }
 
     private void setUpActionBar() {
         toolbar = ButterKnife.findById(appBar, R.id.toolbar);
@@ -50,6 +81,15 @@ public class CalculatorActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // shows logo/icon with caret/arrow if passed true. will not show logo/icon if passed false
 //        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
+    private void saveDisplayMode(String mode) {
+        SharedPreferences sp = getSharedPreferences(getString(R.string.shared_preferences_name), MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        if (mode.equals(ShiftViewActivity.MODE_CURRENT) || mode.equals(ShiftViewActivity.MODE_RECENT)) {
+            editor.putString(ShiftViewActivity.KEY_DISPLAY_MODE, mode).apply();
+        }
     }
 
 }

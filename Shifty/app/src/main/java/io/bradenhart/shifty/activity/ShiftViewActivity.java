@@ -2,6 +2,8 @@ package io.bradenhart.shifty.activity;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -40,7 +42,9 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     final String TAG = "ShiftViewActivity.class";
     private final String title = "Shifty";
-    private final String KEY_DISPLAY_STATE = "KEY_DISPLAY_STATE";
+    public static final String KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE";
+    public static final String MODE_RECENT = "MODE_RECENT";
+    public static final String MODE_CURRENT = "MODE_CURRENT";
     private static final int ID_CURRENT_WORKWEEK_LOADER = 88;
     private static final int ID_RECENT_WORKWEEK_LOADER = 44;
 
@@ -52,7 +56,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
     RecyclerView recyclerView;
     @BindView(R.id.button_new_shift)
     FloatingActionButton newShiftButton;
-    @BindView(R.id.bottom_navigation)
+    @BindView(R.id.bottomnavigation_shiftview)
     BottomNavigationView navView;
     @BindView(R.id.progressbar_shiftview)
     ProgressBar progressBar;
@@ -72,7 +76,10 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
     private int position = RecyclerView.NO_POSITION;
     private WorkWeekRecyclerViewAdapter adapter;
 
-    private boolean showCurrent = true;
+    public static void start(Context context) {
+        Intent intent = new Intent(context, ShiftViewActivity.class);
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,14 +88,10 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
         ButterKnife.bind(ShiftViewActivity.this);
 
-        if (savedInstanceState != null) {
-            showCurrent = savedInstanceState.getBoolean(KEY_DISPLAY_STATE, true);
-        }
-
         // set up actionbar
         setUpActionBar();
 
-//        TestData.addDataToDB(getContentResolver());
+        TestData.addDataToDB(getContentResolver());
 
         adapter = new WorkWeekRecyclerViewAdapter(this);
 
@@ -105,16 +108,16 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
                 switch (id) {
                     case R.id.menu_button_shifts:
                         // show current shifts
-                        showCurrent = true;
+                        saveDisplayMode(MODE_CURRENT);
                         newShiftButton.setVisibility(View.VISIBLE);
-                        restartLoader(ID_CURRENT_WORKWEEK_LOADER);
+                        restartLoader(getLoaderIDForDisplayMode());
                         makeToast(getApplicationContext(), "showing current shifts");
                         break;
                     case R.id.menu_button_recent:
                         // show recent shifts
-                        showCurrent = false;
+                        saveDisplayMode(MODE_RECENT);
                         newShiftButton.setVisibility(View.GONE);
-                        startLoader(ID_RECENT_WORKWEEK_LOADER);
+                        startLoader(getLoaderIDForDisplayMode());
                         makeToast(getApplicationContext(), "showing recent shifts");
                         break;
                     case R.id.menu_button_calculator:
@@ -133,11 +136,9 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
          * created and (if the activity is currently started) starts the loader. Otherwise
          * the last created loader is re-used.
          */
-        startLoader(showCurrent ? ID_CURRENT_WORKWEEK_LOADER : ID_RECENT_WORKWEEK_LOADER);
+        startLoader(getLoaderIDForDisplayMode());
 
-        if (showCurrent) navView.setSelectedItemId(R.id.menu_button_shifts);
-        else navView.setSelectedItemId(R.id.menu_button_recent);
-
+        updateNavViewSelectedItem();
     }
 
     @Override
@@ -179,11 +180,6 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 //        getSupportActionBar().setDisplayShowHomeEnabled(true);
         // set the navigation drawer icon to the hamburger icon
 //        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
-    }
-
-    private boolean canLoadMoreState() {
-        // TODO check if there are any more shifts to load from db
-        return false;
     }
 
     @OnClick(R.id.button_new_shift)
@@ -287,8 +283,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
         Log.d(TAG, "onRestart()");
 //        restartLoader(ID_CURRENT_WORKWEEK_LOADER);
 
-        if (showCurrent) navView.setSelectedItemId(R.id.menu_button_shifts);
-        else navView.setSelectedItemId(R.id.menu_button_recent);
+        updateNavViewSelectedItem();
     }
 
     @Override
@@ -298,14 +293,56 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
         Log.d(TAG, "onRestoreInstanceState()");
 
         if (savedInstanceState != null) {
-            showCurrent = savedInstanceState.getBoolean(KEY_DISPLAY_STATE, true);
-            restartLoader(showCurrent ? ID_CURRENT_WORKWEEK_LOADER : ID_RECENT_WORKWEEK_LOADER);
+//            showCurrent = savedInstanceState.getBoolean(KEY_DISPLAY_STATE, true);
+            restartLoader(getLoaderIDForDisplayMode());
         }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(KEY_DISPLAY_STATE, showCurrent);
+//        outState.putBoolean(KEY_DISPLAY_STATE, showCurrent);
+    }
+
+    private void saveDisplayMode(String mode) {
+        SharedPreferences sp = getSharedPreferences(getString(R.string.shared_preferences_name), MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        if (mode.equals(MODE_CURRENT) || mode.equals(MODE_RECENT)) {
+            editor.putString(KEY_DISPLAY_MODE, mode).apply();
+        }
+    }
+
+    private String getDisplayMode() {
+        SharedPreferences sp = getSharedPreferences(getString(R.string.shared_preferences_name), MODE_PRIVATE);
+
+        if (sp.contains(KEY_DISPLAY_MODE)) {
+            return sp.getString(KEY_DISPLAY_MODE, MODE_CURRENT);
+        }
+
+        return MODE_CURRENT;
+    }
+
+    private int getLoaderIDForDisplayMode() {
+        if (getDisplayMode().equals(MODE_CURRENT)) return ID_CURRENT_WORKWEEK_LOADER;
+        if (getDisplayMode().equals(MODE_RECENT)) return ID_RECENT_WORKWEEK_LOADER;
+        return ID_CURRENT_WORKWEEK_LOADER;
+    }
+
+    private void updateNavViewSelectedItem() {
+        if (navView == null) return;
+        int itemID = getDisplayMode().equals(MODE_CURRENT) ? R.id.menu_button_shifts : R.id.menu_button_recent;
+        navView.setSelectedItemId(itemID);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getDisplayMode().equals(MODE_RECENT)) {
+            saveDisplayMode(MODE_CURRENT);
+            restartLoader(ID_CURRENT_WORKWEEK_LOADER);
+            updateNavViewSelectedItem();
+        } else {
+            super.onBackPressed();
+        }
     }
 }
