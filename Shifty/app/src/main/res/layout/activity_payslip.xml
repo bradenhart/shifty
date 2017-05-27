@@ -1,177 +1,238 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    
+
     <include
         android:id="@+id/appbar_payslip"
-        layout="@layout/view_appbarlayout"></include>
+        layout="@layout/view_appbarlayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textview_toolbar_subtitle"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textColor="@color/colorPrimary"
         android:padding="10dp"
         android:textAlignment="center"
-        android:textStyle="bold"/>
+        android:textColor="@color/colorPrimary"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appbar_payslip" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="5dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Hours"
-            android:textStyle="bold"
-            android:gravity="center"/>
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Base Rate"
-            android:textStyle="bold"
-            android:gravity="center"/>
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Pay Rate"
-            android:textStyle="bold"
-            android:gravity="center"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="5dp"
-        android:gravity="center">
-
-        <TextView
-            android:id="@+id/textview_payslip_hours"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="8 hrs"
-            android:gravity="center"/>
-
-        <TextView
-            android:id="@+id/textview_payslip_base_rate"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="$16/hr"
-            android:gravity="center"/>
-
-        <TextView
-            android:id="@+id/textview_payslip_pay_rate"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="$16/hr"
-            android:gravity="center"/>
-
-    </LinearLayout>
-
-    <!-- Gross -->
+    <!-- Student Loan -->
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
-        android:gravity="center"
-        android:padding="5dp"
-        android:text="Gross"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/textview_payslip_gross"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="$500" />
-
-
-    <LinearLayout
+        android:id="@+id/label_loan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginStart="25dp">
+        android:padding="5dp"
+        android:text="Student Loan"
+        android:textStyle="bold"
+        android:layout_marginStart="32dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/textview_payslip_kiwisaver" />
 
-        <!-- P.A.Y.E -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:padding="5dp"
-            android:text="P.A.Y.E"
-            android:textStyle="bold" />
+    <TextView
+        android:id="@+id/textview_payslip_loan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="$0.00"
+        app:layout_constraintLeft_toLeftOf="@id/label_loan"
+        app:layout_constraintTop_toBottomOf="@+id/label_loan"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp" />
 
-        <TextView
-            android:id="@+id/textview_payslip_paye"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:text="$100" />
-
-        <!-- Kiwisaver -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:text="Kiwisaver"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/textview_payslip_kiwisaver"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp" />
-
-        <!-- Student Loan -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:text="Student Loan"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/textview_payslip_loan"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp" />
-
-    </LinearLayout>
 
 
     <!-- Net -->
     <TextView
-        android:layout_width="match_parent"
+        android:id="@+id/textview_payslip_net"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="$200.00"
+        android:textSize="20sp"
+        android:padding="5dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/label_net"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="@+id/label_net" />
+
+    <TextView
+        android:id="@+id/label_net"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:padding="5dp"
         android:text="Net"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:padding="5dp"
-        android:layout_marginTop="25dp"/>
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="29dp"
+        app:layout_constraintTop_toBottomOf="@+id/textview_payslip_gross"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="@+id/label_gross" />
+
+
+
+
 
     <TextView
-        android:id="@+id/textview_payslip_net"
-        android:layout_width="match_parent"
+        android:id="@+id/label_hours"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:gravity="center"
+        android:text="Hours"
+        android:textStyle="bold"
+        android:padding="5dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_toolbar_subtitle"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="0dp" />
+
+    <TextView
+        android:id="@+id/textview_payslip_hours"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="$200.00"
-        android:textSize="20sp" />
+        android:text="8 hrs"
+        android:padding="5dp"
+        app:layout_constraintLeft_toLeftOf="@+id/label_hours"
+        app:layout_constraintTop_toBottomOf="@+id/label_hours" />
 
-</LinearLayout>
+
+
+    <TextView
+        android:id="@+id/textview2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Base Rate"
+        android:textStyle="bold"
+        android:padding="5dp"
+        app:layout_constraintLeft_toRightOf="@+id/label_hours"
+        app:layout_constraintRight_toLeftOf="@+id/label_pay_rate"
+        app:layout_constraintTop_toBottomOf="@+id/textview_toolbar_subtitle" />
+
+    <TextView
+        android:id="@+id/textview_payslip_base_rate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="$16/hr"
+        android:padding="5dp"
+        app:layout_constraintLeft_toLeftOf="@+id/textview2"
+        app:layout_constraintTop_toBottomOf="@+id/textview2" />
+
+
+
+    <TextView
+        android:id="@+id/label_pay_rate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:gravity="center"
+        android:text="Pay Rate"
+        android:textStyle="bold"
+        android:padding="5dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_toolbar_subtitle" />
+
+    <TextView
+        android:id="@+id/textview_payslip_pay_rate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="$16/hr"
+        android:padding="5dp"
+        app:layout_constraintLeft_toLeftOf="@+id/label_pay_rate"
+        app:layout_constraintTop_toBottomOf="@+id/label_pay_rate" />
+
+
+
+
+
+    <!-- P.A.Y.E -->
+    <TextView
+        android:id="@+id/label_paye"
+        android:layout_width="58dp"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="P.A.Y.E"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textview_payslip_hours"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="31dp"
+        android:layout_marginLeft="32dp" />
+
+    <TextView
+        android:id="@+id/textview_payslip_paye"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="$100"
+        app:layout_constraintLeft_toLeftOf="@id/label_paye"
+        app:layout_constraintTop_toBottomOf="@id/label_paye"/>
+
+    <!-- Kiwisaver -->
+    <TextView
+        android:id="@+id/label_kiwisaver"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="Kiwisaver"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="@id/label_paye"
+        app:layout_constraintTop_toBottomOf="@id/textview_payslip_paye"/>
+
+    <TextView
+        android:id="@+id/textview_payslip_kiwisaver"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="$0.25"
+        app:layout_constraintLeft_toLeftOf="@id/label_kiwisaver"
+        app:layout_constraintTop_toBottomOf="@id/label_kiwisaver"/>
+
+
+    <!-- Gross -->
+    <TextView
+        android:id="@+id/label_gross"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="5dp"
+        android:text="Gross"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="@id/label_paye"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/label_paye" />
+
+    <TextView
+        android:id="@+id/textview_payslip_gross"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="5dp"
+        android:text="$500"
+        app:layout_constraintLeft_toLeftOf="@+id/label_gross"
+        android:layout_marginTop="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/label_gross" />
+
+</android.support.constraint.ConstraintLayout>
