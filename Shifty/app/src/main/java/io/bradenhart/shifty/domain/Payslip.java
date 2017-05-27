@@ -43,7 +43,7 @@ public class Payslip implements Serializable {
         Double top;
         String description;
 
-        private TaxRate(Integer bracket, Double rate, Double bottom, Double top, String description) {
+        TaxRate(Integer bracket, Double rate, Double bottom, Double top, String description) {
             this.bracket = bracket;
             this.rate = rate / 100;
             this.bottom = bottom;
@@ -77,6 +77,10 @@ public class Payslip implements Serializable {
 
     }
 
+    public static enum Mode {
+        HOUR, GROSS
+    }
+
     private enum Staff {
         EMPLOYEE, EMPLOYER
     }
@@ -98,7 +102,7 @@ public class Payslip implements Serializable {
     /**
      * CONSTRUCTORS
      */
-    public Payslip(String weekDate, Double hours) {
+    public Payslip(Double hours) {
         this.gross = calculateGross(hours);
         this.hours = hours;
         this.annual = calculateAnnual(gross);
@@ -108,12 +112,16 @@ public class Payslip implements Serializable {
         this.kiwisavEmployer = calculateKiwiSaver(gross, Staff.EMPLOYER);
         this.studentLoan = calculateStudentLoan(gross);
         this.net = calculateNet(gross, payeTotal, kiwisavEmployee, studentLoan);
-        this.weekDate = weekDate;
     }
 
-    public Payslip(Double hours) {
-        this.gross = calculateGross(hours);
-        this.hours = hours;
+    public Payslip(Double value, Mode mode) {
+        if (mode == Mode.HOUR) {
+            this.hours = value;
+            this.gross = calculateGross(value);
+        } else {
+            // TODO implement calculating net from gross
+        }
+
         this.annual = calculateAnnual(gross);
         this.rate = getTaxRate(annual);
         this.payeTotal = calculatePaye(gross, getTaxRate(annual), 0.0, rate.getBracket());
