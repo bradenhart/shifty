@@ -120,6 +120,8 @@ public class Payslip implements Serializable {
             this.gross = calculateGross(value);
         } else {
             // TODO implement calculating net from gross
+            this.gross = value;
+            this.hours = value / HOURLY_RATE_FULL;
         }
 
         this.annual = calculateAnnual(gross);
@@ -197,19 +199,6 @@ public class Payslip implements Serializable {
 
     private Double calculateNet(Double gross, Double payeTotal, Double kiwisavEmployee, Double studentLoan) {
         return gross - (payeTotal + kiwisavEmployee + studentLoan);
-    }
-
-    public String getTitle() {
-        SimpleDateFormat fromDateFormat = new SimpleDateFormat(DateUtil.FMT_DATETIME, Locale.ENGLISH);
-        SimpleDateFormat toDateFormat = new SimpleDateFormat("MMMM dd ''yy", Locale.ENGLISH);
-
-        try {
-            Date date = fromDateFormat.parse(DateUtil.getWeekEnd(weekDate, DateUtil.FMT_ISO_8601_DATETIME));
-            return "Period Ending " + toDateFormat.format(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return "";
-        }
     }
 
     /**

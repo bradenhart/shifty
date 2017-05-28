@@ -9,6 +9,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -176,7 +177,7 @@ public class CalculatorActivity extends AppCompatActivity {
                 Double hours = Double.parseDouble(inputEditText.getText().toString());
                 totalHours += hours;
                 inputEditText.setText("");
-                hoursTV.setText(String.format(Locale.ENGLISH, "%.02f", totalHours));
+                hoursTV.setText(String.format(Locale.ENGLISH, "%.02f hrs", totalHours));
             } catch (NumberFormatException ex) {
                 Log.e(TAG, "Bad input. Could not convert to double");
             }
@@ -194,20 +195,40 @@ public class CalculatorActivity extends AppCompatActivity {
         if (!textHasChanged) return;
 
         textHasChanged = false;
-        
+
         Payslip payslip = null;
 
+        String input = inputEditText.getText().toString();
+
         if (currentMode.equals(MODE_HOUR)) {
-            if (totalHours == 0) {
+            if (totalHours == 0.0) {
+                if (input.isEmpty()) {
+                    makeToast(CalculatorActivity.this, "No input");
+                    clearCalculator();
+                    return;
+                }
                 try {
-                    totalHours = Double.parseDouble(inputEditText.getText().toString());
+                    totalHours = Double.parseDouble(input);
                 } catch (NumberFormatException ex) {
                     Log.e(TAG, "Bad input. Could not convert to double");
                 }
             }
             payslip = new Payslip(totalHours, Payslip.Mode.HOUR);
         } else if (currentMode.equals(MODE_GROSS)) {
-            payslip = new Payslip(gross, Payslip.Mode.GROSS);
+            if (input.isEmpty()) {
+                makeToast(CalculatorActivity.this, "No input");
+                clearCalculator();
+                return;
+            }
+            try {
+                gross = Double.parseDouble(inputEditText.getText().toString());
+            } catch (NumberFormatException ex) {
+                Log.e(TAG, "Bad input. Could not convert to double");
+            }
+            if (gross != 0.0) {
+                payslip = new Payslip(gross, Payslip.Mode.GROSS);
+                gross = 0.0;
+            }
         } else {
             Utils.makeToast(CalculatorActivity.this, "Cannot calculate payslip");
         }
@@ -229,6 +250,7 @@ public class CalculatorActivity extends AppCompatActivity {
         hourModeButton.setBackgroundColor(getColor(R.color.colorPrimary));
 
         addValueButton.setVisibility(View.VISIBLE);
+        clearCalculator();
     }
 
     private void selectGrossMode() {
@@ -240,6 +262,7 @@ public class CalculatorActivity extends AppCompatActivity {
         grossModeButton.setBackgroundColor(getColor(R.color.colorPrimary));
 
         addValueButton.setVisibility(View.GONE);
+        clearCalculator();
     }
 
     @Override
@@ -277,7 +300,6 @@ public class CalculatorActivity extends AppCompatActivity {
 
     private void clearCalculator() {
         inputEditText.setText("");
-        baseRateTV.requestFocus();
         hoursTV.setText("");
         baseRateTV.setText("");
         payRateTV.setText("");
