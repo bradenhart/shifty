@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 import io.bradenhart.shifty.util.DateUtil;
@@ -152,6 +153,22 @@ public class ExampleUnitTest {
             Double hours = DateUtil.getHoursBetween((String) shifts[0], (String) shifts[1], DateUtil.FMT_ISO_8601_DATETIME);
             assertEquals(shifts[2], hours);
         }
+    }
+
+    @Test
+    public void getMonthStart() {
+        String expected = "2017-05-01 00:00:00.000";
+        Calendar c = Calendar.getInstance();
+        String result = DateUtil.getMonthStart(c.getTime(), DateUtil.FMT_ISO_8601_DATETIME);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void getMonthEnd() {
+        String expected = "2017-05-31 23:59:59.059";
+        Calendar c = Calendar.getInstance();
+        String result = DateUtil.getMonthEnd(c.getTime(), DateUtil.FMT_ISO_8601_DATETIME);
+        assertEquals(expected, result);
     }
 
 }
