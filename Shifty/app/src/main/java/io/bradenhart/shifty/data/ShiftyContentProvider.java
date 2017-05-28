@@ -295,7 +295,8 @@ public class ShiftyContentProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
-        if (returnUri != null) getContext().getContentResolver().notifyChange(uri, null);
+        if (returnUri != null) getContext().getContentResolver().notifyChange(
+                ShiftyContract.Workweek.CONTENT_URI, null);
 
         return returnUri;
     }

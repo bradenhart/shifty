@@ -279,7 +279,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
         super.onRestart();
 
         Log.d(TAG, "onRestart()");
-//        restartLoader(ID_CURRENT_WORKWEEK_LOADER);
+//        restartLoader(getLoaderIDForDisplayMode());
 
         updateNavViewSelectedItem();
     }
