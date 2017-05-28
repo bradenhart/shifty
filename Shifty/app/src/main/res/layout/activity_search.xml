@@ -5,6 +5,64 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <include
+        android:id="@+id/appbar_search"
+        layout="@layout/view_appbarlayout" />
     
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#bababa">
+
+        <Spinner
+            android:id="@+id/button_search_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@color/colorPrimaryLight" />
+
+        <ImageButton
+            android:id="@+id/button_search_select_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_alignParentEnd="true"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_date_black_24dp"/>
+
+        <TextView
+            android:id="@+id/textview_search_selected_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textSize="14sp"
+            android:layout_toEndOf="@id/button_search_mode"
+            android:layout_toStartOf="@id/button_search_select_date"
+            android:text="Select a date..."
+            android:layout_alignBaseline="@id/button_search_mode"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/button_search_mode"
+            android:layout_marginTop="10dp">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerview_search_results"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#bababa"/>
+            
+            <ProgressBar
+                android:id="@+id/progressbar_search"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_marginTop="52dp"
+                android:layout_gravity="top|center_horizontal"
+                android:visibility="invisible"/>
+            
+        </FrameLayout>
+        
+    </RelativeLayout>
 
 </LinearLayout>

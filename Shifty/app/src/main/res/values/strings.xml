@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">Shifty</string>
     <string name="shared_preferences_name">ShiftySharedPreferences</string>
+
+
+    <string-array name="search_modes">
+        <item>Week</item>
+        <item>Month</item>
+    </string-array>
+
 </resources>
