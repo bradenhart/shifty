@@ -54,10 +54,15 @@ public class DateUtil {
         }
     }
 
-    public String getStartOfCurrentWeek(String format) {
-        Calendar c = Calendar.getInstance();
-        return getWeekStart(c.getTime(), format);
+    public static String getWeekStart(Date date, String format) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+        return getWeekStart(sdf.format(date), format);
     }
+
+//    public String getStartOfCurrentWeek(String format) {
+//        Calendar c = Calendar.getInstance();
+//        return getWeekStart(c.getTime(), format);
+//    }
 
     public static String getWeekEnd(String dateString, String format) {
         Calendar c = Calendar.getInstance();
@@ -76,61 +81,35 @@ public class DateUtil {
         }
     }
 
-    public static String getWeekStart(Date date, String format) {
-        Calendar c = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
-        c.setTime(date);
-        c.set(Calendar.HOUR, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.AM_PM, Calendar.AM);
-
-        if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-            c.add(Calendar.DAY_OF_WEEK, -6);
-        } else {
-            c.add(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek() - c.get(Calendar.DAY_OF_WEEK) + 1);
-        }
-
-        return sdf.format(c.getTime());
-    }
-
     public static String getWeekEnd(Date date, String format) {
         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
         return getWeekEnd(sdf.format(date), format);
     }
 
-    // -ve offset means start in the past, +ve offset means start in the future,
-    // 0 means start in current week
-    public static String[] getDateTimesForRange(int weeks, int offset) {
-        // get calendar instance for Now
+    public static String getMonthStart(Date date, String format) {
         Calendar c = Calendar.getInstance();
-        // get weekstart date for start of range
-        c.add(Calendar.WEEK_OF_YEAR, offset);
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+        c.setTime(date);
+        c.set(Calendar.DAY_OF_MONTH, c.getMinimum(Calendar.DAY_OF_MONTH));
+        c.set(Calendar.HOUR_OF_DAY, c.getMinimum(Calendar.HOUR_OF_DAY));
+        c.set(Calendar.MINUTE, c.getMinimum(Calendar.MINUTE));
+        c.set(Calendar.SECOND, c.getMinimum(Calendar.SECOND));
+        c.set(Calendar.MILLISECOND, c.getMinimum(Calendar.MILLISECOND));
 
-        if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-            c.add(Calendar.DAY_OF_WEEK, -6);
-        } else {
-            c.add(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek() - c.get(Calendar.DAY_OF_WEEK) + 1);
-        }
+        return sdf.format(c.getTime());
+    }
 
-        c.set(Calendar.HOUR, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.AM_PM, Calendar.AM);
+    public static String getMonthEnd(Date date, String format) {
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+        c.setTime(date);
+        c.set(Calendar.DAY_OF_MONTH, c.getMaximum(Calendar.DAY_OF_MONTH));
+        c.set(Calendar.HOUR_OF_DAY, c.getMaximum(Calendar.HOUR_OF_DAY));
+        c.set(Calendar.MINUTE, c.getMaximum(Calendar.MINUTE));
+        c.set(Calendar.SECOND, c.getMaximum(Calendar.SECOND));
+        c.set(Calendar.MILLISECOND, c.getMaximum(Calendar.MILLISECOND));
 
-        SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
-
-        String[] datetimes = new String[weeks + 1];
-        datetimes[0] = sdf.format(c.getTime());
-
-        for (int i = 1; i <= weeks; i++) {
-            Log.e("LOG", "entering for loop");
-            c.add(Calendar.WEEK_OF_YEAR, 1);
-            datetimes[i] = sdf.format(c.getTime());
-        }
-
-        Log.e("LOG", "datetimes " + datetimes.length);
-        return datetimes;
+        return sdf.format(c.getTime());
     }
 
     public static String getPrettyDateString(String dateString, String format) {
