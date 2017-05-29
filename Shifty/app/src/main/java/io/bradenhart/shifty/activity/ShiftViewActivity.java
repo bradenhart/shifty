@@ -274,13 +274,21 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     }
 
+//    @Override
+//    protected void onRestart() {
+//        super.onRestart();
+//
+//        Log.d(TAG, "onRestart()");
+////        restartLoader(getLoaderIDForDisplayMode());
+//
+//        updateNavViewSelectedItem();
+//    }
+
     @Override
-    protected void onRestart() {
-        super.onRestart();
+    protected void onResume() {
+        super.onResume();
 
-        Log.d(TAG, "onRestart()");
-//        restartLoader(getLoaderIDForDisplayMode());
-
+        restartLoader(getLoaderIDForDisplayMode());
         updateNavViewSelectedItem();
     }
 
@@ -290,10 +298,10 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
         Log.d(TAG, "onRestoreInstanceState()");
 
-        if (savedInstanceState != null) {
+//        if (savedInstanceState != null) {
 //            showCurrent = savedInstanceState.getBoolean(KEY_DISPLAY_STATE, true);
-            restartLoader(getLoaderIDForDisplayMode());
-        }
+//            restartLoader(getLoaderIDForDisplayMode());
+//        }
     }
 
     @Override
