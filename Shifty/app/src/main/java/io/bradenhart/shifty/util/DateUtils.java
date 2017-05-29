@@ -14,7 +14,7 @@ import java.util.Locale;
  * Created by bradenhart on 8/04/17.
  */
 
-public class DateUtil {
+public class DateUtils {
 
     public static final String FMT_ISO_8601_DATETIME = "yyyy-MM-dd HH:mm:ss.sss";
     public static final String FMT_ISO_8601_DATE = "yyyy-MM-dd";

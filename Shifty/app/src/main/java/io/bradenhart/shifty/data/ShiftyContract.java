@@ -3,7 +3,7 @@ package io.bradenhart.shifty.data;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-import io.bradenhart.shifty.util.DateUtil;
+import io.bradenhart.shifty.util.DateUtils;
 
 /**
  * Created by bradenhart on 28/03/17.
@@ -47,11 +47,11 @@ public class ShiftyContract {
         public static final String COLUMN_TOTAL_PAID_HOURS = "total_paid_hours";
 
         public static String getSQLSelectForThisWeekOnwards() {
-            return COLUMN_WEEK_START_DATETIME + " >= '" + DateUtil.getStartDateForCurrentWeek() + "'";
+            return COLUMN_WEEK_START_DATETIME + " >= '" + DateUtils.getStartDateForCurrentWeek() + "'";
         }
 
         public static String getSQLSelectForBeforeThisWeek() {
-            return COLUMN_WEEK_START_DATETIME + " < '" + DateUtil.getStartDateForCurrentWeek() + "'";
+            return COLUMN_WEEK_START_DATETIME + " < '" + DateUtils.getStartDateForCurrentWeek() + "'";
         }
 
     }

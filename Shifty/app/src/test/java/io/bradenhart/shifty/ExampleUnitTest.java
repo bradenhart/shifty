@@ -2,15 +2,10 @@ package io.bradenhart.shifty;
 
 import org.junit.Test;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 
-import io.bradenhart.shifty.util.DateUtil;
-import io.bradenhart.shifty.util.Utils;
+import io.bradenhart.shifty.util.DateUtils;
 
 import static org.junit.Assert.*;
 
@@ -40,7 +35,7 @@ public class ExampleUnitTest {
         int hourOfDay = c.get(Calendar.HOUR_OF_DAY);
 
         assertEquals(0, hourOfDay);*/
-        String result = DateUtil.getWeekStart("2017-05-24 09:30:00.000", DateUtil.FMT_ISO_8601_DATETIME);
+        String result = DateUtils.getWeekStart("2017-05-24 09:30:00.000", DateUtils.FMT_ISO_8601_DATETIME);
         String expected = "2017-05-22 00:00:00.000";
 
         assertEquals("DateUtil.getWeekStart fails", expected, result);
@@ -61,7 +56,7 @@ public class ExampleUnitTest {
         int hourOfDay = c.get(Calendar.HOUR_OF_DAY);
 
         assertEquals(0, hourOfDay);*/
-        String result = DateUtil.getWeekStart("2017-05-24 12:00:00.000", DateUtil.FMT_ISO_8601_DATETIME);
+        String result = DateUtils.getWeekStart("2017-05-24 12:00:00.000", DateUtils.FMT_ISO_8601_DATETIME);
         String expected = "2017-05-22 00:00:00.000";
 
         assertEquals("DateUtil.getWeekStart fails", expected, result);
@@ -82,7 +77,7 @@ public class ExampleUnitTest {
         int hourOfDay = c.get(Calendar.HOUR_OF_DAY);
 
         assertEquals(0, hourOfDay);*/
-        String result = DateUtil.getWeekStart("2017-05-24 12:30:00.000", DateUtil.FMT_ISO_8601_DATETIME);
+        String result = DateUtils.getWeekStart("2017-05-24 12:30:00.000", DateUtils.FMT_ISO_8601_DATETIME);
         String expected = "2017-05-22 00:00:00.000";
 
         assertEquals("DateUtil.getWeekStart fails", expected, result);
@@ -103,7 +98,7 @@ public class ExampleUnitTest {
         int hourOfDay = c.get(Calendar.HOUR_OF_DAY);
 
         assertEquals(0, hourOfDay);*/
-        String result = DateUtil.getWeekStart("2017-05-24 18:00:00.000", DateUtil.FMT_ISO_8601_DATETIME);
+        String result = DateUtils.getWeekStart("2017-05-24 18:00:00.000", DateUtils.FMT_ISO_8601_DATETIME);
         String expected = "2017-05-22 00:00:00.000";
 
         assertEquals("DateUtil.getWeekStart fails", expected, result);
@@ -113,7 +108,7 @@ public class ExampleUnitTest {
     /* WEEK END */
     @Test
     public void weekEndFromMorningShift() {
-        String result = DateUtil.getWeekEnd("2017-05-24 11:30:00.000", DateUtil.FMT_ISO_8601_DATETIME);
+        String result = DateUtils.getWeekEnd("2017-05-24 11:30:00.000", DateUtils.FMT_ISO_8601_DATETIME);
         String expected = "2017-05-28 23:59:59.059";
 
         assertEquals("DateUtil.getWeekEnd fails", expected, result);
@@ -121,7 +116,7 @@ public class ExampleUnitTest {
 
     @Test
     public void weekEndFromMiddayShift() {
-        String result = DateUtil.getWeekEnd("2017-05-24 12:00:00.000", DateUtil.FMT_ISO_8601_DATETIME);
+        String result = DateUtils.getWeekEnd("2017-05-24 12:00:00.000", DateUtils.FMT_ISO_8601_DATETIME);
         String expected = "2017-05-28 23:59:59.059";
 
         assertEquals("DateUtil.getWeekEnd fails", expected, result);
@@ -129,7 +124,7 @@ public class ExampleUnitTest {
 
     @Test
     public void weekEndFromAfternoonShift() {
-        String result = DateUtil.getWeekEnd("2017-05-24 12:30:00.000", DateUtil.FMT_ISO_8601_DATETIME);
+        String result = DateUtils.getWeekEnd("2017-05-24 12:30:00.000", DateUtils.FMT_ISO_8601_DATETIME);
         String expected = "2017-05-28 23:59:59.059";
 
         assertEquals("DateUtil.getWeekEnd fails", expected, result);
@@ -137,7 +132,7 @@ public class ExampleUnitTest {
 
     @Test
     public void weekEndFromEveningShift() {
-        String result = DateUtil.getWeekEnd("2017-05-24 18:00:00.000", DateUtil.FMT_ISO_8601_DATETIME);
+        String result = DateUtils.getWeekEnd("2017-05-24 18:00:00.000", DateUtils.FMT_ISO_8601_DATETIME);
         String expected = "2017-05-28 23:59:59.059";
 
         assertEquals("DateUtil.getWeekEnd fails", expected, result);
@@ -150,7 +145,7 @@ public class ExampleUnitTest {
         shiftsList.add(new Object[] {"2017-03-29 09:30:00.000", "2017-03-29 18:00:00.000", 8.5});
 
         for (Object[] shifts : shiftsList) {
-            Double hours = DateUtil.getHoursBetween((String) shifts[0], (String) shifts[1], DateUtil.FMT_ISO_8601_DATETIME);
+            Double hours = DateUtils.getHoursBetween((String) shifts[0], (String) shifts[1], DateUtils.FMT_ISO_8601_DATETIME);
             assertEquals(shifts[2], hours);
         }
     }
@@ -159,7 +154,7 @@ public class ExampleUnitTest {
     public void getMonthStart() {
         String expected = "2017-05-01 00:00:00.000";
         Calendar c = Calendar.getInstance();
-        String result = DateUtil.getMonthStart(c.getTime(), DateUtil.FMT_ISO_8601_DATETIME);
+        String result = DateUtils.getMonthStart(c.getTime(), DateUtils.FMT_ISO_8601_DATETIME);
         assertEquals(expected, result);
     }
 
@@ -167,7 +162,7 @@ public class ExampleUnitTest {
     public void getMonthEnd() {
         String expected = "2017-05-31 23:59:59.059";
         Calendar c = Calendar.getInstance();
-        String result = DateUtil.getMonthEnd(c.getTime(), DateUtil.FMT_ISO_8601_DATETIME);
+        String result = DateUtils.getMonthEnd(c.getTime(), DateUtils.FMT_ISO_8601_DATETIME);
         assertEquals(expected, result);
     }
 

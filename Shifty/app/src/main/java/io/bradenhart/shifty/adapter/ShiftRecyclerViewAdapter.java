@@ -23,7 +23,7 @@ import butterknife.OnClick;
 import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.activity.ShiftActivity;
 import io.bradenhart.shifty.data.ShiftyContract;
-import io.bradenhart.shifty.util.DateUtil;
+import io.bradenhart.shifty.util.DateUtils;
 import io.bradenhart.shifty.util.Utils;
 
 /**
@@ -101,10 +101,10 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
         String shiftStart = cursor.getString(shiftStartCol);
         String shiftEnd = cursor.getString(shiftEndCol);
 
-        String dayOfMonth = DateUtil.getDayOfMonth(shiftStart, DateUtil.FMT_ISO_8601_DATETIME);
-        String dayOfWeek = DateUtil.getWeekday(shiftStart, DateUtil.FMT_ISO_8601_DATETIME, DateUtil.FMT_WEEKDAY_FULL);
-        String startTime = DateUtil.getTime(shiftStart, DateUtil.FMT_ISO_8601_DATETIME, DateUtil.FMT_TIME_SHORT);
-        String endTime = DateUtil.getTime(shiftEnd, DateUtil.FMT_ISO_8601_DATETIME, DateUtil.FMT_TIME_SHORT);
+        String dayOfMonth = DateUtils.getDayOfMonth(shiftStart, DateUtils.FMT_ISO_8601_DATETIME);
+        String dayOfWeek = DateUtils.getWeekday(shiftStart, DateUtils.FMT_ISO_8601_DATETIME, DateUtils.FMT_WEEKDAY_FULL);
+        String startTime = DateUtils.getTime(shiftStart, DateUtils.FMT_ISO_8601_DATETIME, DateUtils.FMT_TIME_SHORT);
+        String endTime = DateUtils.getTime(shiftEnd, DateUtils.FMT_ISO_8601_DATETIME, DateUtils.FMT_TIME_SHORT);
 
         shiftHolder.root.setTag(cursor.getLong(idCol));
         shiftHolder.dayOfMonthTV.setText(dayOfMonth);
@@ -112,12 +112,12 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
         shiftHolder.startTimeTV.setText(startTime);
         shiftHolder.endTimeTV.setText(endTime);
 
-        double shiftLength = DateUtil.getHoursBetween(shiftStart, shiftEnd, DateUtil.FMT_ISO_8601_DATETIME);
+        double shiftLength = DateUtils.getHoursBetween(shiftStart, shiftEnd, DateUtils.FMT_ISO_8601_DATETIME);
         double paidHours = shiftLength <= 5.0 ? shiftLength : shiftLength - 0.5;
         
         shiftHolder.paidHoursTV.setText(String.format(Locale.ENGLISH, "%.2f hrs", paidHours));
 
-        double progress = DateUtil.getShiftProgress(shiftStart, shiftEnd, DateUtil.FMT_ISO_8601_DATETIME);
+        double progress = DateUtils.getShiftProgress(shiftStart, shiftEnd, DateUtils.FMT_ISO_8601_DATETIME);
         Log.e("progress", startTime + "   "  + progress);
         int percentHeight = (int) Math.ceil(itemHeight * progress);
         shiftHolder.shiftProgressBar.setLayoutParams(new LinearLayout.LayoutParams(progressWidth, percentHeight));

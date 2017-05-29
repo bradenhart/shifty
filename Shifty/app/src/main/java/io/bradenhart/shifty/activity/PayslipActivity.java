@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.domain.Payslip;
@@ -20,7 +19,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.bradenhart.shifty.util.DateUtil;
+import io.bradenhart.shifty.util.DateUtils;
 
 /**
  * Created by bradenhart on 20/04/17.
@@ -85,8 +84,8 @@ public class PayslipActivity extends AppCompatActivity {
                 weekStartDatetime = data.getString(KEY_WEEK_START_DATE);
                 paidHours = data.getDouble(KEY_PAID_HOURS);
                 payslip = new Payslip(paidHours);
-                String weekEndDatetime = DateUtil.getWeekEnd(weekStartDatetime, DateUtil.FMT_ISO_8601_DATETIME);
-                SimpleDateFormat fromFmt = new SimpleDateFormat(DateUtil.FMT_ISO_8601_DATETIME, Locale.ENGLISH);
+                String weekEndDatetime = DateUtils.getWeekEnd(weekStartDatetime, DateUtils.FMT_ISO_8601_DATETIME);
+                SimpleDateFormat fromFmt = new SimpleDateFormat(DateUtils.FMT_ISO_8601_DATETIME, Locale.ENGLISH);
                 SimpleDateFormat toFmt = new SimpleDateFormat("dd MMM", Locale.ENGLISH);
                 try {
                     subtitle = toFmt.format(fromFmt.parse(weekStartDatetime)) + " - " + toFmt.format(fromFmt.parse(weekEndDatetime));

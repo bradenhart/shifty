@@ -13,7 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import io.bradenhart.shifty.util.DateUtil;
+import io.bradenhart.shifty.util.DateUtils;
 
 /**
  * Created by bradenhart on 18/05/17.
@@ -135,14 +135,14 @@ public class ShiftyContentProvider extends ContentProvider {
                         if (shiftStartDatetime == null || shiftEndDatetime == null) continue;
 
                         // calculate shift hours
-                        totalShiftHours = DateUtil.getHoursBetween(shiftStartDatetime, shiftEndDatetime, DateUtil.FMT_ISO_8601_DATETIME);
+                        totalShiftHours = DateUtils.getHoursBetween(shiftStartDatetime, shiftEndDatetime, DateUtils.FMT_ISO_8601_DATETIME);
                         paidHours = totalShiftHours <= 5.0 ? totalShiftHours : totalShiftHours - 0.5;
 
                         // get the week start datetime for the shift
-                        weekStartDatetime = DateUtil.getWeekStart(shiftStartDatetime, DateUtil.FMT_ISO_8601_DATETIME);
+                        weekStartDatetime = DateUtils.getWeekStart(shiftStartDatetime, DateUtils.FMT_ISO_8601_DATETIME);
 
                         // get the week end datetime for the shift
-                        weekEndDatetime = DateUtil.getWeekEnd(shiftStartDatetime, DateUtil.FMT_ISO_8601_DATETIME);
+                        weekEndDatetime = DateUtils.getWeekEnd(shiftStartDatetime, DateUtils.FMT_ISO_8601_DATETIME);
 
                         // insert workweek row
                         ContentValues workweekValues = new ContentValues();
@@ -225,14 +225,14 @@ public class ShiftyContentProvider extends ContentProvider {
                             throw new SQLException("Failed to insert row into " + uri + ", null start or end date provided");
 
                         // calculate shift hours
-                        totalShiftHours = DateUtil.getHoursBetween(shiftStartDatetime, shiftEndDatetime, DateUtil.FMT_ISO_8601_DATETIME);
+                        totalShiftHours = DateUtils.getHoursBetween(shiftStartDatetime, shiftEndDatetime, DateUtils.FMT_ISO_8601_DATETIME);
                         paidHours = totalShiftHours <= 5.0 ? totalShiftHours : totalShiftHours - 0.5;
 
                         // get the week start datetime for the shift
-                        weekStartDatetime = DateUtil.getWeekStart(shiftStartDatetime, DateUtil.FMT_ISO_8601_DATETIME);
+                        weekStartDatetime = DateUtils.getWeekStart(shiftStartDatetime, DateUtils.FMT_ISO_8601_DATETIME);
 
                         // get the week end datetime for the shift
-                        weekEndDatetime = DateUtil.getWeekEnd(shiftStartDatetime, DateUtil.FMT_ISO_8601_DATETIME);
+                        weekEndDatetime = DateUtils.getWeekEnd(shiftStartDatetime, DateUtils.FMT_ISO_8601_DATETIME);
 
                         // insert workweek row
                         ContentValues workweekValues = new ContentValues();
@@ -436,14 +436,14 @@ public class ShiftyContentProvider extends ContentProvider {
                         throw new SQLException("Failed to update row at " + uri + ", null start or end time provided");
                     }
 
-                    totalShiftHours = DateUtil.getHoursBetween(shiftStartDatetime, shiftEndDatetime, DateUtil.FMT_ISO_8601_DATETIME);
+                    totalShiftHours = DateUtils.getHoursBetween(shiftStartDatetime, shiftEndDatetime, DateUtils.FMT_ISO_8601_DATETIME);
                     paidHours = totalShiftHours <= 5.0 ? totalShiftHours : totalShiftHours - 0.5;
 
                     // get the week start datetime for the shift
-                    weekStartDatetime = DateUtil.getWeekStart(shiftStartDatetime, DateUtil.FMT_ISO_8601_DATETIME);
+                    weekStartDatetime = DateUtils.getWeekStart(shiftStartDatetime, DateUtils.FMT_ISO_8601_DATETIME);
 
                     // get the week end datetime for the shift
-                    weekEndDatetime = DateUtil.getWeekEnd(shiftStartDatetime, DateUtil.FMT_ISO_8601_DATETIME);
+                    weekEndDatetime = DateUtils.getWeekEnd(shiftStartDatetime, DateUtils.FMT_ISO_8601_DATETIME);
 
                     // the workweek id may have changed. try and create the workweek row to ensure that
                     // it exists before the shift is updated and references that row

@@ -28,7 +28,7 @@ import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.activity.PayslipActivity;
 import io.bradenhart.shifty.data.ShiftyContract;
 import io.bradenhart.shifty.domain.Payslip;
-import io.bradenhart.shifty.util.DateUtil;
+import io.bradenhart.shifty.util.DateUtils;
 import io.bradenhart.shifty.util.Utils;
 
 import static io.bradenhart.shifty.util.Utils.makeToast;
@@ -71,8 +71,8 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         String weekStart = cursor.getString(weekStartCol);
 
         // format the date for the header
-        SimpleDateFormat iso8601Format = new SimpleDateFormat(DateUtil.FMT_ISO_8601_DATETIME, Locale.ENGLISH);
-        SimpleDateFormat headerFormat = new SimpleDateFormat(DateUtil.FMT_DAY_DATE, Locale.ENGLISH);
+        SimpleDateFormat iso8601Format = new SimpleDateFormat(DateUtils.FMT_ISO_8601_DATETIME, Locale.ENGLISH);
+        SimpleDateFormat headerFormat = new SimpleDateFormat(DateUtils.FMT_DAY_DATE, Locale.ENGLISH);
         try {
             Date date = iso8601Format.parse(weekStart);
             String headerString = headerFormat.format(date);

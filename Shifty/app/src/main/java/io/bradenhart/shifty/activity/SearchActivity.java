@@ -1,8 +1,6 @@
 package io.bradenhart.shifty.activity;
 
-import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,12 +17,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,10 +31,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.bradenhart.shifty.R;
-import io.bradenhart.shifty.adapter.ShiftRecyclerViewAdapter;
 import io.bradenhart.shifty.adapter.WorkWeekRecyclerViewAdapter;
 import io.bradenhart.shifty.data.ShiftyContract;
-import io.bradenhart.shifty.util.DateUtil;
+import io.bradenhart.shifty.util.DateUtils;
 import io.bradenhart.shifty.util.Utils;
 
 import static java.util.Calendar.DAY_OF_MONTH;
@@ -127,7 +122,7 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
                     @Override
                     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                         // display the selected date
-                        selectedDateTV.setText(DateUtil.getPrettyDateString(year, month, day));
+                        selectedDateTV.setText(DateUtils.getPrettyDateString(year, month, day));
 
                         Calendar chosen = (Calendar) c.clone();
                         chosen.set(year, month, day);
@@ -238,7 +233,7 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
             Cursor searchResults = null;
 
             if (searchMode == SearchMode.WEEK) {
-                String searchDatetime = DateUtil.getWeekStart(date, DateUtil.FMT_ISO_8601_DATETIME);
+                String searchDatetime = DateUtils.getWeekStart(date, DateUtils.FMT_ISO_8601_DATETIME);
                 selection = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " = ?";
                 selectionArgs = new String[] {searchDatetime};
                 sortOrder = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " ASC";
@@ -251,11 +246,11 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
                 );
 
             } else if (searchMode == SearchMode.MONTH) {
-                String format = DateUtil.FMT_ISO_8601_DATETIME;
-                String monthStart = DateUtil.getMonthStart(date, format);
-                String monthEnd = DateUtil.getMonthEnd(date, format);
-                String weekStart = DateUtil.getWeekStart(monthStart, format);
-                String weekEnd = DateUtil.getWeekEnd(monthEnd, format);
+                String format = DateUtils.FMT_ISO_8601_DATETIME;
+                String monthStart = DateUtils.getMonthStart(date, format);
+                String monthEnd = DateUtils.getMonthEnd(date, format);
+                String weekStart = DateUtils.getWeekStart(monthStart, format);
+                String weekEnd = DateUtils.getWeekEnd(monthEnd, format);
 
                 selection = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " >= ? and "
                         + ShiftyContract.Workweek.COLUMN_WEEK_END_DATETIME + " <= ?";

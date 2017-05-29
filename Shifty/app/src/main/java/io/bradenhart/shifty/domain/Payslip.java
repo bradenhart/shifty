@@ -1,14 +1,6 @@
 package io.bradenhart.shifty.domain;
 
-import android.util.Log;
-
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-import io.bradenhart.shifty.util.DateUtil;
 
 /**
  * Created by bradenhart on 4/04/17.

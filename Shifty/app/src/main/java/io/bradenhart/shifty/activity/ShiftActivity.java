@@ -12,7 +12,6 @@ import android.support.design.widget.AppBarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -24,7 +23,7 @@ import android.widget.Toast;
 import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.data.ShiftyContract;
 import io.bradenhart.shifty.ui.TimeScroller;
-import io.bradenhart.shifty.util.DateUtil;
+import io.bradenhart.shifty.util.DateUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -127,9 +126,9 @@ public class ShiftActivity extends AppCompatActivity {
         }
 
         if (startDatetime != null) {
-            dayTextView.setText(DateUtil.getPrettyDateString(startDatetime, DateUtil.FMT_ISO_8601_DATETIME));
+            dayTextView.setText(DateUtils.getPrettyDateString(startDatetime, DateUtils.FMT_ISO_8601_DATETIME));
             try {
-                shiftDate = new SimpleDateFormat(DateUtil.FMT_ISO_8601_DATETIME, Locale.ENGLISH).parse(startDatetime);
+                shiftDate = new SimpleDateFormat(DateUtils.FMT_ISO_8601_DATETIME, Locale.ENGLISH).parse(startDatetime);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -161,7 +160,7 @@ public class ShiftActivity extends AppCompatActivity {
                 startTimeScroller.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                 if (editModeEnabled && shiftID != null) {
-                    String fmt = DateUtil.FMT_ISO_8601_DATETIME;
+                    String fmt = DateUtils.FMT_ISO_8601_DATETIME;
 
 //                    long endTimeDelay = startTimeScroller.scrollAllTo(500,
 //                            DateUtil.getHour(startDatetime, fmt),
@@ -174,14 +173,14 @@ public class ShiftActivity extends AppCompatActivity {
 //                            DateUtil.getPeriod(endDatetime, fmt));
 
                     startTimeScroller.scrollAllAtOnce(500,
-                            DateUtil.getHour(startDatetime, fmt),
-                            DateUtil.getMinute(startDatetime, fmt),
-                            DateUtil.getPeriod(startDatetime, fmt));
+                            DateUtils.getHour(startDatetime, fmt),
+                            DateUtils.getMinute(startDatetime, fmt),
+                            DateUtils.getPeriod(startDatetime, fmt));
 
                     endTimeScroller.scrollAllAtOnce(500,
-                            DateUtil.getHour(endDatetime, fmt),
-                            DateUtil.getMinute(endDatetime, fmt),
-                            DateUtil.getPeriod(endDatetime, fmt));
+                            DateUtils.getHour(endDatetime, fmt),
+                            DateUtils.getMinute(endDatetime, fmt),
+                            DateUtils.getPeriod(endDatetime, fmt));
 
 //                    Utils.makeToast(ShiftActivity.this, "end hour: " + DateUtil.getHour(endDatetime, fmt));
                 }
@@ -222,7 +221,7 @@ public class ShiftActivity extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                         // display the selected date
-                        dayTextView.setText(DateUtil.getPrettyDateString(year, month, day));
+                        dayTextView.setText(DateUtils.getPrettyDateString(year, month, day));
 
                         Calendar chosen = (Calendar) c.clone();
                         chosen.set(year, month, day);
@@ -257,7 +256,7 @@ public class ShiftActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        String dateString = DateUtil.getDatestringWithFormat(DateUtil.FMT_ISO_8601_DATE, shiftDate);
+        String dateString = DateUtils.getDatestringWithFormat(DateUtils.FMT_ISO_8601_DATE, shiftDate);
         String startTime = startTimeScroller.getTimeString();
         String endTime = endTimeScroller.getTimeString();
 
