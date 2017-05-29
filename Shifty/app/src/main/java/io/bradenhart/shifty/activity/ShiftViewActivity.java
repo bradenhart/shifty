@@ -44,8 +44,8 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
     final String TAG = "ShiftViewActivity.class";
     private final String title = "Shifty";
     public static final String KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE";
-    public static final String MODE_RECENT = "MODE_RECENT";
-    public static final String MODE_CURRENT = "MODE_CURRENT";
+    private static final String MODE_RECENT = "MODE_RECENT";
+    private static final String MODE_CURRENT = "MODE_CURRENT";
     private static final int ID_CURRENT_WORKWEEK_LOADER = 88;
     private static final int ID_RECENT_WORKWEEK_LOADER = 44;
 
@@ -69,6 +69,25 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
     int progressWidth;
     @BindDimen(R.dimen.margin_5dp)
     int margin5dp;
+
+    public enum DisplayMode {
+        CURRENT(MODE_CURRENT), RECENT(MODE_RECENT);
+
+        private String value;
+
+        DisplayMode(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public boolean isValid() {
+            return this == CURRENT || this == RECENT;
+        }
+
+    }
 
     public static final String[] MAIN_WORKWEEK_PROJECTION = {
             ShiftyContract.Workweek._ID,

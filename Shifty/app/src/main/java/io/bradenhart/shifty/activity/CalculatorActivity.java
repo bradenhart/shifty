@@ -9,7 +9,6 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,58 +29,123 @@ import io.bradenhart.shifty.util.Utils;
 
 import static io.bradenhart.shifty.util.Utils.makeToast;
 
+/**
+ * A Calculator that allows the user to calculate the net pay
+ * given the hours worked/to be worked, or the gross amount earned/
+ * to be earned. Two modes are available for the calculator to determine
+ * which type of input the user will provide: Hour, Gross.
+ */
 public class CalculatorActivity extends AppCompatActivity {
 
-    private final String TAG = "CalculatorActivity";
+    // logtag
+    private final String TAG = CalculatorActivity.class.getSimpleName();
+    // title to be displayed in the toolbar
     private final String title = "Calculator";
+    /* key value constants */
+    // key to be paired with the current input value for the calculator when in Hour mode
     private static final String KEY_HOURS = "KEY_HOURS";
+    // key to be paired with the current input value for the calculator when in Gross mode
     private static final String KEY_GROSS = "KEY_GROSS";
+    // key to be paired with the mode that the calculator is in
     private static final String KEY_CALCULATOR_MODE = "KEY_CALCULATOR_MODE";
+    /* other constants */
     private static final String MODE_HOUR = "MODE_HOUR";
     private static final String MODE_GROSS = "MODE_GROSS";
-    private String currentMode;
+    // holds the current mode for the calculator
+    private CalcMode currentMode;
 
+    /* components for the Activity's actionbar */
     @BindView(R.id.appbar_calculator)
     AppBarLayout appBar;
     Toolbar toolbar;
     TextView titleView;
+
+    // button to set the calculator in Hour mode
     @BindView(R.id.button_hour_mode)
     Button hourModeButton;
+    // button to set the calculator in Gross mode
     @BindView(R.id.button_gross_mode)
     Button grossModeButton;
+    // user inputs a value for the calculator to use
     @BindView(R.id.edittext_calculator_input)
     EditText inputEditText;
+    // in Hour mode, user can click this to add multiple values together for the number of hours
     @BindView(R.id.button_add_value)
     ImageButton addValueButton;
+    // clears the calculator and any associated values
     @BindView(R.id.button_clear_calculator)
     ImageButton clearButton;
+    // displays the base rate used in the calculation
     @BindView(R.id.textview_calculator_base_rate)
     TextView baseRateTV;
+    // displays the full pay rate used in the calculation
     @BindView(R.id.textview_calculator_pay_rate)
     TextView payRateTV;
+    // displays the number of hours used in the calculation
     @BindView(R.id.textview_calculator_hours)
     TextView hoursTV;
+    // displays the amount of P.A.Y.E deducted from the gross amount
     @BindView(R.id.textview_calculator_paye)
     TextView payeTV;
+    // displays the kiwisaver contribution for the calculation
     @BindView(R.id.textview_calculator_kiwisaver)
     TextView kiwisaverTV;
+    // displays the student loan repayment for the calculation
     @BindView(R.id.textview_calculator_loan)
     TextView loanTV;
+    // displays the gross amount used in the calculation
     @BindView(R.id.textview_calculator_gross)
     TextView grossTV;
+    // displays the net amount calculated
     @BindView(R.id.textview_calculator_net)
     TextView netTV;
+    // calculates the net pay when button is clicked and input is valid
     @BindView(R.id.button_calculate)
     Button calculateButton;
+    // bottom navigation bar to allow the user to go to current or recent shifts (ShiftViewActivity)
     @BindView(R.id.bottomnavigation_calculator)
     BottomNavigationView navView;
 
+    // holds the total number of hours input by the user in Hour mode
     private Double totalHours = 0.0;
+    // holds the gross amount input by the user in Gross mode
     private Double gross = 0.0;
+    // if the text has not changed since the previous calculation, a new calculation will not be performed
     private boolean textHasChanged = false;
 
+    // set of valid modes for the Calculator to use for calculations
+    public enum CalcMode {
+        HOUR(MODE_HOUR), GROSS(MODE_GROSS);
 
-    public static void start(Context context) {
+        private String value;
+
+        CalcMode(String value) {
+            this.value = value;
+        }
+
+        public static CalcMode get(String value) {
+            switch (value) {
+                case MODE_GROSS:
+                    return GROSS;
+                case MODE_HOUR:
+                default:
+                    return HOUR;
+            }
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+
+    /**
+     * Used for starting this Activity. Ensures that the Activity is started with the required
+     * extras.
+     *
+     * @param context The context of the Activity that calls this method
+     */
+    public static void start(@NonNull Context context) {
         context.startActivity(new Intent(context, CalculatorActivity.class));
     }
 
@@ -92,26 +156,35 @@ public class CalculatorActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
+
         if (savedInstanceState != null) {
+            // if the Calculator mode is stored, retrieve the value
+            // and assign it to currentMode.
             if (savedInstanceState.containsKey(KEY_CALCULATOR_MODE)) {
-                currentMode = savedInstanceState.getString(KEY_CALCULATOR_MODE, MODE_HOUR);
-                if (currentMode.equals(MODE_HOUR)) selectHourMode();
-                else selectGrossMode();
+                currentMode = CalcMode.get(savedInstanceState.getString(KEY_CALCULATOR_MODE));
             }
+            // if the Hour value is stored, retrieve it and display in the EditText
             if (savedInstanceState.containsKey(KEY_HOURS)) {
                 Double hours = savedInstanceState.getDouble(KEY_HOURS, 0.0);
                 inputEditText.setText(String.format(Locale.ENGLISH, "%.2f", hours));
             }
-            if (savedInstanceState.containsKey(KEY_GROSS)) {
+            // if the Gross value is stored, retrieve it and display it in the EditText
+            else if (savedInstanceState.containsKey(KEY_GROSS)) {
                 Double gross = savedInstanceState.getDouble(KEY_GROSS, 0.0);
                 inputEditText.setText(String.format(Locale.ENGLISH, "%.02f", gross));
             }
         }
 
-        selectHourMode();
+        // select the current mode
+        if (currentMode == CalcMode.HOUR) {
+            selectHourMode();
+        } else {
+            selectGrossMode();
+        }
 
         setUpActionBar();
 
+        // set up the bottom navigation view with an item selection listener
         navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -120,11 +193,11 @@ public class CalculatorActivity extends AppCompatActivity {
 
                 switch (id) {
                     case R.id.menu_button_shifts:
-                        saveDisplayMode(ShiftViewActivity.MODE_CURRENT);
+                        saveDisplayMode(ShiftViewActivity.DisplayMode.CURRENT);
                         finish();
                         break;
                     case R.id.menu_button_recent:
-                        saveDisplayMode(ShiftViewActivity.MODE_RECENT);
+                        saveDisplayMode(ShiftViewActivity.DisplayMode.RECENT);
                         finish();
                         break;
                 }
@@ -133,9 +206,16 @@ public class CalculatorActivity extends AppCompatActivity {
             }
         });
 
+        // select the calculator item to show the user that they are on the calculator screen
         navView.setSelectedItemId(R.id.menu_button_calculator);
     }
 
+    /**
+     * Sets up the action bar for this Activity.
+     * Retrieve the toolbar and then replace the default action bar with the toolbar.
+     * Retrieve the toolbar's textview to display the title for this Activity.
+     * Enable up navigation to allow the user to go back to the parent activity (ShiftViewActivity)
+     */
     private void setUpActionBar() {
         toolbar = ButterKnife.findById(appBar, R.id.toolbar);
         titleView = ButterKnife.findById(toolbar, R.id.textview_toolbar_title);
@@ -151,12 +231,19 @@ public class CalculatorActivity extends AppCompatActivity {
 //        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
-    private void saveDisplayMode(String mode) {
+    /**
+     * Saves the provided mode in SharedPreferences to be retrieved in ShiftViewActivity
+     *
+     * @param mode The mode that ShiftViewActivity will use for displaying shifts
+     *             (Current or Recent mode)
+     */
+    private void saveDisplayMode(ShiftViewActivity.DisplayMode mode) {
         SharedPreferences sp = getSharedPreferences(getString(R.string.shared_preferences_name), MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
 
-        if (mode.equals(ShiftViewActivity.MODE_CURRENT) || mode.equals(ShiftViewActivity.MODE_RECENT)) {
-            editor.putString(ShiftViewActivity.KEY_DISPLAY_MODE, mode).apply();
+        // check if the mode is one of DisplayMode.Current and DisplayMode.RECENT
+        if (mode.isValid()) {
+            editor.putString(ShiftViewActivity.KEY_DISPLAY_MODE, mode.getValue()).apply();
         }
     }
 
@@ -172,7 +259,8 @@ public class CalculatorActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_add_value)
     public void onClickAddValue() {
-        if (currentMode.equals(MODE_HOUR)) {
+        // only do something if the current mode is Hour
+        if (currentMode == CalcMode.HOUR) {
             try {
                 Double hours = Double.parseDouble(inputEditText.getText().toString());
                 totalHours += hours;
@@ -200,7 +288,7 @@ public class CalculatorActivity extends AppCompatActivity {
 
         String input = inputEditText.getText().toString();
 
-        if (currentMode.equals(MODE_HOUR)) {
+        if (currentMode == CalcMode.HOUR) {
             if (totalHours == 0.0) {
                 if (input.isEmpty()) {
                     makeToast(CalculatorActivity.this, "No input");
@@ -214,7 +302,7 @@ public class CalculatorActivity extends AppCompatActivity {
                 }
             }
             payslip = new Payslip(totalHours, Payslip.Mode.HOUR);
-        } else if (currentMode.equals(MODE_GROSS)) {
+        } else if (currentMode == CalcMode.GROSS) {
             if (input.isEmpty()) {
                 makeToast(CalculatorActivity.this, "No input");
                 clearCalculator();
@@ -242,7 +330,7 @@ public class CalculatorActivity extends AppCompatActivity {
     }
 
     private void selectHourMode() {
-        currentMode = MODE_HOUR;
+        currentMode = CalcMode.HOUR;
         grossModeButton.setTextColor(getColor(R.color.colorPrimary));
         grossModeButton.setBackgroundColor(getColor(R.color.text_white));
 
@@ -254,7 +342,7 @@ public class CalculatorActivity extends AppCompatActivity {
     }
 
     private void selectGrossMode() {
-        currentMode = MODE_GROSS;
+        currentMode = CalcMode.GROSS;
         hourModeButton.setTextColor(getColor(R.color.colorPrimary));
         hourModeButton.setBackgroundColor(getColor(R.color.text_white));
 
@@ -268,14 +356,14 @@ public class CalculatorActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(KEY_CALCULATOR_MODE, currentMode);
-        if (currentMode.equals(MODE_HOUR)) {
+        outState.putString(KEY_CALCULATOR_MODE, currentMode.getValue());
+        if (currentMode == CalcMode.HOUR) {
             try {
                 outState.putDouble(KEY_HOURS, Double.parseDouble(inputEditText.getText().toString()));
             } catch (NumberFormatException ex) {
                 Log.e(TAG, "Input is not a double, didn't save in outstate bundle");
             }
-        } else if (currentMode.equals(MODE_GROSS)) {
+        } else if (currentMode == CalcMode.GROSS) {
             try {
                 outState.putDouble(KEY_GROSS, Double.parseDouble(inputEditText.getText().toString()));
             } catch (NumberFormatException ex) {
