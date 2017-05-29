@@ -13,6 +13,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,7 +39,7 @@ import io.bradenhart.shifty.data.TestData;
 
 import static io.bradenhart.shifty.util.Utils.*;
 
-public class ShiftViewActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ShiftViewActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
 
     final String TAG = "ShiftViewActivity.class";
     private final String title = "Shifty";
@@ -52,6 +53,8 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
     AppBarLayout appBar;
     Toolbar toolbar;
     TextView titleView;
+    @BindView(R.id.swipe_refresh_layout)
+    SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.rv_shift_list)
     RecyclerView recyclerView;
     @BindView(R.id.button_new_shift)
@@ -92,6 +95,8 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
         setUpActionBar();
 
 //        TestData.addDataToDB(getContentResolver());
+
+        swipeRefreshLayout.setOnRefreshListener(this);
 
         adapter = new WorkWeekRecyclerViewAdapter(this);
 
@@ -192,6 +197,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
         switch (loaderId) {
             case ID_CURRENT_WORKWEEK_LOADER:
+                swipeRefreshLayout.setEnabled(true);
                 /* Sort order: ascending by start date */
                 sortOrder = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " ASC";
                 /* Select all workweeks from the this week onwards */
@@ -205,6 +211,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
                         sortOrder);
 
             case ID_RECENT_WORKWEEK_LOADER:
+                swipeRefreshLayout.setEnabled(false);
                 /* Sort order: ascending by start date */
                 sortOrder = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " DESC";
                 /* Select all workweeks from the this week onwards */
@@ -228,12 +235,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
         adapter.swapCursor(data);
         if (position == RecyclerView.NO_POSITION) position = 0;
 
-        if (data.getCount() != 0) {
-            showRecyclerView();
-        } else {
-            hideLoading();
-        }
-
+        hideLoading();
     }
 
     @Override
@@ -241,18 +243,12 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
         adapter.swapCursor(null);
     }
 
-    private void showRecyclerView() {
-        progressBar.setVisibility(View.INVISIBLE);
-        recyclerView.setVisibility(View.VISIBLE);
-    }
-
     private void showLoading() {
-        recyclerView.setVisibility(View.INVISIBLE);
-        progressBar.setVisibility(View.VISIBLE);
+        swipeRefreshLayout.setRefreshing(true);
     }
 
     private void hideLoading() {
-        progressBar.setVisibility(View.INVISIBLE);
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     private void startLoader(int loaderID) {
@@ -274,16 +270,6 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     }
 
-//    @Override
-//    protected void onRestart() {
-//        super.onRestart();
-//
-//        Log.d(TAG, "onRestart()");
-////        restartLoader(getLoaderIDForDisplayMode());
-//
-//        updateNavViewSelectedItem();
-//    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -293,21 +279,8 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        Log.d(TAG, "onRestoreInstanceState()");
-
-//        if (savedInstanceState != null) {
-//            showCurrent = savedInstanceState.getBoolean(KEY_DISPLAY_STATE, true);
-//            restartLoader(getLoaderIDForDisplayMode());
-//        }
-    }
-
-    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-//        outState.putBoolean(KEY_DISPLAY_STATE, showCurrent);
     }
 
     private void saveDisplayMode(String mode) {
@@ -349,6 +322,15 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
             updateNavViewSelectedItem();
         } else {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+        if (getDisplayMode().equals(MODE_CURRENT)) {
+            restartLoader(ID_CURRENT_WORKWEEK_LOADER);
+        } else if (getDisplayMode().equals(MODE_RECENT)) {
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 }
