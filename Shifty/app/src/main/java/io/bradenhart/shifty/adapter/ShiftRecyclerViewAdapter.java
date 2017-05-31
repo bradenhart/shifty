@@ -118,7 +118,6 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
         shiftHolder.paidHoursTV.setText(String.format(Locale.ENGLISH, "%.2f hrs", paidHours));
 
         double progress = DateUtils.getShiftProgress(shiftStart, shiftEnd, DateUtils.FMT_ISO_8601_DATETIME);
-        Log.e("progress", startTime + "   "  + progress);
         int percentHeight = (int) Math.ceil(itemHeight * progress);
         shiftHolder.shiftProgressBar.setLayoutParams(new LinearLayout.LayoutParams(progressWidth, percentHeight));
     }
