@@ -22,6 +22,7 @@
 
         <activity
             android:name=".activity.ShiftActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".activity.ShiftViewActivity" />
 
         <activity
@@ -30,10 +31,12 @@
 
         <activity
             android:name=".activity.CalculatorActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".activity.ShiftViewActivity"/>
 
         <activity
             android:name=".activity.SearchActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".activity.ShiftViewActivity" />
 
         <provider
