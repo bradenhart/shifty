@@ -25,7 +25,6 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.domain.Payslip;
-import io.bradenhart.shifty.util.Utils;
 
 import static io.bradenhart.shifty.util.Utils.makeToast;
 
@@ -34,6 +33,7 @@ import static io.bradenhart.shifty.util.Utils.makeToast;
  * given the hours worked/to be worked, or the gross amount earned/
  * to be earned. Two modes are available for the calculator to determine
  * which type of input the user will provide: Hour, Gross.
+ * @author bradenhart
  */
 public class CalculatorActivity extends AppCompatActivity {
 
@@ -52,7 +52,9 @@ public class CalculatorActivity extends AppCompatActivity {
     private static final String MODE_HOUR = "MODE_HOUR";
     private static final String MODE_GROSS = "MODE_GROSS";
     // holds the current mode for the calculator
-    private CalcMode currentMode;
+    private CalcMode currentMode = CalcMode.HOUR;
+
+    private Context context;
 
     /* components for the Activity's actionbar */
     @BindView(R.id.appbar_calculator)
@@ -114,7 +116,7 @@ public class CalculatorActivity extends AppCompatActivity {
     private boolean textHasChanged = false;
 
     // set of valid modes for the Calculator to use for calculations
-    public enum CalcMode {
+    private enum CalcMode {
         HOUR(MODE_HOUR), GROSS(MODE_GROSS);
 
         private String value;
@@ -153,6 +155,8 @@ public class CalculatorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calculator);
+
+        context = CalculatorActivity.this;
 
         ButterKnife.bind(this);
 
@@ -210,11 +214,27 @@ public class CalculatorActivity extends AppCompatActivity {
         navView.setSelectedItemId(R.id.menu_button_calculator);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(KEY_CALCULATOR_MODE, currentMode.getValue());
+        if (currentMode == CalcMode.HOUR) {
+            try {
+                outState.putDouble(KEY_HOURS, Double.parseDouble(inputEditText.getText().toString()));
+            } catch (NumberFormatException ex) {
+                Log.e(TAG, "Input is not a double, didn't save in outstate bundle");
+            }
+        } else if (currentMode == CalcMode.GROSS) {
+            try {
+                outState.putDouble(KEY_GROSS, Double.parseDouble(inputEditText.getText().toString()));
+            } catch (NumberFormatException ex) {
+                Log.e(TAG, "Input is not a double, didn't save in outstate bundle");
+            }
+        }
+    }
+
     /**
      * Sets up the action bar for this Activity.
-     * Retrieve the toolbar and then replace the default action bar with the toolbar.
-     * Retrieve the toolbar's textview to display the title for this Activity.
-     * Enable up navigation to allow the user to go back to the parent activity (ShiftViewActivity)
      */
     private void setUpActionBar() {
         toolbar = ButterKnife.findById(appBar, R.id.toolbar);
@@ -232,7 +252,7 @@ public class CalculatorActivity extends AppCompatActivity {
     }
 
     /**
-     * Saves the provided mode in SharedPreferences to be retrieved in ShiftViewActivity
+     * Saves the provided mode in SharedPreferences to be retrieved in ShiftViewActivity.
      *
      * @param mode The mode that ShiftViewActivity will use for displaying shifts
      *             (Current or Recent mode)
@@ -247,6 +267,80 @@ public class CalculatorActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Changes the calculator's mode to Hour mode, selects the Hour mode
+     * button and deselects the Gross mode button.
+     */
+    private void selectHourMode() {
+        currentMode = CalcMode.HOUR;
+        grossModeButton.setTextColor(getColor(R.color.colorPrimary));
+        grossModeButton.setBackgroundColor(getColor(R.color.text_white));
+
+        hourModeButton.setTextColor(getColor(R.color.text_white));
+        hourModeButton.setBackgroundColor(getColor(R.color.colorPrimary));
+
+        addValueButton.setVisibility(View.VISIBLE);
+        clearCalculatorResult();
+    }
+
+    /**
+     * Changes the calculator's mode to Gross mode, selects the Gross mode button
+     * and deselects the Hour mode button.
+     */
+    private void selectGrossMode() {
+        currentMode = CalcMode.GROSS;
+        hourModeButton.setTextColor(getColor(R.color.colorPrimary));
+        hourModeButton.setBackgroundColor(getColor(R.color.text_white));
+
+        grossModeButton.setTextColor(getColor(R.color.text_white));
+        grossModeButton.setBackgroundColor(getColor(R.color.colorPrimary));
+
+        addValueButton.setVisibility(View.GONE);
+        clearCalculatorResult();
+    }
+
+    /**
+     * Updates the calculator's result and resets the user input.
+     *
+     * @param payslip The payslip that will be displayed
+     */
+    private void updateCalculatorResult(Payslip payslip) {
+        resetInput();
+        hoursTV.setText(String.format(Locale.ENGLISH, "%.02f hrs", payslip.getHours()));
+        baseRateTV.setText(String.format(Locale.ENGLISH, "$%.02f/hr", payslip.getBaseRate()));
+        payRateTV.setText(String.format(Locale.ENGLISH, "$%.02f/hr", payslip.getRateFull()));
+        grossTV.setText(String.format(Locale.ENGLISH, "$%.02f", payslip.getGross()));
+        payeTV.setText(String.format(Locale.ENGLISH, "$%.02f", payslip.getPayeTotal()));
+        kiwisaverTV.setText(String.format(Locale.ENGLISH, "$%.02f", payslip.getKiwisavEmployee()));
+        loanTV.setText(String.format(Locale.ENGLISH, "$%.02f", payslip.getStudentLoan()));
+        netTV.setText(String.format(Locale.ENGLISH, "$%.02f", payslip.getNet()));
+    }
+
+    /**
+     * Clears the calculator result fields and resets the user input.
+     */
+    private void clearCalculatorResult() {
+        resetInput();
+        hoursTV.setText("");
+        baseRateTV.setText("");
+        payRateTV.setText("");
+        grossTV.setText("");
+        payeTV.setText("");
+        kiwisaverTV.setText("");
+        loanTV.setText("");
+        netTV.setText("");
+    }
+
+    /**
+     * Changes the user input back to the default values.
+     */
+    private void resetInput() {
+        inputEditText.setText("");
+        totalHours = 0.0;
+        gross = 0.0;
+    }
+
+    /* listeners */
     @OnClick(R.id.button_hour_mode)
     public void onClickHourModeButton() {
         selectHourMode();
@@ -274,9 +368,8 @@ public class CalculatorActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_clear_calculator)
     public void onClickClearButton() {
-        clearCalculator();
+        clearCalculatorResult();
     }
-
 
     @OnClick(R.id.button_calculate)
     public void onClickCalculateButton() {
@@ -286,42 +379,39 @@ public class CalculatorActivity extends AppCompatActivity {
 
         Payslip payslip = null;
 
+        // get the user's input
         String input = inputEditText.getText().toString();
-
-        if (currentMode == CalcMode.HOUR) {
-            if (totalHours == 0.0) {
-                if (input.isEmpty()) {
-                    makeToast(CalculatorActivity.this, "No input");
-                    clearCalculator();
-                    return;
-                }
-                try {
-                    totalHours = Double.parseDouble(input);
-                } catch (NumberFormatException ex) {
-                    Log.e(TAG, "Bad input. Could not convert to double");
-                }
-            }
-            payslip = new Payslip(totalHours, Payslip.Mode.HOUR);
-        } else if (currentMode == CalcMode.GROSS) {
-            if (input.isEmpty()) {
-                makeToast(CalculatorActivity.this, "No input");
-                clearCalculator();
-                return;
-            }
-            try {
-                gross = Double.parseDouble(inputEditText.getText().toString());
-            } catch (NumberFormatException ex) {
-                Log.e(TAG, "Bad input. Could not convert to double");
-            }
-            if (gross != 0.0) {
-                payslip = new Payslip(gross, Payslip.Mode.GROSS);
-                gross = 0.0;
-            }
-        } else {
-            Utils.makeToast(CalculatorActivity.this, "Cannot calculate payslip");
+        if (input.isEmpty()) {
+            makeToast(context, "No input");
+            clearCalculatorResult();
+            return;
         }
 
-        if (payslip != null) updateCalculator(payslip);
+        double value = 0.0;
+        // try and convert the user input to a double
+        try {
+            value = Double.parseDouble(input);
+        } catch (NumberFormatException ex) {
+            Log.e(TAG, "Bad input. Could not convert to double");
+        }
+
+        if (currentMode == CalcMode.HOUR) {
+            /* Handles a calculation in Hour mode */
+            totalHours += value;
+            payslip = new Payslip(totalHours, Payslip.Mode.HOUR);
+        } else if (currentMode == CalcMode.GROSS) {
+            /* Handles a calculation in Gross mode */
+            if (value != 0.0) {
+                gross = value;
+                payslip = new Payslip(gross, Payslip.Mode.GROSS);
+            } else {
+                makeToast(context, "Gross value can't be zero");
+            }
+        } else {
+            makeToast(context, "Cannot calculate payslip");
+        }
+
+        if (payslip != null) updateCalculatorResult(payslip);
     }
 
     @OnTextChanged(R.id.edittext_calculator_input)
@@ -329,74 +419,5 @@ public class CalculatorActivity extends AppCompatActivity {
         if (!textHasChanged) textHasChanged = true;
     }
 
-    private void selectHourMode() {
-        currentMode = CalcMode.HOUR;
-        grossModeButton.setTextColor(getColor(R.color.colorPrimary));
-        grossModeButton.setBackgroundColor(getColor(R.color.text_white));
 
-        hourModeButton.setTextColor(getColor(R.color.text_white));
-        hourModeButton.setBackgroundColor(getColor(R.color.colorPrimary));
-
-        addValueButton.setVisibility(View.VISIBLE);
-        clearCalculator();
-    }
-
-    private void selectGrossMode() {
-        currentMode = CalcMode.GROSS;
-        hourModeButton.setTextColor(getColor(R.color.colorPrimary));
-        hourModeButton.setBackgroundColor(getColor(R.color.text_white));
-
-        grossModeButton.setTextColor(getColor(R.color.text_white));
-        grossModeButton.setBackgroundColor(getColor(R.color.colorPrimary));
-
-        addValueButton.setVisibility(View.GONE);
-        clearCalculator();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString(KEY_CALCULATOR_MODE, currentMode.getValue());
-        if (currentMode == CalcMode.HOUR) {
-            try {
-                outState.putDouble(KEY_HOURS, Double.parseDouble(inputEditText.getText().toString()));
-            } catch (NumberFormatException ex) {
-                Log.e(TAG, "Input is not a double, didn't save in outstate bundle");
-            }
-        } else if (currentMode == CalcMode.GROSS) {
-            try {
-                outState.putDouble(KEY_GROSS, Double.parseDouble(inputEditText.getText().toString()));
-            } catch (NumberFormatException ex) {
-                Log.e(TAG, "Input is not a double, didn't save in outstate bundle");
-            }
-        }
-    }
-
-    private void updateCalculator(Payslip payslip) {
-        inputEditText.setText("");
-        totalHours = 0.0;
-        gross = 0.0;
-        hoursTV.setText(String.format(Locale.ENGLISH, "%.02f hrs", payslip.getHours()));
-        baseRateTV.setText(String.format(Locale.ENGLISH, "$%.02f/hr", payslip.getBaseRate()));
-        payRateTV.setText(String.format(Locale.ENGLISH, "$%.02f/hr", payslip.getRateFull()));
-        grossTV.setText(String.format(Locale.ENGLISH, "$%.02f", payslip.getGross()));
-        payeTV.setText(String.format(Locale.ENGLISH, "$%.02f", payslip.getPayeTotal()));
-        kiwisaverTV.setText(String.format(Locale.ENGLISH, "$%.02f", payslip.getKiwisavEmployee()));
-        loanTV.setText(String.format(Locale.ENGLISH, "$%.02f", payslip.getStudentLoan()));
-        netTV.setText(String.format(Locale.ENGLISH, "$%.02f", payslip.getNet()));
-    }
-
-    private void clearCalculator() {
-        inputEditText.setText("");
-        hoursTV.setText("");
-        baseRateTV.setText("");
-        payRateTV.setText("");
-        grossTV.setText("");
-        payeTV.setText("");
-        kiwisaverTV.setText("");
-        loanTV.setText("");
-        netTV.setText("");
-        totalHours = 0.0;
-        gross = 0.0;
-    }
 }

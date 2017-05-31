@@ -41,38 +41,57 @@ import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
 /**
- * Created by bradenhart on 27/05/17.
+ * Allows the user to search for one or multiple workweeks using
+ * a selected date and a search mode (Week or Month) as query parameters.
+ * @author bradenhart
  */
-
 public class SearchActivity extends AppCompatActivity implements Spinner.OnItemSelectedListener {
 
-    private final String TAG = "SearchActivity.class";
+    // logtag
+    private final String TAG = SearchActivity.class.getSimpleName();
+    // title to be displayed in the toolbar
     private final String title = "Search";
 
+    private Context context;
+
+    /* components for the Activity's actionbar */
     @BindView(R.id.appbar_search)
     AppBarLayout appBar;
     Toolbar toolbar;
     TextView titleView;
 
+    // provides Search mode options for the user to choose from
     @BindView(R.id.button_search_mode)
     Spinner searchModeSpinner;
+    // displays the date the user selected
     @BindView(R.id.textview_search_selected_date)
     TextView selectedDateTV;
+    // opens calendar for user to select a date
     @BindView(R.id.button_search_select_date)
     ImageButton selectDateButton;
+    // displays the search results
     @BindView(R.id.recyclerview_search_results)
     RecyclerView recyclerView;
+    // indicates when the results are loading
     @BindView(R.id.progressbar_search)
     ProgressBar progressBar;
 
+    // the adapter for displaying the search results with
     private WorkWeekRecyclerViewAdapter adapter;
-    private SearchMode searchMode = SearchMode.MONTH;
+    // the chosen search mode, defaults to
+    private SearchMode searchMode = SearchMode.WEEK;
 
+    // set of valid modes for the user to select
     public enum SearchMode {
         WEEK, MONTH
     }
 
-
+    /**
+     * Used for starting this Activity. Ensures that the Activity is started with the required
+     * extras.
+     *
+     * @param context The context of the Activity that calls this method
+     */
     public static void start(Context context) {
         context.startActivity(new Intent(context, SearchActivity.class));
     }
@@ -82,41 +101,23 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
+        context = SearchActivity.this;
+
         ButterKnife.bind(this);
 
         setUpActionBar();
 
-        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.search_modes, android.R.layout.simple_spinner_item);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        searchModeSpinner.setAdapter(spinnerAdapter);
-        searchModeSpinner.setOnItemSelectedListener(this);
+        setUpSearchModeSpinner();
 
-        adapter = new WorkWeekRecyclerViewAdapter(this);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        recyclerView.setAdapter(adapter);
-        recyclerView.setHasFixedSize(true);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        switch (id) {
-            case android.R.id.home:
-                finish();
-                break;
-            default:
-                return false;
-        }
-        return true;
+        setUpSearchResultsRecyclerView();
     }
 
     @OnClick(R.id.button_search_select_date)
     public void onClickSelectDateButton() {
         final Calendar c = Calendar.getInstance();
 
-        DatePickerDialog datePickerFragment = new DatePickerDialog(this,
+        // show a date picker for the user to select a date for their search
+        DatePickerDialog datePickerFragment = new DatePickerDialog(context,
                 android.R.style.Theme_DeviceDefault_Light_Dialog,
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
@@ -127,7 +128,8 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
                         Calendar chosen = (Calendar) c.clone();
                         chosen.set(year, month, day);
 
-                        new SearchAsyncTask(SearchActivity.this, chosen.getTime(), searchMode).execute();
+                        // execute the search using the chosen date and search mode
+                        new SearchAsyncTask(context, chosen.getTime(), searchMode).execute();
                     }
                 },
                 c.get(YEAR),
@@ -136,7 +138,9 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
         datePickerFragment.show();
     }
 
-
+    /**
+     * Sets up the action bar for this Activity.
+     */
     private void setUpActionBar() {
         toolbar = ButterKnife.findById(appBar, R.id.toolbar);
         titleView = ButterKnife.findById(toolbar, R.id.textview_toolbar_title);
@@ -152,16 +156,48 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
 //        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
+    /**
+     * Populate the search mode spinner with search mode options and provide
+     * an item selection listener.
+     */
+    private void setUpSearchModeSpinner() {
+        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(context,
+                R.array.search_modes, android.R.layout.simple_spinner_item);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        searchModeSpinner.setAdapter(spinnerAdapter);
+        searchModeSpinner.setOnItemSelectedListener(this);
+    }
+
+    /**
+     * Provide the adapter and layout manager for the recyclerview used for
+     * displaying search results.
+     */
+    private void setUpSearchResultsRecyclerView() {
+        adapter = new WorkWeekRecyclerViewAdapter(this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.setAdapter(adapter);
+        recyclerView.setHasFixedSize(true);
+    }
+
+    /**
+     * Make the recyclerview visible and hide the loading icon.
+     */
     private void showRecyclerView() {
         progressBar.setVisibility(View.INVISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Make the loading icon visible and hide the recyclerview.
+     */
     private void showLoading() {
         recyclerView.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Hide the loading icon (in the case of a failed search).
+     */
     private void hideLoading() {
         progressBar.setVisibility(View.INVISIBLE);
     }
@@ -182,6 +218,11 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
     }
 
 
+    /**
+     * An async task for performing a search for shifts. Takes a date and search mode
+     * and queries the database. Populates the search results with the cursor returned by
+     * the query.
+     */
     public class SearchAsyncTask extends AsyncTask<Void, Void, Cursor> {
 
         private Context context;
@@ -222,6 +263,13 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
             adapter.swapCursor(null);
         }
 
+        /**
+         * Performs a search on the database using the query built from the provided
+         * parameters.
+         * @param date The date the users has selected to search for
+         * @param searchMode The search mode the user has selected
+         * @return The cursor resulting from the database query
+         */
         private Cursor performSearch(Date date, SearchMode searchMode) {
             ContentResolver contentResolver = getContentResolver();
             Uri uri = ShiftyContract.Workweek.CONTENT_URI;
@@ -233,11 +281,14 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
             Cursor searchResults = null;
 
             if (searchMode == SearchMode.WEEK) {
+                // get the date for the start of the week that the user has chosen
                 String searchDatetime = DateUtils.getWeekStart(date, DateUtils.FMT_ISO_8601_DATETIME);
+                // create the query parameters
                 selection = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " = ?";
                 selectionArgs = new String[] {searchDatetime};
                 sortOrder = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " ASC";
 
+                // query the database
                 searchResults = contentResolver.query(uri,
                         null,
                         selection,
@@ -247,16 +298,22 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
 
             } else if (searchMode == SearchMode.MONTH) {
                 String format = DateUtils.FMT_ISO_8601_DATETIME;
+                // get the start date of the month the user has chosen
                 String monthStart = DateUtils.getMonthStart(date, format);
+                // get the end date of the month the user has chosen
                 String monthEnd = DateUtils.getMonthEnd(date, format);
+                // search results displays full work weeks so get the start of the first week
+                // of the month and the end date of the last week of the month
                 String weekStart = DateUtils.getWeekStart(monthStart, format);
                 String weekEnd = DateUtils.getWeekEnd(monthEnd, format);
 
+                // create the query parameters
                 selection = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " >= ? and "
                         + ShiftyContract.Workweek.COLUMN_WEEK_END_DATETIME + " <= ?";
                 selectionArgs = new String[] {weekStart, weekEnd};
                 sortOrder = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " ASC";
 
+                // query the database
                 searchResults = contentResolver.query(uri,
                         null,
                         selection,

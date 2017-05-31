@@ -40,27 +40,33 @@ import static java.util.Calendar.DAY_OF_MONTH;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
-//import io.bradenhart.shifty.domain.ShiftDate;
-
 /**
- * Created by bradenhart on 14/03/17.
+ * Allows the user to create new shifts or edit a shift.
+ * @author bradenhart
  */
-
 public class ShiftActivity extends AppCompatActivity {
 
-    final String TAG = "NewShiftActivity";
+    // logtag
+    private final String TAG = ShiftActivity.class.getSimpleName();
+    // title to be displayed in the toolbar
     private String title;
+    // title options (New shift and Edit shift)
     private final String TITLE_NEW = "Create Shift";
     private final String TITLE_EDIT = "Edit Shift";
 
-    // Keys for sending data to this activity in an Intent
+    /* key value constants */
+    // key for sending a shift's id to this activity in an Intent
     public static final String KEY_SHIFT = "KEY_SHIFT";
-    public static final String KEY_EDIT_MODE = "KEY_EDIT_MODE";
+    // key for sending the mode to this activity in an Intent
+    public static final String KEY_MODE = "KEY_MODE";
 
+    /* components for the Activity's actionbar */
     @BindView(R.id.appbar_shift)
     AppBarLayout appBar;
     Toolbar toolbar;
     TextView titleView;
+
+
     @BindView(R.id.textview_day)
     TextView dayTextView;
     @BindView(R.id.button_day)
@@ -85,14 +91,14 @@ public class ShiftActivity extends AppCompatActivity {
 
     public static void start(Context context, Mode mode, String shiftID) {
         Intent intent = new Intent(context, ShiftActivity.class);
-        intent.putExtra(ShiftActivity.KEY_EDIT_MODE, mode == Mode.EDIT);
+        intent.putExtra(ShiftActivity.KEY_MODE, mode == Mode.EDIT);
         intent.putExtra(ShiftActivity.KEY_SHIFT, shiftID);
         context.startActivity(intent);
     }
 
     public static void start(Context context, Mode mode) {
         Intent intent = new Intent(context, ShiftActivity.class);
-        intent.putExtra(ShiftActivity.KEY_EDIT_MODE, mode == Mode.EDIT);
+        intent.putExtra(ShiftActivity.KEY_MODE, mode == Mode.EDIT);
         context.startActivity(intent);
     }
 
@@ -105,7 +111,7 @@ public class ShiftActivity extends AppCompatActivity {
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            editModeEnabled = bundle.getBoolean(KEY_EDIT_MODE, false);
+            editModeEnabled = bundle.getBoolean(KEY_MODE, false);
             if (bundle.containsKey(KEY_SHIFT)) shiftID = bundle.getString(KEY_SHIFT);
         }
         if (shiftID != null) {
@@ -189,7 +195,6 @@ public class ShiftActivity extends AppCompatActivity {
 
     }
 
-    /* initialisation/setup methods */
     private void setUpActionBar() {
         toolbar = ButterKnife.findById(appBar, R.id.toolbar);
         titleView = ButterKnife.findById(toolbar, R.id.textview_toolbar_title);
@@ -200,11 +205,7 @@ public class ShiftActivity extends AppCompatActivity {
         // show the desired title in the toolbar instead of the actionbar
         titleView.setText(title);
         // will show the back arrow/caret and make it clickable. will not return home unless parent activity is specified
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        // shows logo/icon with caret/arrow if passed true. will not show logo/icon if passed false
-//        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        // set the navigation drawer icon to the hamburger icon
-//        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @OnClick(R.id.button_day)
