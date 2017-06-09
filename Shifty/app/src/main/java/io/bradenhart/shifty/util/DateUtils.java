@@ -1,7 +1,5 @@
 package io.bradenhart.shifty.util;
 
-import android.util.Log;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;
@@ -28,7 +26,7 @@ public class DateUtils {
     public static final String FMT_TIME_SHORT = "hh:mm a";
     public static final String FMT_DAY_DATE = "dd MMM yyyy";
 
-    public static String getDatestringWithFormat(String format, Date date) {
+    public static String getDatestringWithFormat(Date date, String format) {
         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
         return sdf.format(date);
     }
@@ -58,11 +56,6 @@ public class DateUtils {
         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
         return getWeekStart(sdf.format(date), format);
     }
-
-//    public String getStartOfCurrentWeek(String format) {
-//        Calendar c = Calendar.getInstance();
-//        return getWeekStart(c.getTime(), format);
-//    }
 
     public static String getWeekEnd(String dateString, String format) {
         Calendar c = Calendar.getInstance();
