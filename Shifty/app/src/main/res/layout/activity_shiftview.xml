@@ -42,13 +42,6 @@
             app:elevation="10dp"
             app:fabSize="normal" />
 
-        <ProgressBar
-            android:id="@+id/progressbar_shiftview"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:layout_gravity="center"
-            android:visibility="invisible" />
-
     </FrameLayout>
 
     <include
