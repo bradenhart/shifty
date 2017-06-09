@@ -1,11 +1,10 @@
 package io.bradenhart.shifty.activity;
 
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
@@ -15,61 +14,68 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.bradenhart.shifty.R;
 import io.bradenhart.shifty.adapter.WorkWeekRecyclerViewAdapter;
 import io.bradenhart.shifty.data.ShiftyContract;
-import io.bradenhart.shifty.data.TestData;
 
-import static io.bradenhart.shifty.util.Utils.*;
-
+/**
+ * Allows the user to view their shifts. Displays the current week's shifts
+ * and all future shifts, by default. Displays recent shifts when the user
+ * navigates to the Recent view (in the bottom navigation bar).
+ *
+ * @author bradenhart
+ */
 public class ShiftViewActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
 
-    final String TAG = "ShiftViewActivity.class";
+    // logtag
+    final String TAG = ShiftViewActivity.class.getSimpleName();
+    // title to be displayed in the toolbar
     private final String title = "Shifty";
+    /* key constants */
+    // key for storing the display mode in Shared Preferences
     public static final String KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE";
+    /* other constants */
+    // values for the display mode
     private static final String MODE_RECENT = "MODE_RECENT";
     private static final String MODE_CURRENT = "MODE_CURRENT";
+    // id values for the cursor loaders
     private static final int ID_CURRENT_WORKWEEK_LOADER = 88;
     private static final int ID_RECENT_WORKWEEK_LOADER = 44;
 
+    private Context context;
+
+    /* components for the Activity's actionbar */
     @BindView(R.id.appbar_shiftview)
     AppBarLayout appBar;
     Toolbar toolbar;
     TextView titleView;
+
+    // allows for the recyclerview to be refreshed with a swipe gesture
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout swipeRefreshLayout;
+    // displays the shifts
     @BindView(R.id.rv_shift_list)
     RecyclerView recyclerView;
+    // takes the user to the new shift screen
     @BindView(R.id.button_new_shift)
     FloatingActionButton newShiftButton;
+    // displays buttons to different screens/functions of the app
     @BindView(R.id.bottomnavigation_shiftview)
     BottomNavigationView navView;
-    @BindView(R.id.progressbar_shiftview)
-    ProgressBar progressBar;
-    @BindDimen(R.dimen.workweek_item_height)
-    int itemHeight;
-    @BindDimen(R.dimen.workweek_shift_progress_width)
-    int progressWidth;
-    @BindDimen(R.dimen.margin_5dp)
-    int margin5dp;
 
+    // set of valid display modes for the recyclerview
     public enum DisplayMode {
         CURRENT(MODE_CURRENT), RECENT(MODE_RECENT);
 
@@ -79,25 +85,34 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
             this.value = value;
         }
 
+        // get the string value for the DisplayMode
         public String getValue() {
             return value;
         }
 
-        public boolean isValid() {
-            return this == CURRENT || this == RECENT;
+        // get a DisplayMode from a given value
+        public static DisplayMode get(String value) {
+            if (value.equals(MODE_RECENT)) return RECENT;
+            else return CURRENT; // CURRENT is the default
         }
 
     }
 
+    // contains the main projection values used when querying the Workweek table in the db
     public static final String[] MAIN_WORKWEEK_PROJECTION = {
             ShiftyContract.Workweek._ID,
             ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME,
             ShiftyContract.Workweek.COLUMN_TOTAL_PAID_HOURS,
     };
 
-    private int position = RecyclerView.NO_POSITION;
+    // the adapter for the recyclerview, displays workweeks
     private WorkWeekRecyclerViewAdapter adapter;
 
+    /**
+     * Used for starting this Activity. Ensures that the Activity is started with the required
+     * extras.
+     * @param context The context of the Activity that calls this method
+     */
     public static void start(Context context) {
         Intent intent = new Intent(context, ShiftViewActivity.class);
         context.startActivity(intent);
@@ -107,10 +122,10 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shiftview);
+        context = ShiftViewActivity.this;
 
-        ButterKnife.bind(ShiftViewActivity.this);
+        ButterKnife.bind(this);
 
-        // set up actionbar
         setUpActionBar();
 
 //        TestData.addDataToDB(getContentResolver());
@@ -120,7 +135,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
         adapter = new WorkWeekRecyclerViewAdapter(this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        recyclerView.setHasFixedSize(true);
+//        recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
 
         navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -132,18 +147,18 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
                 switch (id) {
                     case R.id.menu_button_shifts:
                         // show current shifts
-                        saveDisplayMode(MODE_CURRENT);
+                        saveDisplayMode(DisplayMode.CURRENT);
                         newShiftButton.setVisibility(View.VISIBLE);
                         restartLoader(getLoaderIDForDisplayMode());
                         break;
                     case R.id.menu_button_recent:
                         // show recent shifts
-                        saveDisplayMode(MODE_RECENT);
+                        saveDisplayMode(DisplayMode.RECENT);
                         newShiftButton.setVisibility(View.GONE);
                         startLoader(getLoaderIDForDisplayMode());
                         break;
                     case R.id.menu_button_calculator:
-                        CalculatorActivity.start(ShiftViewActivity.this);
+                        CalculatorActivity.start(context);
                         break;
                 }
 
@@ -177,7 +192,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
         switch (id) {
             case R.id.action_search:
-                SearchActivity.start(ShiftViewActivity.this);
+                SearchActivity.start(context);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -186,7 +201,9 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
         return true;
     }
 
-    /* initialisation/setup methods */
+    /**
+     * Sets up the action bar for this Activity.
+     */
     private void setUpActionBar() {
         toolbar = ButterKnife.findById(appBar, R.id.toolbar);
         titleView = ButterKnife.findById(toolbar, R.id.textview_toolbar_title);
@@ -196,25 +213,103 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         // show the desired title in the toolbar instead of the actionbar
         titleView.setText(title);
-        // will show the back arrow/caret and make it clickable. will not return home unless parent activity is specified
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        // shows logo/icon with caret/arrow if passed true. will not show logo/icon if passed false
-//        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        // set the navigation drawer icon to the hamburger icon
-//        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
     }
 
     @OnClick(R.id.button_new_shift)
     public void onClickNewShiftButton() {
-        ShiftActivity.start(ShiftViewActivity.this, ShiftActivity.Mode.CREATE);
+        ShiftActivity.start(context, ShiftActivity.Mode.CREATE, null);
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        // restart the Loader for the current display mode
+        restartLoader(getLoaderIDForDisplayMode());
+        // ensure the navigation view has the correct item selected
+        updateNavViewSelectedItem();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    /**
+     * Save the provided DisplayMode value in SharedPreferences.
+     * @param mode the display mode to save
+     */
+    private void saveDisplayMode(DisplayMode mode) {
+        SharedPreferences sp = getSharedPreferences(getString(R.string.shared_preferences_name), MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        editor.putString(KEY_DISPLAY_MODE, mode.getValue()).apply();
+    }
+
+    /**
+     * Retrieve the DisplayMode value stored in SharedPreferences.
+     * @return the display mode retrieved
+     */
+    private DisplayMode getDisplayMode() {
+        SharedPreferences sp = getSharedPreferences(getString(R.string.shared_preferences_name), MODE_PRIVATE);
+
+        String value = sp.getString(KEY_DISPLAY_MODE, MODE_CURRENT);
+
+        return DisplayMode.get(value);
+    }
+
+    /**
+     * Get the id for the Loader that matches the current display mode.
+     * @return the id for the Loader
+     */
+    private int getLoaderIDForDisplayMode() {
+//        if (getDisplayMode() == DisplayMode.CURRENT) return ID_CURRENT_WORKWEEK_LOADER;
+        if (getDisplayMode() == DisplayMode.RECENT) return ID_RECENT_WORKWEEK_LOADER;
+        return ID_CURRENT_WORKWEEK_LOADER; // default is the current workweek loader id
+    }
+
+    /**
+     * Updates the selected item in the BottomNavigationView.
+     */
+    private void updateNavViewSelectedItem() {
+        if (navView == null) return;
+        int itemID = getDisplayMode() == DisplayMode.CURRENT ? R.id.menu_button_shifts : R.id.menu_button_recent;
+        navView.setSelectedItemId(itemID);
+    }
+
+    @Override
+    public void onBackPressed() {
+        // if the user is in the Recent display mode, go back to Current display mode
+        if (getDisplayMode() == DisplayMode.RECENT) {
+            saveDisplayMode(DisplayMode.CURRENT);
+            restartLoader(ID_CURRENT_WORKWEEK_LOADER);
+            updateNavViewSelectedItem();
+        } else {
+            // go to home screen
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+        // only show refreshing animation when in Current display mode
+        if (getDisplayMode() == DisplayMode.CURRENT) {
+            restartLoader(ID_CURRENT_WORKWEEK_LOADER);
+        } else if (getDisplayMode() == DisplayMode.RECENT) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    /* Loader logic */
+    @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
+        // sort order for database query
         String sortOrder;
+        // column selection for database query
         String selection;
 
         switch (loaderId) {
+            // loads workweeks from current week onwards
             case ID_CURRENT_WORKWEEK_LOADER:
                 swipeRefreshLayout.setEnabled(true);
                 /* Sort order: ascending by start date */
@@ -222,13 +317,14 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
                 /* Select all workweeks from the this week onwards */
                 selection = ShiftyContract.Workweek.getSQLSelectForThisWeekOnwards();
 
-                return new CursorLoader(this,
+                return new CursorLoader(context,
                         ShiftyContract.Workweek.CONTENT_URI,
                         MAIN_WORKWEEK_PROJECTION,
                         selection,
                         null,
                         sortOrder);
 
+            // loads workweeks from before current week
             case ID_RECENT_WORKWEEK_LOADER:
                 swipeRefreshLayout.setEnabled(false);
                 /* Sort order: ascending by start date */
@@ -236,7 +332,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
                 /* Select all workweeks from the this week onwards */
                 selection = ShiftyContract.Workweek.getSQLSelectForBeforeThisWeek();
 
-                return new CursorLoader(this,
+                return new CursorLoader(context,
                         ShiftyContract.Workweek.CONTENT_URI,
                         MAIN_WORKWEEK_PROJECTION,
                         selection,
@@ -251,9 +347,9 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        // swap the adapter's old cursor with the new cursor
         adapter.swapCursor(data);
-        if (position == RecyclerView.NO_POSITION) position = 0;
-
+        // hide the loading animation
         hideLoading();
     }
 
@@ -262,14 +358,24 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
         adapter.swapCursor(null);
     }
 
+    /**
+     * Shows the loading animation.
+     */
     private void showLoading() {
         swipeRefreshLayout.setRefreshing(true);
     }
 
+    /**
+     * Hides the loading animation.
+     */
     private void hideLoading() {
         swipeRefreshLayout.setRefreshing(false);
     }
 
+    /**
+     * Starts the Loader that has the provided id.
+     * @param loaderID the id of the Loader being started
+     */
     private void startLoader(int loaderID) {
         LoaderManager lm = getSupportLoaderManager();
         if (lm.getLoader(loaderID) == null || !lm.getLoader(loaderID).isStarted()) {
@@ -279,6 +385,10 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
         }
     }
 
+    /**
+     * Restarts the Loader that has the provided id.
+     * @param loaderID the id of the Loader being restarted
+     */
     private void restartLoader(int loaderID) {
         LoaderManager lm = getSupportLoaderManager();
         if (lm.getLoader(loaderID) == null || !lm.getLoader(loaderID).isStarted()) {
@@ -287,69 +397,5 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
             getSupportLoaderManager().restartLoader(loaderID, null, this);
         }
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        restartLoader(getLoaderIDForDisplayMode());
-        updateNavViewSelectedItem();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
-
-    private void saveDisplayMode(String mode) {
-        SharedPreferences sp = getSharedPreferences(getString(R.string.shared_preferences_name), MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-
-        if (mode.equals(MODE_CURRENT) || mode.equals(MODE_RECENT)) {
-            editor.putString(KEY_DISPLAY_MODE, mode).apply();
-        }
-    }
-
-    private String getDisplayMode() {
-        SharedPreferences sp = getSharedPreferences(getString(R.string.shared_preferences_name), MODE_PRIVATE);
-
-        if (sp.contains(KEY_DISPLAY_MODE)) {
-            return sp.getString(KEY_DISPLAY_MODE, MODE_CURRENT);
-        }
-
-        return MODE_CURRENT;
-    }
-
-    private int getLoaderIDForDisplayMode() {
-        if (getDisplayMode().equals(MODE_CURRENT)) return ID_CURRENT_WORKWEEK_LOADER;
-        if (getDisplayMode().equals(MODE_RECENT)) return ID_RECENT_WORKWEEK_LOADER;
-        return ID_CURRENT_WORKWEEK_LOADER;
-    }
-
-    private void updateNavViewSelectedItem() {
-        if (navView == null) return;
-        int itemID = getDisplayMode().equals(MODE_CURRENT) ? R.id.menu_button_shifts : R.id.menu_button_recent;
-        navView.setSelectedItemId(itemID);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (getDisplayMode().equals(MODE_RECENT)) {
-            saveDisplayMode(MODE_CURRENT);
-            restartLoader(ID_CURRENT_WORKWEEK_LOADER);
-            updateNavViewSelectedItem();
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    public void onRefresh() {
-        if (getDisplayMode().equals(MODE_CURRENT)) {
-            restartLoader(ID_CURRENT_WORKWEEK_LOADER);
-        } else if (getDisplayMode().equals(MODE_RECENT)) {
-            swipeRefreshLayout.setRefreshing(false);
-        }
     }
 }

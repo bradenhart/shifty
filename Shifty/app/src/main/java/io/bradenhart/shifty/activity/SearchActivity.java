@@ -43,6 +43,7 @@ import static java.util.Calendar.YEAR;
 /**
  * Allows the user to search for one or multiple workweeks using
  * a selected date and a search mode (Week or Month) as query parameters.
+ *
  * @author bradenhart
  */
 public class SearchActivity extends AppCompatActivity implements Spinner.OnItemSelectedListener {
@@ -152,8 +153,6 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
         titleView.setText(title);
         // will show the back arrow/caret and make it clickable. will not return home unless parent activity is specified
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        // shows logo/icon with caret/arrow if passed true. will not show logo/icon if passed false
-//        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     /**

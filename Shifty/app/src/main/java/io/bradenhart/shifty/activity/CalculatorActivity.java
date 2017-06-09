@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -33,6 +34,7 @@ import static io.bradenhart.shifty.util.Utils.makeToast;
  * given the hours worked/to be worked, or the gross amount earned/
  * to be earned. Two modes are available for the calculator to determine
  * which type of input the user will provide: Hour, Gross.
+ *
  * @author bradenhart
  */
 public class CalculatorActivity extends AppCompatActivity {
@@ -41,7 +43,7 @@ public class CalculatorActivity extends AppCompatActivity {
     private final String TAG = CalculatorActivity.class.getSimpleName();
     // title to be displayed in the toolbar
     private final String title = "Calculator";
-    /* key value constants */
+    /* key constants */
     // key to be paired with the current input value for the calculator when in Hour mode
     private static final String KEY_HOURS = "KEY_HOURS";
     // key to be paired with the current input value for the calculator when in Gross mode
@@ -52,59 +54,76 @@ public class CalculatorActivity extends AppCompatActivity {
     private static final String MODE_HOUR = "MODE_HOUR";
     private static final String MODE_GROSS = "MODE_GROSS";
     // holds the current mode for the calculator
+    @NonNull
     private CalcMode currentMode = CalcMode.HOUR;
 
     private Context context;
 
     /* components for the Activity's actionbar */
+    @Nullable
     @BindView(R.id.appbar_calculator)
     AppBarLayout appBar;
     Toolbar toolbar;
     TextView titleView;
 
     // button to set the calculator in Hour mode
+    @Nullable
     @BindView(R.id.button_hour_mode)
     Button hourModeButton;
     // button to set the calculator in Gross mode
+    @Nullable
     @BindView(R.id.button_gross_mode)
     Button grossModeButton;
     // user inputs a value for the calculator to use
+    @Nullable
     @BindView(R.id.edittext_calculator_input)
     EditText inputEditText;
     // in Hour mode, user can click this to add multiple values together for the number of hours
+    @Nullable
     @BindView(R.id.button_add_value)
     ImageButton addValueButton;
     // clears the calculator and any associated values
+    @Nullable
     @BindView(R.id.button_clear_calculator)
     ImageButton clearButton;
     // displays the base rate used in the calculation
+    @Nullable
     @BindView(R.id.textview_calculator_base_rate)
     TextView baseRateTV;
     // displays the full pay rate used in the calculation
+    @Nullable
     @BindView(R.id.textview_calculator_pay_rate)
     TextView payRateTV;
     // displays the number of hours used in the calculation
+    @Nullable
     @BindView(R.id.textview_calculator_hours)
     TextView hoursTV;
     // displays the amount of P.A.Y.E deducted from the gross amount
+    @Nullable
     @BindView(R.id.textview_calculator_paye)
     TextView payeTV;
     // displays the kiwisaver contribution for the calculation
+    @Nullable
     @BindView(R.id.textview_calculator_kiwisaver)
     TextView kiwisaverTV;
     // displays the student loan repayment for the calculation
+    @Nullable
     @BindView(R.id.textview_calculator_loan)
     TextView loanTV;
     // displays the gross amount used in the calculation
+    @Nullable
     @BindView(R.id.textview_calculator_gross)
     TextView grossTV;
     // displays the net amount calculated
+    @Nullable
     @BindView(R.id.textview_calculator_net)
     TextView netTV;
     // calculates the net pay when button is clicked and input is valid
+    @Nullable
     @BindView(R.id.button_calculate)
     Button calculateButton;
     // bottom navigation bar to allow the user to go to current or recent shifts (ShiftViewActivity)
+    @Nullable
     @BindView(R.id.bottomnavigation_calculator)
     BottomNavigationView navView;
 
@@ -125,7 +144,8 @@ public class CalculatorActivity extends AppCompatActivity {
             this.value = value;
         }
 
-        public static CalcMode get(String value) {
+        @NonNull
+        public static CalcMode get(@NonNull String value) {
             switch (value) {
                 case MODE_GROSS:
                     return GROSS;
@@ -152,14 +172,13 @@ public class CalculatorActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calculator);
 
         context = CalculatorActivity.this;
 
         ButterKnife.bind(this);
-
 
         if (savedInstanceState != null) {
             // if the Calculator mode is stored, retrieve the value
@@ -215,7 +234,7 @@ public class CalculatorActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_CALCULATOR_MODE, currentMode.getValue());
         if (currentMode == CalcMode.HOUR) {
@@ -247,8 +266,6 @@ public class CalculatorActivity extends AppCompatActivity {
         titleView.setText(title);
         // will show the back arrow/caret and make it clickable. will not return home unless parent activity is specified
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        // shows logo/icon with caret/arrow if passed true. will not show logo/icon if passed false
-//        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     /**
@@ -257,14 +274,11 @@ public class CalculatorActivity extends AppCompatActivity {
      * @param mode The mode that ShiftViewActivity will use for displaying shifts
      *             (Current or Recent mode)
      */
-    private void saveDisplayMode(ShiftViewActivity.DisplayMode mode) {
+    private void saveDisplayMode(@NonNull ShiftViewActivity.DisplayMode mode) {
         SharedPreferences sp = getSharedPreferences(getString(R.string.shared_preferences_name), MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
 
-        // check if the mode is one of DisplayMode.Current and DisplayMode.RECENT
-        if (mode.isValid()) {
-            editor.putString(ShiftViewActivity.KEY_DISPLAY_MODE, mode.getValue()).apply();
-        }
+        editor.putString(ShiftViewActivity.KEY_DISPLAY_MODE, mode.getValue()).apply();
     }
 
     /**
@@ -304,7 +318,7 @@ public class CalculatorActivity extends AppCompatActivity {
      *
      * @param payslip The payslip that will be displayed
      */
-    private void updateCalculatorResult(Payslip payslip) {
+    private void updateCalculatorResult(@NonNull Payslip payslip) {
         resetInput();
         hoursTV.setText(String.format(Locale.ENGLISH, "%.02f hrs", payslip.getHours()));
         baseRateTV.setText(String.format(Locale.ENGLISH, "$%.02f/hr", payslip.getBaseRate()));

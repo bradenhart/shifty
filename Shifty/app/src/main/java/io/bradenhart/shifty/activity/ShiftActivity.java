@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -34,14 +35,15 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.bradenhart.shifty.util.Utils;
 
+import static io.bradenhart.shifty.util.Utils.makeToast;
 import static java.util.Calendar.DAY_OF_MONTH;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
 /**
  * Allows the user to create new shifts or edit a shift.
+ *
  * @author bradenhart
  */
 public class ShiftActivity extends AppCompatActivity {
@@ -51,14 +53,19 @@ public class ShiftActivity extends AppCompatActivity {
     // title to be displayed in the toolbar
     private String title;
     // title options (New shift and Edit shift)
-    private final String TITLE_NEW = "Create Shift";
+    private final String TITLE_CREATE = "Create Shift";
     private final String TITLE_EDIT = "Edit Shift";
+    // button text options (New shift and Edit shift)
+    private final String BUTTON_TEXT_CREATE = "ADD";
+    private final String BUTTON_TEXT_EDIT = "UPDATE";
 
-    /* key value constants */
+    /* key constants */
     // key for sending a shift's id to this activity in an Intent
     public static final String KEY_SHIFT = "KEY_SHIFT";
     // key for sending the mode to this activity in an Intent
     public static final String KEY_MODE = "KEY_MODE";
+
+    private Context context;
 
     /* components for the Activity's actionbar */
     @BindView(R.id.appbar_shift)
@@ -66,39 +73,52 @@ public class ShiftActivity extends AppCompatActivity {
     Toolbar toolbar;
     TextView titleView;
 
-
+    // displays the date selected by the user
     @BindView(R.id.textview_day)
     TextView dayTextView;
+    // opens a date picker
     @BindView(R.id.button_day)
     ImageButton dayButton;
+    // selects the start time
     @BindView(R.id.timescroller_start)
     TimeScroller startTimeScroller;
+    // selects the end time
     @BindView(R.id.timescroller_end)
     TimeScroller endTimeScroller;
+    // adds the shift to the database
     @BindView(R.id.button_save_shift)
     AppCompatButton shiftButton;
 
+    // the date for the shift
     Date shiftDate;
-    Boolean editModeEnabled = false;
+    // whether the user is editing a shift
+    Mode mode;
+    // the id of the shift being edited
     String shiftID;
-    Cursor cursor;
+    // the formatted start datetime for the shift
     String startDatetime;
+    // the formatted end datetime for the shift
     String endDatetime;
 
+    // modes that this activity can be used in
+    // allows for the activity to be reused for creating a shift and for editing
+    // a shift
     public enum Mode {
         CREATE, EDIT
     }
 
-    public static void start(Context context, Mode mode, String shiftID) {
+    /**
+     * Used for starting this Activity. Ensures that the Activity is started with the required
+     * extras.
+     *
+     * @param context The context of the Activity that calls this method
+     * @param mode the mode to start the Activity in
+     * @param shiftID the id of the shift to be edited, or null if a new shift will be created
+     */
+    public static void start(@NonNull Context context, @NonNull Mode mode, @Nullable String shiftID) {
         Intent intent = new Intent(context, ShiftActivity.class);
-        intent.putExtra(ShiftActivity.KEY_MODE, mode == Mode.EDIT);
+        intent.putExtra(ShiftActivity.KEY_MODE, mode);
         intent.putExtra(ShiftActivity.KEY_SHIFT, shiftID);
-        context.startActivity(intent);
-    }
-
-    public static void start(Context context, Mode mode) {
-        Intent intent = new Intent(context, ShiftActivity.class);
-        intent.putExtra(ShiftActivity.KEY_MODE, mode == Mode.EDIT);
         context.startActivity(intent);
     }
 
@@ -106,42 +126,51 @@ public class ShiftActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shift);
+        context = ShiftActivity.this;
 
         ButterKnife.bind(this);
 
+        /* get data from the intent's extras */
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            editModeEnabled = bundle.getBoolean(KEY_MODE, false);
-            if (bundle.containsKey(KEY_SHIFT)) shiftID = bundle.getString(KEY_SHIFT);
+            mode = (Mode) bundle.getSerializable(KEY_MODE);
+            shiftID = bundle.getString(KEY_SHIFT);
         }
-        if (shiftID != null) {
+        // if activity is being created in edit mode with the correct data, get the
+        // shift from the database
+        if (mode == Mode.EDIT && shiftID != null) {
             Uri shiftUri = Uri.withAppendedPath(ShiftyContract.Shift.CONTENT_URI, shiftID);
             String selection = ShiftyContract.Shift._ID + " = ?";
             String[] selectionArgs = new String[] {shiftID};
-            cursor = getContentResolver().query(shiftUri,
+            Cursor cursor = getContentResolver().query(shiftUri,
                     null,
                     selection,
                     selectionArgs,
                     null);
             if (cursor != null && cursor.moveToFirst()) {
+                // get the start and end time for the shift
                 int startCol = cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME);
                 int endCol = cursor.getColumnIndex(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME);
                 startDatetime = cursor.getString(startCol);
                 endDatetime = cursor.getString(endCol);
+                cursor.close();
+
+                // display the shift's date if it's valid (not null)
+                if (startDatetime != null) {
+                    dayTextView.setText(DateUtils.getPrettyDateString(startDatetime, DateUtils.FMT_ISO_8601_DATETIME));
+                    try {
+                        shiftDate = new SimpleDateFormat(DateUtils.FMT_ISO_8601_DATETIME, Locale.ENGLISH).parse(startDatetime);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
+
         }
 
-        if (startDatetime != null) {
-            dayTextView.setText(DateUtils.getPrettyDateString(startDatetime, DateUtils.FMT_ISO_8601_DATETIME));
-            try {
-                shiftDate = new SimpleDateFormat(DateUtils.FMT_ISO_8601_DATETIME, Locale.ENGLISH).parse(startDatetime);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-
-        shiftButton.setText(editModeEnabled ? "UPDATE" : "ADD");
-        title = editModeEnabled ? TITLE_EDIT : TITLE_NEW;
+        // set the appropriate title and button text for the mode
+        shiftButton.setText(mode == Mode.EDIT ? BUTTON_TEXT_EDIT : BUTTON_TEXT_CREATE);
+        title = mode == Mode.EDIT ? TITLE_EDIT : TITLE_CREATE;
 
         dayButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -150,7 +179,7 @@ public class ShiftActivity extends AppCompatActivity {
 
                 if (m == MotionEvent.ACTION_UP)
                     dayButton.setImageResource(R.drawable.ic_date_black_24dp);
-                if (m == MotionEvent.ACTION_DOWN)
+                else if (m == MotionEvent.ACTION_DOWN)
                     dayButton.setImageResource(R.drawable.ic_date_green_24dp);
                 return false;
             }
@@ -159,24 +188,16 @@ public class ShiftActivity extends AppCompatActivity {
         // set up actionbar
         setUpActionBar();
 
-        ViewTreeObserver observer1 = startTimeScroller.getViewTreeObserver();
-        observer1.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        ViewTreeObserver observer = startTimeScroller.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 startTimeScroller.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                if (editModeEnabled && shiftID != null) {
+                // if the activity is in edit mode and has a valid shift id,
+                // scroll the time scrollers to display the shift's start and end time
+                if (mode == Mode.EDIT && shiftID != null) {
                     String fmt = DateUtils.FMT_ISO_8601_DATETIME;
-
-//                    long endTimeDelay = startTimeScroller.scrollAllTo(500,
-//                            DateUtil.getHour(startDatetime, fmt),
-//                            DateUtil.getMinute(startDatetime, fmt),
-//                            DateUtil.getPeriod(startDatetime, fmt));
-//
-//                    endTimeScroller.scrollAllTo(endTimeDelay,
-//                            DateUtil.getHour(endDatetime, fmt),
-//                            DateUtil.getMinute(endDatetime, fmt),
-//                            DateUtil.getPeriod(endDatetime, fmt));
 
                     startTimeScroller.scrollAllAtOnce(500,
                             DateUtils.getHour(startDatetime, fmt),
@@ -187,14 +208,15 @@ public class ShiftActivity extends AppCompatActivity {
                             DateUtils.getHour(endDatetime, fmt),
                             DateUtils.getMinute(endDatetime, fmt),
                             DateUtils.getPeriod(endDatetime, fmt));
-
-//                    Utils.makeToast(ShiftActivity.this, "end hour: " + DateUtil.getHour(endDatetime, fmt));
                 }
             }
         });
 
     }
 
+    /**
+     * Sets up the action bar for this Activity.
+     */
     private void setUpActionBar() {
         toolbar = ButterKnife.findById(appBar, R.id.toolbar);
         titleView = ButterKnife.findById(toolbar, R.id.textview_toolbar_title);
@@ -212,6 +234,10 @@ public class ShiftActivity extends AppCompatActivity {
     public void onClickDayButton() {
         final Calendar c = Calendar.getInstance();
 
+        // if shiftDate is set, display that date in the Date Picker
+        // the means the current date of a shift being edited will be selected
+        // when the user opens the dialog, and if they select a date more than once
+        // the most recent date will be selected each time the dialog is opened.
         if (shiftDate != null) {
             c.setTime(shiftDate);
         }
@@ -224,6 +250,7 @@ public class ShiftActivity extends AppCompatActivity {
                         // display the selected date
                         dayTextView.setText(DateUtils.getPrettyDateString(year, month, day));
 
+                        // get the selected date and update shiftDate
                         Calendar chosen = (Calendar) c.clone();
                         chosen.set(year, month, day);
                         shiftDate = chosen.getTime();
@@ -236,38 +263,49 @@ public class ShiftActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.button_save_shift)
-    public void onClickAddShiftButton() {
+    public void onClickSaveShiftButton() {
+        // if shiftDate isn't set, a shift can't be added
         if (shiftDate == null) {
-            Utils.makeToast(ShiftActivity.this, "Please select a date", Toast.LENGTH_LONG);
+            makeToast(context, "Please select a date", Toast.LENGTH_LONG);
             return;
         }
 
         try {
+            // compare the timescroller times
             int timeComparison = startTimeScroller.compareTo(endTimeScroller);
             if (timeComparison == 0) {
                 // start time is the same as the end time
-                Utils.makeToast(ShiftActivity.this, "Start time and end time should be different", Toast.LENGTH_LONG);
+                makeToast(context, "Start time and end time should be different", Toast.LENGTH_LONG);
                 return;
             } else if (timeComparison > 0) {
                 // start time is after the end time
-                Utils.makeToast(ShiftActivity.this, "Start time must be before end time", Toast.LENGTH_LONG);
+                makeToast(context, "Start time must be before end time", Toast.LENGTH_LONG);
                 return;
             }
         } catch (ParseException e) {
+            // if the compareTo method throws a parse exception, the shift can't be added
             e.printStackTrace();
+            makeToast(context, "There was an error saving the shift...");
+            return;
         }
 
-        String dateString = DateUtils.getDatestringWithFormat(DateUtils.FMT_ISO_8601_DATE, shiftDate);
+        // get the date (yyyy-MM-dd) from the shift date
+        String dateString = DateUtils.getDatestringWithFormat(shiftDate, DateUtils.FMT_ISO_8601_DATE);
+        // get the time strings (HH:MM:SS.sss) from the timescrollers
         String startTime = startTimeScroller.getTimeString();
         String endTime = endTimeScroller.getTimeString();
 
+        // build the datetime strings for the start and end of the shift
         String startDatetime = dateString + " " + startTime;
         String endDatetime = dateString + " " + endTime;
 
+        // set up the content values for the database
         ContentValues values = new ContentValues();
         values.put(ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME, startDatetime);
         values.put(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME, endDatetime);
-        if (editModeEnabled) {
+
+        /* update the shift if in edit mode, or insert if in create mode */
+        if (mode == Mode.EDIT) {
             int numRowsUpdated = getContentResolver().update(
                     Uri.withAppendedPath(ShiftyContract.Shift.CONTENT_URI, shiftID),
                     values,
@@ -276,9 +314,9 @@ public class ShiftActivity extends AppCompatActivity {
             );
 
             if (numRowsUpdated == 1) {
-                Utils.makeToast(ShiftActivity.this, "Shift updated");
+                makeToast(ShiftActivity.this, "Shift updated");
             } else {
-                Utils.makeToast(ShiftActivity.this, "Update failed", Toast.LENGTH_LONG);
+                makeToast(ShiftActivity.this, "Update failed", Toast.LENGTH_LONG);
             }
 
             finish(); // go back to the parent activity
@@ -289,9 +327,9 @@ public class ShiftActivity extends AppCompatActivity {
             );
 
             if (newUri != null) {
-                Utils.makeToast(ShiftActivity.this, "Shift added successfully", Toast.LENGTH_LONG);
+                makeToast(ShiftActivity.this, "Shift added successfully", Toast.LENGTH_LONG);
             } else {
-                Utils.makeToast(ShiftActivity.this, "Failed to add shift", Toast.LENGTH_LONG);
+                makeToast(ShiftActivity.this, "Failed to add shift", Toast.LENGTH_LONG);
             }
 
             /* clean up */

@@ -16,7 +16,9 @@ import android.util.Log;
 import io.bradenhart.shifty.util.DateUtils;
 
 /**
- * Created by bradenhart on 18/05/17.
+ * ContentProvider for accessing data stored in the SQLite Database.
+ *
+ * @author bradenhart
  */
 
 public class ShiftyContentProvider extends ContentProvider {
@@ -390,7 +392,6 @@ public class ShiftyContentProvider extends ContentProvider {
             getContext().getContentResolver().notifyChange(uri, null);
             if (match == CODE_SHIFT_WITH_ID && workweekID != null) {
                 getContext().getContentResolver().notifyChange(
-//                        Uri.withAppendedPath(ShiftyContract.Workweek.CONTENT_URI, workweekID),
                         ShiftyContract.Workweek.CONTENT_URI,
                         null
                 );

@@ -34,12 +34,14 @@ import io.bradenhart.shifty.util.Utils;
 import static io.bradenhart.shifty.util.Utils.makeToast;
 
 /**
- * Created by bradenhart on 8/05/17.
+ * Adapter for displaying workweeks.
+ *
+ * @author bradenhart
  */
-// Adapter for displaying WorkWeeks (in Card Views)
 public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
+    // database data to display in recyclerview
     private Cursor cursor;
 
     public WorkWeekRecyclerViewAdapter(Context context) {
@@ -57,6 +59,7 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         WorkWeekViewHolder weekHolder = (WorkWeekViewHolder) holder;
 
+        // move cursor to this view holder's position in the recyclerview
         cursor.moveToPosition(position);
 
         // get the id for the workweek
@@ -81,8 +84,9 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             e.printStackTrace();
         }
 
+        /* set up the adapter and recyclerview contained inside this view holder */
         ShiftRecyclerViewAdapter adapter = new ShiftRecyclerViewAdapter(context);
-
+        // load the shifts for the current workweek
         new ShiftAsyncTask(context, adapter, weekHolder).execute(weekStart);
 
         weekHolder.recyclerView.setLayoutManager(new LinearLayoutManager(context.getApplicationContext()));
@@ -106,26 +110,41 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         return cursor.getCount();
     }
 
+    /**
+     * Swap the cursor with a new cursor.
+     * @param newCursor the new cursor
+     */
     public void swapCursor(Cursor newCursor) {
         if (cursor != null) cursor.close();
         cursor = newCursor;
         notifyDataSetChanged();
     }
 
+    /**
+     * ViewHolder for displaying a workweek in the recyclerview
+     */
     class WorkWeekViewHolder extends RecyclerView.ViewHolder {
 
         private Context context;
+        // the start date for this week
         String weekStartDatetime;
+        // the total number of paid hours for the week
         Double paidHours;
+        // the root view of this viewholder
         View root;
+        // the header for the workweek
         @BindView(R.id.textview_workweek_header)
         TextView header;
+        // allows the user to delete the workweek and all of its shifts
         @BindView(R.id.button_delete_workweek)
         ImageButton deleteButton;
+        // displays all of the shifts in this workweek
         @BindView(R.id.recyclerview_workweek_content)
         RecyclerView recyclerView;
+        // the footer for the workweek
         @BindView(R.id.textview_workweek_footer)
         TextView footer;
+        // indicates when the view and any data for the view is being loaded
         @BindView(R.id.progressbar_workweek_base)
         ProgressBar progressBar;
 
@@ -138,6 +157,9 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
         @OnClick(R.id.button_delete_workweek)
         public void onClickDeleteButton() {
+            // confirm with the user that they are deleting a workweek
+            // delete the workweek it they accept
+            // close the options if they cancel this action
             new AlertDialog.Builder(context)
                     .setTitle("Are you sure?")
                     .setMessage("This will delete the entire workweek for good!")
@@ -168,29 +190,43 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
         @OnClick(R.id.textview_workweek_footer)
         public void onClickFooter() {
-            String shiftID = String.valueOf(root.getId());
+            // takes the user to the PayslipActivity to display the payslip for the workweek
             PayslipActivity.start(context, weekStartDatetime, paidHours);
         }
 
+        /**
+         * Shows a loading animation in the foreground.
+         */
         private void showLoading() {
             recyclerView.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.VISIBLE);
         }
 
+        /**
+         * Displays the recyclerview in the foreground.
+         */
         private void showRecyclerView() {
             progressBar.setVisibility(View.INVISIBLE);
             recyclerView.setVisibility(View.VISIBLE);
         }
 
+        /**
+         * Hides the loading animation.
+         */
         private void hideLoading() {
             progressBar.setVisibility(View.INVISIBLE);
         }
     }
 
+    /**
+     * AsyncTask for loading the shifts belonging to the current workweek.
+     */
     public class ShiftAsyncTask extends AsyncTask<String, Void, Cursor> {
 
         private Context context;
+        // the adapter for displaying the loaded data
         private ShiftRecyclerViewAdapter adapter;
+        // the viewholder that is loading this data
         private WorkWeekViewHolder holder;
 
         public ShiftAsyncTask(Context context, ShiftRecyclerViewAdapter adapter, WorkWeekViewHolder holder) {
@@ -201,6 +237,7 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
         @Override
         protected void onPreExecute() {
+            // indicate that something is being loaded
             holder.showLoading();
         }
 
@@ -223,8 +260,11 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
         @Override
         protected void onPostExecute(Cursor cursor) {
+            // swap the adapter's existing cursor with the newly loaded cursor
             adapter.swapCursor(cursor);
 
+            // hide the loading animation if no data is retrieved
+            // or show the recylerview if there data was retrieved
             if (cursor.getCount() == 0) {
                 holder.hideLoading();
             } else {
@@ -234,6 +274,8 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
         @Override
         protected void onCancelled() {
+            // if loading is cancelled, get rid of the adapter's cursor
+            // to indicate no data was loaded
             adapter.swapCursor(null);
         }
 

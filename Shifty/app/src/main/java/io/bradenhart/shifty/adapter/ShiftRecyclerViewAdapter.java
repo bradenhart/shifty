@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,54 +26,31 @@ import io.bradenhart.shifty.util.DateUtils;
 import io.bradenhart.shifty.util.Utils;
 
 /**
- * Created by bradenhart on 8/05/17.
+ * Adapter for displaying shifts in a workWeek.
+ *
+ * @author bradenhart
  */
-// Adapter for displaying Shifts in a WorkWeek
 public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
-    private int itemHeight, progressWidth;
+    // height of the view item
+    private int itemHeight;
+    // width of progress bar in view item
+    private int progressWidth;
+    // database data to display in recyclerview
     private Cursor cursor;
 
     public ShiftRecyclerViewAdapter(Context context) {
         this.context = context;
+        // retrieve item height and progress width from dimens
         this.itemHeight = context.getResources().getDimensionPixelSize(R.dimen.workweek_item_height);
         this.progressWidth = context.getResources().getDimensionPixelSize(R.dimen.workweek_shift_progress_width);
     }
 
-//    public ShiftRecyclerViewAdapter(Context context, String datetime) {
-//        this.context = context;
-//        this.cursor = getShiftsInWeek(datetime);
-//        this.itemHeight = context.getResources().getDimensionPixelSize(R.dimen.workweek_item_height);
-//        this.progressWidth = context.getResources().getDimensionPixelSize(R.dimen.workweek_shift_progress_width);
-//    }
-
-//    private Cursor getShiftsInWeek(String weekDate) {
-//        // get the ISO8601 formatted string for Monday 00:00 of the current week
-//        String selection = ShiftyContract.Shift.COLUMN_WORKWEEK_ID + " = ?";
-//        String[] selectionArgs = new String[] { weekDate };
-//
-//        return context.getContentResolver().query(
-//                ShiftyContract.Shift.CONTENT_URI, // query Shift table (/shift)
-//                null, // get all columns
-//                selection, // get all shifts from this week onwards
-//                selectionArgs,
-//                ShiftyContract.Shift.COLUMN_SHIFT_START_DATETIME + " asc" // order by shift start time, earliest to latest
-//        );
-//    }
-
-//    public void removeShift(int pos) {
-//        shifts.remove(pos);
-//    }
-//
-//    public void setParentPos(int pos) {
-//        this.parentPos = pos;
-//    }
-//
-//    public void setParentAdapter(WorkWeekRecyclerViewAdapter parentAdapter) {
-//        this.parentAdapter = parentAdapter;
-//    }
-
+    /**
+     * Swap the cursor with a new cursor.
+     * @param newCursor the new cursor
+     */
     public void swapCursor(Cursor newCursor) {
         if (cursor != null) cursor.close();
         cursor = newCursor;
@@ -91,6 +67,7 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         final ShiftViewHolder shiftHolder = (ShiftViewHolder) holder;
 
+        // move cursor to this view holder's position in the recyclerview
         cursor.moveToPosition(position);
         // get column index values
         int idCol = cursor.getColumnIndex(ShiftyContract.Shift._ID);
@@ -101,22 +78,26 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
         String shiftStart = cursor.getString(shiftStartCol);
         String shiftEnd = cursor.getString(shiftEndCol);
 
+        // get formatted datetime strings
         String dayOfMonth = DateUtils.getDayOfMonth(shiftStart, DateUtils.FMT_ISO_8601_DATETIME);
         String dayOfWeek = DateUtils.getWeekday(shiftStart, DateUtils.FMT_ISO_8601_DATETIME, DateUtils.FMT_WEEKDAY_FULL);
         String startTime = DateUtils.getTime(shiftStart, DateUtils.FMT_ISO_8601_DATETIME, DateUtils.FMT_TIME_SHORT);
         String endTime = DateUtils.getTime(shiftEnd, DateUtils.FMT_ISO_8601_DATETIME, DateUtils.FMT_TIME_SHORT);
 
+        // display date and time information for current shift
         shiftHolder.root.setTag(cursor.getLong(idCol));
         shiftHolder.dayOfMonthTV.setText(dayOfMonth);
         shiftHolder.dayOfWeekTV.setText(dayOfWeek);
         shiftHolder.startTimeTV.setText(startTime);
         shiftHolder.endTimeTV.setText(endTime);
 
+        // calculate paid hours and display it
         double shiftLength = DateUtils.getHoursBetween(shiftStart, shiftEnd, DateUtils.FMT_ISO_8601_DATETIME);
         double paidHours = shiftLength <= 5.0 ? shiftLength : shiftLength - 0.5;
         
         shiftHolder.paidHoursTV.setText(String.format(Locale.ENGLISH, "%.2f hrs", paidHours));
 
+        // calculate progress through the current shift and display it
         double progress = DateUtils.getShiftProgress(shiftStart, shiftEnd, DateUtils.FMT_ISO_8601_DATETIME);
         int percentHeight = (int) Math.ceil(itemHeight * progress);
         shiftHolder.shiftProgressBar.setLayoutParams(new LinearLayout.LayoutParams(progressWidth, percentHeight));
@@ -129,31 +110,49 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
     }
 
 
+    /**
+     * ViewHolder for displaying a shift in the recyclerview
+     */
     class ShiftViewHolder extends RecyclerView.ViewHolder {
 
         private Context context;
+        // the root view of this viewholder
         View root;
+
+        /* shift information */
+        // the layout containing the shift item data
         @BindView(R.id.layout_shift_item)
         LinearLayout itemLayout;
+        // displays the day of the month
         @BindView(R.id.textview_day_of_month)
         TextView dayOfMonthTV;
+        // displays the day of the week
         @BindView(R.id.textview_day_of_week)
         TextView dayOfWeekTV;
+        // displays the start time
         @BindView(R.id.textview_shift_start_time)
         TextView startTimeTV;
+        // displays the end time
         @BindView(R.id.textview_shift_end_time)
         TextView endTimeTV;
+        // displays the progress through the shift
         @BindView(R.id.view_shift_progress)
         View shiftProgressBar;
 
+        /* options */
+        // the layout containing options for the shift item e.g. edit, delete
         @BindView(R.id.layout_shift_item_options)
         LinearLayout optionsLayout;
+        // allows user to edit the shift
         @BindView(R.id.button_edit_shift)
         ImageButton editButton;
+        // displays the number of paid hours
         @BindView(R.id.textview_paid_hours)
         TextView paidHoursTV;
+        // allows the user to delete the shift
         @BindView(R.id.button_delete_shift)
         ImageButton deleteButton;
+        // hides this layout
         @BindView(R.id.button_close_options)
         ImageButton closeButton;
 
@@ -166,6 +165,7 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
         @OnClick(R.id.layout_shift_item)
         void onClickItemLayout() {
+            // display the item's options when the item is clicked
             if (optionsLayout.getVisibility() == View.GONE) {
                 optionsLayout.setVisibility(View.VISIBLE);
             }
@@ -173,6 +173,7 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
         @OnClick(R.id.button_close_options)
         void onClickCloseButton() {
+            // hide the item's options when the close button is clicked
             if (optionsLayout.getVisibility() == View.VISIBLE) {
                 optionsLayout.setVisibility(View.GONE);
             }
@@ -180,12 +181,16 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
         @OnClick(R.id.button_edit_shift)
         void onClickEditButton() {
+            // close the options before going to the ShiftActivity to edit the shift
             onClickCloseButton();
             ShiftActivity.start(context, ShiftActivity.Mode.EDIT, String.valueOf(root.getTag()));
         }
 
         @OnClick(R.id.button_delete_shift)
         void onClickDeleteButton() {
+            // confirm with the user that they are deleting a shift
+            // delete the shift it they accept
+            // close the options if they cancel this action
             new AlertDialog.Builder(context)
                     .setTitle("Are you sure?")
                     .setMessage("This will delete the shift for good!")

@@ -24,6 +24,7 @@ import io.bradenhart.shifty.util.DateUtils;
 
 /**
  * Displays the payslip information for a given workweek.
+ *
  * @author bradenhart
  */
 public class PayslipActivity extends AppCompatActivity {
@@ -31,7 +32,7 @@ public class PayslipActivity extends AppCompatActivity {
     // logtag
     private String TAG = PayslipActivity.class.getSimpleName();
 
-    /* key value constants */
+    /* key constants */
     // key for sending the payslip's week start date to this activity in an Intent
     public static final String KEY_WEEK_START_DATE = "KEY_WEEK_START_DATE";
     // key for sending the number of paid hours in the payslip to this activity in an Intent
@@ -103,7 +104,6 @@ public class PayslipActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        // set up actionbar
         setUpActionBar();
 
         Payslip payslip;
@@ -152,8 +152,6 @@ public class PayslipActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // shows logo/icon with caret/arrow if passed true. will not show logo/icon if passed false
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        // set the navigation drawer icon to the hamburger icon
-//        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
     }
 
     /**
