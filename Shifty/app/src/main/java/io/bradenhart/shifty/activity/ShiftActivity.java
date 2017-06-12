@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -15,6 +16,7 @@ import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewDebug;
 import android.view.ViewTreeObserver;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
@@ -26,6 +28,8 @@ import io.bradenhart.shifty.data.ShiftyContract;
 import io.bradenhart.shifty.ui.TimeScroller;
 import io.bradenhart.shifty.util.DateUtils;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -92,7 +96,7 @@ public class ShiftActivity extends AppCompatActivity {
     // the date for the shift
     Date shiftDate;
     // whether the user is editing a shift
-    Mode mode;
+    @Mode int mode;
     // the id of the shift being edited
     String shiftID;
     // the formatted start datetime for the shift
@@ -100,12 +104,13 @@ public class ShiftActivity extends AppCompatActivity {
     // the formatted end datetime for the shift
     String endDatetime;
 
-    // modes that this activity can be used in
-    // allows for the activity to be reused for creating a shift and for editing
-    // a shift
-    public enum Mode {
-        CREATE, EDIT
-    }
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({MODE_CREATE, MODE_EDIT})
+    public @interface Mode {}
+
+    /* Mode constants */
+    public static final int MODE_CREATE = 0;
+    public static final int MODE_EDIT = 1;
 
     /**
      * Used for starting this Activity. Ensures that the Activity is started with the required
@@ -115,7 +120,7 @@ public class ShiftActivity extends AppCompatActivity {
      * @param mode the mode to start the Activity in
      * @param shiftID the id of the shift to be edited, or null if a new shift will be created
      */
-    public static void start(@NonNull Context context, @NonNull Mode mode, @Nullable String shiftID) {
+    public static void start(@NonNull Context context, @Mode int mode, @Nullable String shiftID) {
         Intent intent = new Intent(context, ShiftActivity.class);
         intent.putExtra(ShiftActivity.KEY_MODE, mode);
         intent.putExtra(ShiftActivity.KEY_SHIFT, shiftID);
@@ -133,12 +138,13 @@ public class ShiftActivity extends AppCompatActivity {
         /* get data from the intent's extras */
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            mode = (Mode) bundle.getSerializable(KEY_MODE);
+            int value = bundle.getInt(KEY_MODE);
+            mode = getMode(value);
             shiftID = bundle.getString(KEY_SHIFT);
         }
         // if activity is being created in edit mode with the correct data, get the
         // shift from the database
-        if (mode == Mode.EDIT && shiftID != null) {
+        if (mode == MODE_EDIT && shiftID != null) {
             Uri shiftUri = Uri.withAppendedPath(ShiftyContract.Shift.CONTENT_URI, shiftID);
             String selection = ShiftyContract.Shift._ID + " = ?";
             String[] selectionArgs = new String[] {shiftID};
@@ -169,8 +175,8 @@ public class ShiftActivity extends AppCompatActivity {
         }
 
         // set the appropriate title and button text for the mode
-        shiftButton.setText(mode == Mode.EDIT ? BUTTON_TEXT_EDIT : BUTTON_TEXT_CREATE);
-        title = mode == Mode.EDIT ? TITLE_EDIT : TITLE_CREATE;
+        shiftButton.setText(mode == MODE_EDIT ? BUTTON_TEXT_EDIT : BUTTON_TEXT_CREATE);
+        title = mode == MODE_EDIT ? TITLE_EDIT : TITLE_CREATE;
 
         dayButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -196,7 +202,7 @@ public class ShiftActivity extends AppCompatActivity {
 
                 // if the activity is in edit mode and has a valid shift id,
                 // scroll the time scrollers to display the shift's start and end time
-                if (mode == Mode.EDIT && shiftID != null) {
+                if (mode == MODE_EDIT && shiftID != null) {
                     String fmt = DateUtils.FMT_ISO_8601_DATETIME;
 
                     startTimeScroller.scrollAllAtOnce(500,
@@ -305,7 +311,7 @@ public class ShiftActivity extends AppCompatActivity {
         values.put(ShiftyContract.Shift.COLUMN_SHIFT_END_DATETIME, endDatetime);
 
         /* update the shift if in edit mode, or insert if in create mode */
-        if (mode == Mode.EDIT) {
+        if (mode == MODE_EDIT) {
             int numRowsUpdated = getContentResolver().update(
                     Uri.withAppendedPath(ShiftyContract.Shift.CONTENT_URI, shiftID),
                     values,
@@ -340,6 +346,19 @@ public class ShiftActivity extends AppCompatActivity {
             endTimeScroller.resetScroller();
         }
 
+    }
+
+    @Mode
+    public int getMode(int value) {
+        switch (value) {
+            case MODE_CREATE: return MODE_CREATE;
+            case MODE_EDIT: return MODE_EDIT;
+            default: return MODE_CREATE;
+        }
+    }
+
+    public int getValue(@Mode int mode) {
+        return mode;
     }
 
 }

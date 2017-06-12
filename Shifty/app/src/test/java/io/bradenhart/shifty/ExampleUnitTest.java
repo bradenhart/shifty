@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import io.bradenhart.shifty.domain.Payslip;
 import io.bradenhart.shifty.util.DateUtils;
 
 import static org.junit.Assert.*;
@@ -152,18 +153,37 @@ public class ExampleUnitTest {
 
     @Test
     public void getMonthStart() {
-        String expected = "2017-05-01 00:00:00.000";
-        Calendar c = Calendar.getInstance();
-        String result = DateUtils.getMonthStart(c.getTime(), DateUtils.FMT_ISO_8601_DATETIME);
-        assertEquals(expected, result);
+//        String expected = "2017-05-01 00:00:00.000";
+//        Calendar c = Calendar.getInstance();
+//        String result = DateUtils.getMonthStart(c.getTime(), DateUtils.FMT_ISO_8601_DATETIME);
+//        assertEquals(expected, result);
     }
 
     @Test
     public void getMonthEnd() {
-        String expected = "2017-05-31 23:59:59.059";
-        Calendar c = Calendar.getInstance();
-        String result = DateUtils.getMonthEnd(c.getTime(), DateUtils.FMT_ISO_8601_DATETIME);
-        assertEquals(expected, result);
+//        String expected = "2017-05-31 23:59:59.059";
+//        Calendar c = Calendar.getInstance();
+//        String result = DateUtils.getMonthEnd(c.getTime(), DateUtils.FMT_ISO_8601_DATETIME);
+//        assertEquals(expected, result);
     }
+
+    @Test
+    public void testPayslipWithHours() {
+        Double hours = 22.25;
+        Payslip payslip = new Payslip(hours);
+
+        assertEquals(hours, payslip.getHours());
+        assertEquals(53.78, payslip.getPayeTotal(), 0.5);
+        assertEquals(384.48, payslip.getGross(), 0.5);
+        assertEquals(11.53, payslip.getKiwisavEmployee(), 0.5);
+        assertEquals(2.10, payslip.getStudentLoan(), 0.5);
+        assertEquals(317.07, payslip.getNet(), 0.5);
+    }
+
+
+//    @Test
+//    public void testPayslipWithGross() {
+//
+//    }
 
 }

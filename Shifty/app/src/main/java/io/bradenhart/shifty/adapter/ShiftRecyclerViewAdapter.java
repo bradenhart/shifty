@@ -183,7 +183,7 @@ public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
         void onClickEditButton() {
             // close the options before going to the ShiftActivity to edit the shift
             onClickCloseButton();
-            ShiftActivity.start(context, ShiftActivity.Mode.EDIT, String.valueOf(root.getTag()));
+            ShiftActivity.start(context, ShiftActivity.MODE_EDIT, String.valueOf(root.getTag()));
         }
 
         @OnClick(R.id.button_delete_shift)

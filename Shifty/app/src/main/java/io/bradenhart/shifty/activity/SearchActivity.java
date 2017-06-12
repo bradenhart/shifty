@@ -8,6 +8,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
+import android.support.annotation.StringDef;
 import android.support.design.widget.AppBarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,6 +26,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -80,12 +84,16 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
     // the adapter for displaying the search results with
     private WorkWeekRecyclerViewAdapter adapter;
     // the chosen search mode, defaults to
-    private SearchMode searchMode = SearchMode.WEEK;
+    private @SearchMode int searchMode = SEARCH_MODE_WEEK;
 
     // set of valid modes for the user to select
-    public enum SearchMode {
-        WEEK, MONTH
-    }
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({SEARCH_MODE_WEEK, SEARCH_MODE_MONTH})
+    public @interface SearchMode {}
+
+    /* SearchMode constants */
+    public static final int SEARCH_MODE_WEEK = 0;
+    public static final int SEARCH_MODE_MONTH = 1;
 
     /**
      * Used for starting this Activity. Ensures that the Activity is started with the required
@@ -204,9 +212,9 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
         if (pos == 0) {
-            searchMode = SearchMode.WEEK;
+            searchMode = SEARCH_MODE_WEEK;
         } else if (pos == 1) {
-            searchMode = SearchMode.MONTH;
+            searchMode = SEARCH_MODE_MONTH;
         }
 
     }
@@ -226,9 +234,9 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
 
         private Context context;
         private Date date;
-        private SearchMode searchMode;
+        private @SearchMode int searchMode;
 
-        public SearchAsyncTask(Context context, Date date, SearchMode searchMode) {
+        public SearchAsyncTask(Context context, Date date, @SearchMode int searchMode) {
             this.context = context;
             this.date = date;
             this.searchMode = searchMode;
@@ -269,7 +277,7 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
          * @param searchMode The search mode the user has selected
          * @return The cursor resulting from the database query
          */
-        private Cursor performSearch(Date date, SearchMode searchMode) {
+        private Cursor performSearch(Date date, @SearchMode int searchMode) {
             ContentResolver contentResolver = getContentResolver();
             Uri uri = ShiftyContract.Workweek.CONTENT_URI;
 
@@ -279,7 +287,7 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
 
             Cursor searchResults = null;
 
-            if (searchMode == SearchMode.WEEK) {
+            if (searchMode == SEARCH_MODE_WEEK) {
                 // get the date for the start of the week that the user has chosen
                 String searchDatetime = DateUtils.getWeekStart(date, DateUtils.FMT_ISO_8601_DATETIME);
                 // create the query parameters
@@ -295,7 +303,7 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
                         sortOrder
                 );
 
-            } else if (searchMode == SearchMode.MONTH) {
+            } else if (searchMode == SEARCH_MODE_MONTH) {
                 String format = DateUtils.FMT_ISO_8601_DATETIME;
                 // get the start date of the month the user has chosen
                 String monthStart = DateUtils.getMonthStart(date, format);

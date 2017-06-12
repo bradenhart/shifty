@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
@@ -22,6 +23,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -75,28 +79,14 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
     @BindView(R.id.bottomnavigation_shiftview)
     BottomNavigationView navView;
 
-    // set of valid display modes for the recyclerview
-    public enum DisplayMode {
-        CURRENT(MODE_CURRENT), RECENT(MODE_RECENT);
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({DISPLAYMODE_CURRENT, DISPLAYMODE_RECENT})
+    public @interface DisplayMode {}
 
-        private String value;
+    /* DisplayMode constants */
+    public static final int DISPLAYMODE_CURRENT = 0;
+    public static final int DISPLAYMODE_RECENT = 1;
 
-        DisplayMode(String value) {
-            this.value = value;
-        }
-
-        // get the string value for the DisplayMode
-        public String getValue() {
-            return value;
-        }
-
-        // get a DisplayMode from a given value
-        public static DisplayMode get(String value) {
-            if (value.equals(MODE_RECENT)) return RECENT;
-            else return CURRENT; // CURRENT is the default
-        }
-
-    }
 
     // contains the main projection values used when querying the Workweek table in the db
     public static final String[] MAIN_WORKWEEK_PROJECTION = {
@@ -147,13 +137,13 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
                 switch (id) {
                     case R.id.menu_button_shifts:
                         // show current shifts
-                        saveDisplayMode(DisplayMode.CURRENT);
+                        saveDisplayMode(DISPLAYMODE_CURRENT);
                         newShiftButton.setVisibility(View.VISIBLE);
                         restartLoader(getLoaderIDForDisplayMode());
                         break;
                     case R.id.menu_button_recent:
                         // show recent shifts
-                        saveDisplayMode(DisplayMode.RECENT);
+                        saveDisplayMode(DISPLAYMODE_RECENT);
                         newShiftButton.setVisibility(View.GONE);
                         startLoader(getLoaderIDForDisplayMode());
                         break;
@@ -217,7 +207,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     @OnClick(R.id.button_new_shift)
     public void onClickNewShiftButton() {
-        ShiftActivity.start(context, ShiftActivity.Mode.CREATE, null);
+        ShiftActivity.start(context, ShiftActivity.MODE_CREATE, null);
     }
 
     @Override
@@ -239,23 +229,24 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
      * Save the provided DisplayMode value in SharedPreferences.
      * @param mode the display mode to save
      */
-    private void saveDisplayMode(DisplayMode mode) {
+    private void saveDisplayMode(@DisplayMode int mode) {
         SharedPreferences sp = getSharedPreferences(getString(R.string.shared_preferences_name), MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
 
-        editor.putString(KEY_DISPLAY_MODE, mode.getValue()).apply();
+        editor.putInt(KEY_DISPLAY_MODE, mode).apply();
     }
 
     /**
      * Retrieve the DisplayMode value stored in SharedPreferences.
      * @return the display mode retrieved
      */
-    private DisplayMode getDisplayMode() {
+    @DisplayMode
+    private int getDisplayMode() {
         SharedPreferences sp = getSharedPreferences(getString(R.string.shared_preferences_name), MODE_PRIVATE);
 
-        String value = sp.getString(KEY_DISPLAY_MODE, MODE_CURRENT);
+        @DisplayMode int value = sp.getInt(KEY_DISPLAY_MODE, DISPLAYMODE_CURRENT);
 
-        return DisplayMode.get(value);
+        return value;
     }
 
     /**
@@ -264,7 +255,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
      */
     private int getLoaderIDForDisplayMode() {
 //        if (getDisplayMode() == DisplayMode.CURRENT) return ID_CURRENT_WORKWEEK_LOADER;
-        if (getDisplayMode() == DisplayMode.RECENT) return ID_RECENT_WORKWEEK_LOADER;
+        if (getDisplayMode() == DISPLAYMODE_RECENT) return ID_RECENT_WORKWEEK_LOADER;
         return ID_CURRENT_WORKWEEK_LOADER; // default is the current workweek loader id
     }
 
@@ -273,15 +264,15 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
      */
     private void updateNavViewSelectedItem() {
         if (navView == null) return;
-        int itemID = getDisplayMode() == DisplayMode.CURRENT ? R.id.menu_button_shifts : R.id.menu_button_recent;
+        int itemID = getDisplayMode() == DISPLAYMODE_CURRENT ? R.id.menu_button_shifts : R.id.menu_button_recent;
         navView.setSelectedItemId(itemID);
     }
 
     @Override
     public void onBackPressed() {
         // if the user is in the Recent display mode, go back to Current display mode
-        if (getDisplayMode() == DisplayMode.RECENT) {
-            saveDisplayMode(DisplayMode.CURRENT);
+        if (getDisplayMode() == DISPLAYMODE_RECENT) {
+            saveDisplayMode(DISPLAYMODE_CURRENT);
             restartLoader(ID_CURRENT_WORKWEEK_LOADER);
             updateNavViewSelectedItem();
         } else {
@@ -293,9 +284,9 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
     @Override
     public void onRefresh() {
         // only show refreshing animation when in Current display mode
-        if (getDisplayMode() == DisplayMode.CURRENT) {
+        if (getDisplayMode() == DISPLAYMODE_CURRENT) {
             restartLoader(ID_CURRENT_WORKWEEK_LOADER);
-        } else if (getDisplayMode() == DisplayMode.RECENT) {
+        } else if (getDisplayMode() == DISPLAYMODE_RECENT) {
             swipeRefreshLayout.setRefreshing(false);
         }
     }
