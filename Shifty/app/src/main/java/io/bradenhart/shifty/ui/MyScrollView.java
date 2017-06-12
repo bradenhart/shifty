@@ -6,7 +6,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
 /**
- * Created by bradenhart on 11/03/17.
+ * @author bradenhart
  */
 
 public class MyScrollView extends ScrollView {
@@ -17,7 +17,7 @@ public class MyScrollView extends ScrollView {
     private int height;
     private int childCount;
 
-    public interface OnScrollStoppedListener{
+    interface OnScrollStoppedListener{
         void onScrollStopped();
     }
 

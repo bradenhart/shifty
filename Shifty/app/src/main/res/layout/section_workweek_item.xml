@@ -6,7 +6,6 @@
     android:background="@color/colorPrimary">
 
     <TextView
-        android:id="@+id/textview_shift_id"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="invisible" />
@@ -25,6 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:paddingStart="0dp"
             android:paddingEnd="2dp">
 
             <TextView

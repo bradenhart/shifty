@@ -3,7 +3,6 @@ package io.bradenhart.shifty;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import io.bradenhart.shifty.domain.Payslip;
 import io.bradenhart.shifty.util.DateUtils;

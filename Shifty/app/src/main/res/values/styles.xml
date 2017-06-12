@@ -29,20 +29,6 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="NewShiftLabelPanelStyle">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/timeScrollerTextViewHeight</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:gravity">center</item>
-        <item name="android:padding">@dimen/timeScrollerTextViewPadding</item>
-        <!--<item name="android:textColor">#c8fffafa</item>-->
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="BorderlessButtonStyle">
-        <item name="colorAccent">@color/colorPrimary</item>
-    </style>
-
     <style name="CustomAccentOverlay" parent="ThemeOverlay.AppCompat">
         <item name="colorAccent">@color/colorPrimary</item>
     </style>

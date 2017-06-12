@@ -4,15 +4,9 @@
     <color name="colorPrimaryDark">#00796B</color>
     <color name="colorPrimaryLight">#B2DFDB</color>
     <color name="colorAccent">#00BCD4</color>
-    <color name="colorPrimaryText">#212121</color>
-    <color name="colorSecondaryText">#757575</color>
-    <color name="colorIcons">#FFFFFF</color>
     <color name="colorDivider">#BDBDBD</color>
 
-    <color name="header_text_blue">#1d72da</color>
-    <color name="mw_green_main">#00a78d</color>
     <color name="text_white">#ffffff</color>
 
     <color name="text_off_white">#c8fffafa</color>
-    <color name="faded_white">#c8d6d6d6</color>
 </resources>

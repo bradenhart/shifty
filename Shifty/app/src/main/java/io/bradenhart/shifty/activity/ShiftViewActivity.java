@@ -51,9 +51,6 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
     // key for storing the display mode in Shared Preferences
     public static final String KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE";
     /* other constants */
-    // values for the display mode
-    private static final String MODE_RECENT = "MODE_RECENT";
-    private static final String MODE_CURRENT = "MODE_CURRENT";
     // id values for the cursor loaders
     private static final int ID_CURRENT_WORKWEEK_LOADER = 88;
     private static final int ID_RECENT_WORKWEEK_LOADER = 44;

@@ -2,7 +2,6 @@
 
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -66,7 +65,7 @@
         android:layout_marginEnd="32dp"
         android:layout_marginTop="0dp"
         app:layout_constraintTop_toBottomOf="@+id/label_net"
-        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         app:layout_constraintLeft_toLeftOf="@+id/label_net" />
 
     <TextView
@@ -81,7 +80,6 @@
         android:layout_marginStart="0dp"
         android:layout_marginTop="29dp"
         app:layout_constraintTop_toBottomOf="@+id/textview_payslip_gross"
-        android:layout_marginLeft="8dp"
         app:layout_constraintLeft_toLeftOf="@+id/label_gross" />
 
 
@@ -99,7 +97,6 @@
         android:padding="5dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textview_toolbar_subtitle"
-        android:layout_marginLeft="32dp"
         android:layout_marginTop="0dp" />
 
     <TextView
@@ -175,8 +172,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textview_payslip_hours"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="31dp"
-        android:layout_marginLeft="32dp" />
+        android:layout_marginTop="31dp" />
 
     <TextView
         android:id="@+id/textview_payslip_paye"
@@ -218,9 +214,9 @@
         android:text="Gross"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="@id/label_paye"
-        android:layout_marginLeft="0dp"
+        android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/label_paye" />
 

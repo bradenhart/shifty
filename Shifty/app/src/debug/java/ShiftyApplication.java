@@ -3,9 +3,8 @@ import android.app.Application;
 import com.facebook.stetho.Stetho;
 
 /**
- * Created by bradenhart on 31/05/17.
+ * @author bradenhart
  */
-
 public class ShiftyApplication extends Application {
 
     @Override

@@ -5,16 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="io.bradenhart.shifty.activity.CalculatorActivity"
-    tools:layout_editor_absoluteY="25dp"
-    tools:layout_editor_absoluteX="0dp">
+    tools:layout_editor_absoluteX="0dp"
+    tools:layout_editor_absoluteY="25dp">
 
     <include
         android:id="@+id/appbar_calculator"
         layout="@layout/view_appbarlayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <include
@@ -22,19 +22,19 @@
         layout="@layout/view_bottomnavigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <Button
+        android:id="@+id/button_hour_mode"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:text="Hour"
-        android:id="@+id/button_hour_mode"
-        app:layout_constraintRight_toLeftOf="@+id/button_gross_mode"
-        app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginTop="16dp"
+        android:text="Hour"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/button_gross_mode"
         app:layout_constraintTop_toBottomOf="@+id/appbar_calculator" />
 
     <Button
@@ -43,8 +43,8 @@
         android:layout_width="180dp"
         android:layout_height="wrap_content"
         android:text="Gross"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/button_hour_mode"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/button_hour_mode" />
 
     <Button
@@ -52,254 +52,240 @@
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Calculate"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomnavigation_calculator"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        android:text="Calculate"
+        app:layout_constraintBottom_toTopOf="@+id/bottomnavigation_calculator"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 
     <EditText
         android:id="@+id/edittext_calculator_input"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:ems="10"
         android:inputType="numberDecimal"
-        app:layout_goneMarginEnd="8dp"
-        app:layout_goneMarginRight="8dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/button_hour_mode"
-        app:layout_constraintRight_toLeftOf="@+id/guideline"
-        android:layout_marginRight="8dp"
-        android:layout_marginLeft="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        app:layout_constraintRight_toLeftOf="@+id/guideline"
+        app:layout_constraintTop_toBottomOf="@+id/button_hour_mode"
+        app:layout_goneMarginEnd="8dp"
+        app:layout_goneMarginRight="8dp" />
 
     <ImageButton
         android:id="@+id/button_add_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="visible"
-        app:srcCompat="@drawable/ic_add_black_24dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/button_gross_mode"
+        android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline"
-        app:layout_constraintRight_toLeftOf="@+id/button_clear_calculator"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        android:layout_marginTop="16dp"
+        android:visibility="visible"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline"
+        app:layout_constraintRight_toLeftOf="@+id/button_clear_calculator"
+        app:layout_constraintTop_toBottomOf="@+id/button_gross_mode"
+        app:srcCompat="@drawable/ic_add_black_24dp" />
 
     <ImageButton
         android:id="@+id/button_clear_calculator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_close_black_24dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/button_gross_mode"
-        android:layout_marginRight="16dp"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginEnd="16dp" />
+        app:layout_constraintTop_toBottomOf="@+id/button_gross_mode"
+        app:srcCompat="@drawable/ic_close_black_24dp" />
 
     <TextView
         android:id="@+id/textview2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="base rate"
-        tools:text="base rate"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/edittext_calculator_input"
+        android:text="base rate"
         app:layout_constraintRight_toLeftOf="@+id/guideline3"
-        android:layout_marginRight="0dp" />
+        app:layout_constraintTop_toBottomOf="@+id/edittext_calculator_input"
+        tools:text="base rate" />
 
     <TextView
         android:id="@+id/textview_calculator_base_rate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:focusable="true"
-        tools:text="test"
-        android:layout_marginLeft="0dp"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline4"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/edittext_calculator_input" />
+        android:focusable="true"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline4"
+        app:layout_constraintTop_toBottomOf="@+id/edittext_calculator_input"
+        tools:text="test" />
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="pay rate"
-        tools:text="pay rate"
-        android:layout_marginRight="0dp"
-        app:layout_constraintRight_toRightOf="@+id/textview2"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/textview2" />
+        android:text="pay rate"
+        app:layout_constraintRight_toRightOf="@+id/textview2"
+        app:layout_constraintTop_toBottomOf="@+id/textview2"
+        tools:text="pay rate" />
 
     <TextView
         android:id="@+id/textview_calculator_pay_rate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="test"
-        app:layout_constraintTop_toTopOf="@+id/textView4"
-        android:layout_marginTop="0dp"
-        android:layout_marginLeft="0dp"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline4" />
+        app:layout_constraintLeft_toLeftOf="@+id/guideline4"
+        app:layout_constraintTop_toTopOf="@+id/textView4" />
 
     <TextView
         android:id="@+id/textView6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="hours"
-        tools:text="hours"
-        android:layout_marginRight="0dp"
-        app:layout_constraintRight_toRightOf="@+id/textView4"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+        android:text="hours"
+        app:layout_constraintRight_toRightOf="@+id/textView4"
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
+        tools:text="hours" />
 
     <TextView
         android:id="@+id/textview_calculator_hours"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="test"
-        app:layout_constraintTop_toTopOf="@+id/textView6"
         android:layout_marginTop="0dp"
-        android:layout_marginLeft="0dp"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline4" />
+        app:layout_constraintLeft_toLeftOf="@+id/guideline4"
+        app:layout_constraintTop_toTopOf="@+id/textView6"
+        tools:text="test" />
 
     <TextView
         android:id="@+id/textView8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="p.a.y.e"
-        tools:text="p.a.y.e"
-        android:layout_marginRight="0dp"
-        app:layout_constraintRight_toRightOf="@+id/textView6"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView6" />
+        android:text="p.a.y.e"
+        app:layout_constraintRight_toRightOf="@+id/textView6"
+        app:layout_constraintTop_toBottomOf="@+id/textView6"
+        tools:text="p.a.y.e" />
 
     <TextView
         android:id="@+id/textview_calculator_paye"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="test"
-        app:layout_constraintTop_toTopOf="@+id/textView8"
         android:layout_marginTop="0dp"
-        android:layout_marginLeft="0dp"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline4" />
+        android:text="test"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline4"
+        app:layout_constraintTop_toTopOf="@+id/textView8" />
 
     <TextView
         android:id="@+id/textView10"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="kiwisaver"
-        tools:text="kiwisaver"
-        android:layout_marginRight="0dp"
-        app:layout_constraintRight_toRightOf="@+id/textView8"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView8" />
+        android:text="kiwisaver"
+        app:layout_constraintRight_toRightOf="@+id/textView8"
+        app:layout_constraintTop_toBottomOf="@+id/textView8"
+        tools:text="kiwisaver" />
 
     <TextView
         android:id="@+id/textview_calculator_kiwisaver"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="test"
-        app:layout_constraintTop_toTopOf="@+id/textView10"
         android:layout_marginTop="0dp"
-        android:layout_marginLeft="0dp"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline4" />
+        android:text="test"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline4"
+        app:layout_constraintTop_toTopOf="@+id/textView10" />
 
     <TextView
         android:id="@+id/textView12"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="loan"
-        tools:text="loan"
-        android:layout_marginRight="0dp"
-        app:layout_constraintRight_toRightOf="@+id/textView10"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView10" />
+        android:text="loan"
+        app:layout_constraintRight_toRightOf="@+id/textView10"
+        app:layout_constraintTop_toBottomOf="@+id/textView10"
+        tools:text="loan" />
 
     <TextView
         android:id="@+id/textview_calculator_loan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="test"
-        app:layout_constraintTop_toTopOf="@+id/textView12"
         android:layout_marginTop="0dp"
-        android:layout_marginLeft="0dp"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline4" />
+        android:text="test"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline4"
+        app:layout_constraintTop_toTopOf="@+id/textView12" />
 
     <TextView
         android:id="@+id/textView14"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="gross"
-        tools:text="gross"
-        android:layout_marginRight="0dp"
-        app:layout_constraintRight_toRightOf="@+id/textView12"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView12" />
+        android:text="gross"
+        app:layout_constraintRight_toRightOf="@+id/textView12"
+        app:layout_constraintTop_toBottomOf="@+id/textView12"
+        tools:text="gross" />
 
     <TextView
         android:id="@+id/textview_calculator_gross"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="test"
-        app:layout_constraintTop_toTopOf="@+id/textView14"
         android:layout_marginTop="0dp"
-        android:layout_marginLeft="0dp"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline4" />
+        android:text="test"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline4"
+        app:layout_constraintTop_toTopOf="@+id/textView14" />
 
     <TextView
         android:id="@+id/textView16"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="net"
-        tools:text="net"
-        android:layout_marginRight="0dp"
-        app:layout_constraintRight_toRightOf="@+id/textView14"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView14" />
+        android:text="net"
+        app:layout_constraintRight_toRightOf="@+id/textView14"
+        app:layout_constraintTop_toBottomOf="@+id/textView14"
+        tools:text="net" />
 
     <TextView
         android:id="@+id/textview_calculator_net"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="test"
-        app:layout_constraintTop_toTopOf="@+id/textView16"
         android:layout_marginTop="0dp"
-        android:layout_marginLeft="0dp"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline4" />
+        android:text="test"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline4"
+        app:layout_constraintTop_toTopOf="@+id/textView16" />
 
     <android.support.constraint.Guideline
+        android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/guideline"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.6901042"
-        tools:layout_editor_absoluteY="0dp"
-        tools:layout_editor_absoluteX="265dp" />
+        tools:layout_editor_absoluteX="265dp"
+        tools:layout_editor_absoluteY="0dp" />
 
     <android.support.constraint.Guideline
+        android:id="@+id/guideline3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/guideline3"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.46"
-        tools:layout_editor_absoluteY="0dp"
-        tools:layout_editor_absoluteX="177dp" />
+        tools:layout_editor_absoluteX="177dp"
+        tools:layout_editor_absoluteY="0dp" />
 
     <android.support.constraint.Guideline
+        android:id="@+id/guideline4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/guideline4"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.54"
-        tools:layout_editor_absoluteY="0dp"
-        tools:layout_editor_absoluteX="208dp" />
+        tools:layout_editor_absoluteX="208dp"
+        tools:layout_editor_absoluteY="0dp" />
 
 </android.support.constraint.ConstraintLayout>

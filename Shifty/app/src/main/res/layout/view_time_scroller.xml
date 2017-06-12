@@ -117,7 +117,6 @@
                     android:text="12" />
 
                 <TextView
-                    android:id="@+id/textview_hour_btm"
                     style="@style/TimeScrollerTextViewStyle"
                     android:text=" " />
             </LinearLayout>
@@ -261,7 +260,6 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/llayout_time_selector"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent">

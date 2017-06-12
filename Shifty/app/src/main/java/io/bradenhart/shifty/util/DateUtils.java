@@ -9,9 +9,8 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Created by bradenhart on 8/04/17.
+ * @author bradenhart
  */
-
 public class DateUtils {
 
     public static final String FMT_ISO_8601_DATETIME = "yyyy-MM-dd HH:mm:ss.sss";
@@ -106,7 +105,6 @@ public class DateUtils {
     }
 
     public static String getPrettyDateString(String dateString, String format) {
-        Calendar c = Calendar.getInstance();
         Date date = null;
         try {
             date = new SimpleDateFormat(format, Locale.ENGLISH).parse(dateString);
@@ -325,8 +323,7 @@ public class DateUtils {
     public static Date getDateFromDateTime(String datetime) {
         SimpleDateFormat sdf = new SimpleDateFormat(FMT_DATETIME, Locale.ENGLISH);
         try {
-            Date date = sdf.parse(datetime);
-            return date;
+            return sdf.parse(datetime);
         } catch (ParseException e) {
             e.printStackTrace();
         }

@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="textview_padding">5dp</dimen>
 
     <dimen name="timeScrollerTextViewHeight">35dp</dimen>
     <dimen name="timeScrollerViewHeight">105dp</dimen> // 3 * 35dp
     <dimen name="timeScrollerTextViewPadding">5dp</dimen>
 
-    <item name="colorPrimaryAlpha" type="dimen" format="float">0.75</item>
-
     <dimen name="workweek_item_height">45dp</dimen>
     <dimen name="workweek_shift_progress_width">4dp</dimen>
 
-    <dimen name="action_bar_size">?attr/actionBarSize</dimen>
-
-    <dimen name="margin_5dp">5dp</dimen>
 </resources>

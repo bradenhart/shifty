@@ -4,7 +4,6 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -20,9 +19,8 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 /**
- * Created by bradenhart on 25/03/17.
+ * @author bradenhart
  */
-
 public class TimeScroller extends FrameLayout {
 
     final String TAG = "TimeScroller";
@@ -67,7 +65,7 @@ public class TimeScroller extends FrameLayout {
         scrollView.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (MotionEventCompat.getActionMasked(motionEvent) == MotionEvent.ACTION_UP) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     scrollView.startScrollerTask();
                     updateTimeInfo();
                 }

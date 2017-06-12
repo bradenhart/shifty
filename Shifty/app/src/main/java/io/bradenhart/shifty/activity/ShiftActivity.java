@@ -16,7 +16,6 @@ import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewDebug;
 import android.view.ViewTreeObserver;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
@@ -138,8 +137,8 @@ public class ShiftActivity extends AppCompatActivity {
         /* get data from the intent's extras */
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            int value = bundle.getInt(KEY_MODE);
-            mode = getMode(value);
+            @Mode int value = bundle.getInt(KEY_MODE);
+            mode = value;
             shiftID = bundle.getString(KEY_SHIFT);
         }
         // if activity is being created in edit mode with the correct data, get the
@@ -346,19 +345,6 @@ public class ShiftActivity extends AppCompatActivity {
             endTimeScroller.resetScroller();
         }
 
-    }
-
-    @Mode
-    public int getMode(int value) {
-        switch (value) {
-            case MODE_CREATE: return MODE_CREATE;
-            case MODE_EDIT: return MODE_EDIT;
-            default: return MODE_CREATE;
-        }
-    }
-
-    public int getValue(@Mode int mode) {
-        return mode;
     }
 
 }

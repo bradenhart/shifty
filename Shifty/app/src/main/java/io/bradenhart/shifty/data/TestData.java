@@ -2,15 +2,9 @@ package io.bradenhart.shifty.data;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
 
 /**
  * Creates and inserts test data into the database.

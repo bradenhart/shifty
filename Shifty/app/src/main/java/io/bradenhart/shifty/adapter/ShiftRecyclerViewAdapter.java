@@ -30,7 +30,7 @@ import io.bradenhart.shifty.util.Utils;
  *
  * @author bradenhart
  */
-public class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
     // height of the view item

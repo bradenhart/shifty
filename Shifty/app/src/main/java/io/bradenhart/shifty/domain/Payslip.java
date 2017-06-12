@@ -55,15 +55,15 @@ public class Payslip implements Serializable {
     /**
      * FIELDS
      */
-    Double gross;
-    Double hours;
-    Double annual;
-    @TaxBracket int taxBracket;
-    Double payeTotal;
-    Double kiwisavEmployee;
-    Double kiwisavEmployer;
-    Double studentLoan;
-    Double net;
+    private Double gross;
+    private Double hours;
+    private Double annual;
+    private @TaxBracket int taxBracket;
+    private Double payeTotal;
+    private Double kiwisavEmployee;
+    private Double kiwisavEmployer;
+    private Double studentLoan;
+    private Double net;
 
     /**
      * CONSTRUCTORS
@@ -101,30 +101,30 @@ public class Payslip implements Serializable {
     /**
      * METHODS
      */
-    public Double getRate(@TaxBracket int bracket) {
+    private Double getRate(@TaxBracket int bracket) {
         switch (bracket) {
             case TAX_BRACKET_ONE: return 10.5/100;
             case TAX_BRACKET_TWO: return 17.5/100;
             case TAX_BRACKET_THREE: return 30.0/100;
-            case TAX_BRACKET_FOUR: return 33.0/100;
-            default: return null;
+            case TAX_BRACKET_FOUR:
+            default: return 33.0/100;
         }
     }
 
-    public Double getBottom(@TaxBracket int bracket) {
-        Double bottom = 1.0;
-
-        switch (bracket) {
-            case TAX_BRACKET_ONE: return bottom;
-            case TAX_BRACKET_TWO: return bottom + 14000.0;
-            case TAX_BRACKET_THREE: return bottom + 30.0;
-            case TAX_BRACKET_FOUR: return bottom + 33.0;
-            default: return null;
-        }
-    }
+//    public Double getBottom(@TaxBracket int bracket) {
+//        Double bottom = 1.0;
+//
+//        switch (bracket) {
+//            case TAX_BRACKET_ONE: return bottom;
+//            case TAX_BRACKET_TWO: return bottom + 14000.0;
+//            case TAX_BRACKET_THREE: return bottom + 30.0;
+//            case TAX_BRACKET_FOUR: return bottom + 33.0;
+//            default: return null;
+//        }
+//    }
 
     @TaxBracket
-    public int getTaxBracket(Double annual) {
+    private int getTaxBracket(Double annual) {
         if (annual < 14000) {
             return TAX_BRACKET_ONE;
         } else if (annual < 48000) {
@@ -136,7 +136,7 @@ public class Payslip implements Serializable {
         }
     }
 
-    public Double getTop(@TaxBracket int bracket) {
+    private Double getTop(@TaxBracket int bracket) {
         switch (bracket) {
             case TAX_BRACKET_ONE:
                 return 14000.0;
@@ -145,12 +145,11 @@ public class Payslip implements Serializable {
             case TAX_BRACKET_THREE:
                 return 70000.0;
             case TAX_BRACKET_FOUR:
-                return Double.POSITIVE_INFINITY;
-            default: return null;
+            default: return Double.POSITIVE_INFINITY;
         }
     }
 
-    public Double getWeeklyMax(@TaxBracket int bracket) {
+    private Double getWeeklyMax(@TaxBracket int bracket) {
         return getTop(bracket) / 52;
     }
 

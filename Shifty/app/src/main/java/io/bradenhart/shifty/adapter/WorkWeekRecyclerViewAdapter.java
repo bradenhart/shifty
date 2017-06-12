@@ -31,8 +31,6 @@ import io.bradenhart.shifty.domain.Payslip;
 import io.bradenhart.shifty.util.DateUtils;
 import io.bradenhart.shifty.util.Utils;
 
-import static io.bradenhart.shifty.util.Utils.makeToast;
-
 /**
  * Adapter for displaying workweeks.
  *

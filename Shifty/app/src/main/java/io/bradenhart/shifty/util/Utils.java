@@ -6,9 +6,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 /**
- * Created by bradenhart on 4/05/17.
+ * @author bradenhart
  */
-
 public class Utils {
 
     public static void makeToast(Context context, String message, int duration) {
