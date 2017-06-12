@@ -84,9 +84,10 @@ public class PayslipActivity extends AppCompatActivity {
     /**
      * Used for starting this Activity. Ensures that the Activity is started with the required
      * extras.
-     * @param context The context of the Activity that calls this method
+     *
+     * @param context           The context of the Activity that calls this method
      * @param weekStartDatetime The formatted date string for the payslip
-     * @param paidHours The number of paid hours for the payslip
+     * @param paidHours         The number of paid hours for the payslip
      */
     public static void start(@NonNull Context context, @NonNull String weekStartDatetime, @NonNull Double paidHours) {
         Intent intent = new Intent(context, PayslipActivity.class);
@@ -154,7 +155,6 @@ public class PayslipActivity extends AppCompatActivity {
     }
 
     /**
-     *
      * @param payslip The payslip to display
      */
     private void displayPayslip(@NonNull Payslip payslip) {

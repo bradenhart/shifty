@@ -60,6 +60,7 @@ public class ShiftyContract {
 
         /**
          * Creates an sql statement to select workweeks from the current week onwards.
+         *
          * @return the sql select statement
          */
         public static String getSQLSelectForThisWeekOnwards() {
@@ -68,6 +69,7 @@ public class ShiftyContract {
 
         /**
          * Creates an sql statement to select workweeks before the current week.
+         *
          * @return the sql select statement
          */
         public static String getSQLSelectForBeforeThisWeek() {

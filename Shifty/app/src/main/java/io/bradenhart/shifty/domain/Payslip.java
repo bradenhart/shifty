@@ -16,7 +16,8 @@ public class Payslip implements Serializable {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({TAX_BRACKET_ONE, TAX_BRACKET_TWO, TAX_BRACKET_THREE, TAX_BRACKET_FOUR})
-    public @interface TaxBracket {}
+    public @interface TaxBracket {
+    }
 
     /* TaxRate constants */
     public static final int TAX_BRACKET_ONE = 1;
@@ -27,7 +28,8 @@ public class Payslip implements Serializable {
 
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({MODE_HOUR, MODE_GROSS})
-    public @interface Mode {}
+    public @interface Mode {
+    }
 
     /* Mode constants */
     public static final String MODE_HOUR = "MODE_HOUR";
@@ -35,7 +37,8 @@ public class Payslip implements Serializable {
 
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({STAFF_EMPLOYEE, STAFF_EMPLOYER})
-    public @interface Staff {}
+    public @interface Staff {
+    }
 
     /* Staff constants */
     public static final String STAFF_EMPLOYEE = "STAFF_EMPLOYEE";
@@ -58,7 +61,9 @@ public class Payslip implements Serializable {
     private Double gross;
     private Double hours;
     private Double annual;
-    private @TaxBracket int taxBracket;
+    private
+    @TaxBracket
+    int taxBracket;
     private Double payeTotal;
     private Double kiwisavEmployee;
     private Double kiwisavEmployer;
@@ -101,17 +106,28 @@ public class Payslip implements Serializable {
     /**
      * METHODS
      */
+
+    /**
+     * Gets the tax rate for the given bracket.
+     *
+     * @param bracket the tax bracket
+     * @return the tax rate
+     */
     private Double getRate(@TaxBracket int bracket) {
         switch (bracket) {
-            case TAX_BRACKET_ONE: return 10.5/100;
-            case TAX_BRACKET_TWO: return 17.5/100;
-            case TAX_BRACKET_THREE: return 30.0/100;
+            case TAX_BRACKET_ONE:
+                return 10.5 / 100;
+            case TAX_BRACKET_TWO:
+                return 17.5 / 100;
+            case TAX_BRACKET_THREE:
+                return 30.0 / 100;
             case TAX_BRACKET_FOUR:
-            default: return 33.0/100;
+            default:
+                return 33.0 / 100;
         }
     }
 
-//    public Double getBottom(@TaxBracket int bracket) {
+//    public Double getBottomBound(@TaxBracket int bracket) {
 //        Double bottom = 1.0;
 //
 //        switch (bracket) {
@@ -123,6 +139,12 @@ public class Payslip implements Serializable {
 //        }
 //    }
 
+    /**
+     * Gets the tax bracket for the given annual earnings amount.
+     *
+     * @param annual the annual amount of earnings
+     * @return the tax bracket
+     */
     @TaxBracket
     private int getTaxBracket(Double annual) {
         if (annual < 14000) {
@@ -136,7 +158,14 @@ public class Payslip implements Serializable {
         }
     }
 
-    private Double getTop(@TaxBracket int bracket) {
+    /**
+     * Gets the top bound of the tax bracket (the highest amount you can earn before
+     * entering the next bracket up).
+     *
+     * @param bracket the tax bracket
+     * @return the top bound of the bracket
+     */
+    private Double getTopBound(@TaxBracket int bracket) {
         switch (bracket) {
             case TAX_BRACKET_ONE:
                 return 14000.0;
@@ -145,23 +174,51 @@ public class Payslip implements Serializable {
             case TAX_BRACKET_THREE:
                 return 70000.0;
             case TAX_BRACKET_FOUR:
-            default: return Double.POSITIVE_INFINITY;
+            default:
+                return Double.POSITIVE_INFINITY;
         }
     }
 
+    /**
+     * Gets the maximum weekly gross amount that you can earn for the given
+     * tax bracket.
+     *
+     * @param bracket the tax bracket
+     * @return the maximum weekly amount
+     */
     private Double getWeeklyMax(@TaxBracket int bracket) {
-        return getTop(bracket) / 52;
+        return getTopBound(bracket) / 52;
     }
 
-
+    /**
+     * Calculates the gross amount for the given number of worked hours.
+     *
+     * @param hours the number of worked hours
+     * @return the gross amount
+     */
     private Double calculateGross(Double hours) {
         return HOURLY_RATE_FULL * hours;
     }
 
+    /**
+     * Calculates the projected annual amount for the given gross amount.
+     *
+     * @param gross the gross earnings
+     * @return the project annual amount
+     */
     private Double calculateAnnual(Double gross) {
         return gross * 52;
     }
 
+    /**
+     * Calculates the P.A.Y.E deduction for the given gross amount, tax bracket,
+     * and running total for the deduction.
+     *
+     * @param gross   the gross amount
+     * @param bracket the tax bracket
+     * @param total   the running total for the calculation
+     * @return the total P.A.Y.E deduction
+     */
     private Double calculatePaye(Double gross, @TaxBracket int bracket, Double total) {
         Double taxedAmount;
         Double payeRate = getRate(bracket) + ACC_EARNERS_LEVY_RATE;
@@ -191,6 +248,13 @@ public class Payslip implements Serializable {
         }
     }
 
+    /**
+     * Calculates the kiwisaver contribution for the given gross amount and staff type.
+     *
+     * @param gross the gross amount
+     * @param type  the staff type
+     * @return the kiwisaver contribution
+     */
     private Double calculateKiwiSaver(Double gross, @Staff String type) {
         if (type.equals(STAFF_EMPLOYEE)) {
             return gross * KIWISAVER_RATE_EMPLOYEE;
@@ -199,10 +263,26 @@ public class Payslip implements Serializable {
         }
     }
 
+    /**
+     * Calculates the student load repayment for the given gross amount.
+     *
+     * @param gross the gross amount
+     * @return the student loan repayment
+     */
     private Double calculateStudentLoan(Double gross) {
         return (gross > 367.0) ? (gross - 367.0) * STUDENT_LOAN_RATE : 0.0;
     }
 
+    /**
+     * Calculates the net pay for the given gross amount, P.A.Y.E deduction,
+     * kiwisaver contribution and student load repayment.
+     *
+     * @param gross           the gross amount
+     * @param payeTotal       the P.A.Y.E deduction
+     * @param kiwisavEmployee the kiwisaver contribution for an employee
+     * @param studentLoan     the student loan repayment
+     * @return the net pay
+     */
     private Double calculateNet(Double gross, Double payeTotal, Double kiwisavEmployee, Double studentLoan) {
         return gross - (payeTotal + kiwisavEmployee + studentLoan);
     }

@@ -95,7 +95,8 @@ public class ShiftActivity extends AppCompatActivity {
     // the date for the shift
     Date shiftDate;
     // whether the user is editing a shift
-    @Mode int mode;
+    @Mode
+    int mode;
     // the id of the shift being edited
     String shiftID;
     // the formatted start datetime for the shift
@@ -105,7 +106,8 @@ public class ShiftActivity extends AppCompatActivity {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({MODE_CREATE, MODE_EDIT})
-    public @interface Mode {}
+    public @interface Mode {
+    }
 
     /* Mode constants */
     public static final int MODE_CREATE = 0;
@@ -116,7 +118,7 @@ public class ShiftActivity extends AppCompatActivity {
      * extras.
      *
      * @param context The context of the Activity that calls this method
-     * @param mode the mode to start the Activity in
+     * @param mode    the mode to start the Activity in
      * @param shiftID the id of the shift to be edited, or null if a new shift will be created
      */
     public static void start(@NonNull Context context, @Mode int mode, @Nullable String shiftID) {
@@ -146,7 +148,7 @@ public class ShiftActivity extends AppCompatActivity {
         if (mode == MODE_EDIT && shiftID != null) {
             Uri shiftUri = Uri.withAppendedPath(ShiftyContract.Shift.CONTENT_URI, shiftID);
             String selection = ShiftyContract.Shift._ID + " = ?";
-            String[] selectionArgs = new String[] {shiftID};
+            String[] selectionArgs = new String[]{shiftID};
             Cursor cursor = getContentResolver().query(shiftUri,
                     null,
                     selection,
@@ -290,7 +292,7 @@ public class ShiftActivity extends AppCompatActivity {
         } catch (ParseException e) {
             // if the compareTo method throws a parse exception, the shift can't be added
             e.printStackTrace();
-            makeToast(context, "There was an error saving the shift...");
+            makeToast(context, "There was an error saving the shift...", Toast.LENGTH_SHORT);
             return;
         }
 
@@ -315,11 +317,11 @@ public class ShiftActivity extends AppCompatActivity {
                     Uri.withAppendedPath(ShiftyContract.Shift.CONTENT_URI, shiftID),
                     values,
                     ShiftyContract.Shift._ID + " = ?",
-                    new String[] {shiftID}
+                    new String[]{shiftID}
             );
 
             if (numRowsUpdated == 1) {
-                makeToast(ShiftActivity.this, "Shift updated");
+                makeToast(ShiftActivity.this, "Shift updated", Toast.LENGTH_SHORT);
             } else {
                 makeToast(ShiftActivity.this, "Update failed", Toast.LENGTH_LONG);
             }

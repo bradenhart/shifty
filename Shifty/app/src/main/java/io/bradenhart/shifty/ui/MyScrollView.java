@@ -6,9 +6,11 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
 /**
+ * A custom scrollview that listens to scrolling changes to know when
+ * scrolling stops.
+ *
  * @author bradenhart
  */
-
 public class MyScrollView extends ScrollView {
 
     private int positionY = 0;
@@ -17,7 +19,10 @@ public class MyScrollView extends ScrollView {
     private int height;
     private int childCount;
 
-    interface OnScrollStoppedListener{
+    /**
+     * Interface to listen for the scrollview's scrolling event ending.
+     */
+    interface OnScrollStoppedListener {
         void onScrollStopped();
     }
 
@@ -43,11 +48,19 @@ public class MyScrollView extends ScrollView {
         };
     }
 
-    public void setOnScrollStoppedListener(MyScrollView.OnScrollStoppedListener listener){
+    /**
+     * Sets the scroll stopped listener for the scrollview.
+     *
+     * @param listener the listener
+     */
+    public void setOnScrollStoppedListener(MyScrollView.OnScrollStoppedListener listener) {
         onScrollStoppedListener = listener;
     }
 
-    public void startScrollerTask(){
+    /**
+     * Starts a task to check the scrollviews state.
+     */
+    public void startScrollerTask() {
         positionY = getScrollY();
         MyScrollView.this.postDelayed(scrollRunnable, newCheck);
     }
@@ -60,6 +73,11 @@ public class MyScrollView extends ScrollView {
 
     }
 
+    /**
+     * Gets the height of an item in the scrollview.
+     *
+     * @return the height of the scrollview item
+     */
     public int getUnitHeight() {
         return height / childCount;
     }

@@ -26,8 +26,8 @@ class ShiftyDbHelper extends SQLiteOpenHelper {
             + Shift.COLUMN_TOTAL_SHIFT_HOURS + " real, "
             + Shift.COLUMN_PAID_HOURS + " real, "
             + "constraint shift_unique unique("
-                + Shift.COLUMN_SHIFT_START_DATETIME + ", "
-                + Shift.COLUMN_SHIFT_END_DATETIME + "), "
+            + Shift.COLUMN_SHIFT_START_DATETIME + ", "
+            + Shift.COLUMN_SHIFT_END_DATETIME + "), "
             + "foreign key(" + Shift.COLUMN_WORKWEEK_ID + ")"
             + " references " + Workweek.TABLE_NAME + "(" + Workweek._ID + ")"
             + ");";
@@ -64,8 +64,8 @@ class ShiftyDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            db.execSQL(SQL_DELETE_WORKWEEK);
-            db.execSQL(SQL_DELETE_SHIFT);
-            onCreate(db);
+        db.execSQL(SQL_DELETE_WORKWEEK);
+        db.execSQL(SQL_DELETE_SHIFT);
+        onCreate(db);
     }
 }

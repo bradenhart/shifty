@@ -110,6 +110,7 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
     /**
      * Swap the cursor with a new cursor.
+     *
      * @param newCursor the new cursor
      */
     public void swapCursor(Cursor newCursor) {
@@ -245,7 +246,7 @@ public class WorkWeekRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
             // get the ISO8601 formatted string for Monday 00:00 of the current week
             String selection = ShiftyContract.Shift.COLUMN_WORKWEEK_ID + " = ?";
-            String[] selectionArgs = new String[] { weekDate };
+            String[] selectionArgs = new String[]{weekDate};
 
             return context.getContentResolver().query(
                     ShiftyContract.Shift.CONTENT_URI, // query Shift table (/shift)

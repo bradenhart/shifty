@@ -78,7 +78,8 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({DISPLAYMODE_CURRENT, DISPLAYMODE_RECENT})
-    public @interface DisplayMode {}
+    public @interface DisplayMode {
+    }
 
     /* DisplayMode constants */
     public static final int DISPLAYMODE_CURRENT = 0;
@@ -98,6 +99,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
     /**
      * Used for starting this Activity. Ensures that the Activity is started with the required
      * extras.
+     *
      * @param context The context of the Activity that calls this method
      */
     public static void start(Context context) {
@@ -224,6 +226,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     /**
      * Save the provided DisplayMode value in SharedPreferences.
+     *
      * @param mode the display mode to save
      */
     private void saveDisplayMode(@DisplayMode int mode) {
@@ -235,6 +238,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     /**
      * Retrieve the DisplayMode value stored in SharedPreferences.
+     *
      * @return the display mode retrieved
      */
     @DisplayMode
@@ -248,6 +252,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     /**
      * Get the id for the Loader that matches the current display mode.
+     *
      * @return the id for the Loader
      */
     private int getLoaderIDForDisplayMode() {
@@ -362,6 +367,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     /**
      * Starts the Loader that has the provided id.
+     *
      * @param loaderID the id of the Loader being started
      */
     private void startLoader(int loaderID) {
@@ -375,6 +381,7 @@ public class ShiftViewActivity extends AppCompatActivity implements LoaderManage
 
     /**
      * Restarts the Loader that has the provided id.
+     *
      * @param loaderID the id of the Loader being restarted
      */
     private void restartLoader(int loaderID) {

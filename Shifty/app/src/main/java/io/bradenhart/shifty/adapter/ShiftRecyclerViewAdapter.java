@@ -49,6 +49,7 @@ class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     /**
      * Swap the cursor with a new cursor.
+     *
      * @param newCursor the new cursor
      */
     public void swapCursor(Cursor newCursor) {
@@ -94,7 +95,7 @@ class ShiftRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         // calculate paid hours and display it
         double shiftLength = DateUtils.getHoursBetween(shiftStart, shiftEnd, DateUtils.FMT_ISO_8601_DATETIME);
         double paidHours = shiftLength <= 5.0 ? shiftLength : shiftLength - 0.5;
-        
+
         shiftHolder.paidHoursTV.setText(String.format(Locale.ENGLISH, "%.2f hrs", paidHours));
 
         // calculate progress through the current shift and display it

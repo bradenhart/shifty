@@ -82,12 +82,15 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
     // the adapter for displaying the search results with
     private WorkWeekRecyclerViewAdapter adapter;
     // the chosen search mode, defaults to
-    private @SearchMode int searchMode = SEARCH_MODE_WEEK;
+    private
+    @SearchMode
+    int searchMode = SEARCH_MODE_WEEK;
 
     // set of valid modes for the user to select
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({SEARCH_MODE_WEEK, SEARCH_MODE_MONTH})
-    public @interface SearchMode {}
+    public @interface SearchMode {
+    }
 
     /* SearchMode constants */
     public static final int SEARCH_MODE_WEEK = 0;
@@ -232,7 +235,9 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
 
         private Context context;
         private Date date;
-        private @SearchMode int searchMode;
+        private
+        @SearchMode
+        int searchMode;
 
         public SearchAsyncTask(Context context, Date date, @SearchMode int searchMode) {
             this.context = context;
@@ -271,7 +276,8 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
         /**
          * Performs a search on the database using the query built from the provided
          * parameters.
-         * @param date The date the users has selected to search for
+         *
+         * @param date       The date the users has selected to search for
          * @param searchMode The search mode the user has selected
          * @return The cursor resulting from the database query
          */
@@ -290,7 +296,7 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
                 String searchDatetime = DateUtils.getWeekStart(date, DateUtils.FMT_ISO_8601_DATETIME);
                 // create the query parameters
                 selection = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " = ?";
-                selectionArgs = new String[] {searchDatetime};
+                selectionArgs = new String[]{searchDatetime};
                 sortOrder = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " ASC";
 
                 // query the database
@@ -315,7 +321,7 @@ public class SearchActivity extends AppCompatActivity implements Spinner.OnItemS
                 // create the query parameters
                 selection = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " >= ? and "
                         + ShiftyContract.Workweek.COLUMN_WEEK_END_DATETIME + " <= ?";
-                selectionArgs = new String[] {weekStart, weekEnd};
+                selectionArgs = new String[]{weekStart, weekEnd};
                 sortOrder = ShiftyContract.Workweek.COLUMN_WEEK_START_DATETIME + " ASC";
 
                 // query the database

@@ -19,10 +19,14 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 /**
+ * A custom view for choosing a time by scrolling through the hours,
+ * minutes, and time period.
+ *
  * @author bradenhart
  */
 public class TimeScroller extends FrameLayout {
 
+    // logtag
     final String TAG = "TimeScroller";
 
     View rootView;
@@ -95,6 +99,10 @@ public class TimeScroller extends FrameLayout {
         });
     }
 
+    /**
+     * Updates the hour, minute, and period values for the currently
+     * selected values in the timescroller.
+     */
     private void updateTimeInfo() {
         int childHeight;
         int scrollY;
@@ -129,6 +137,11 @@ public class TimeScroller extends FrameLayout {
 
     }
 
+    /**
+     * Gets the selected hour.
+     *
+     * @return the hour
+     */
     public String getHour() {
         updateTimeInfo();
         if (getPeriod().equalsIgnoreCase("PM")) {
@@ -143,16 +156,31 @@ public class TimeScroller extends FrameLayout {
         return hour;
     }
 
+    /**
+     * Gets the selected minute.
+     *
+     * @return the minute.
+     */
     public String getMinute() {
         updateTimeInfo();
         return minute;
     }
 
+    /**
+     * Gets the selected period.
+     *
+     * @return the period.
+     */
     public String getPeriod() {
         updateTimeInfo();
         return period;
     }
 
+    /**
+     * Gets the selected time as a formatted string.
+     *
+     * @return the time string
+     */
     public String getTimeString() {
         updateTimeInfo();
         String hour = getHour();
@@ -164,6 +192,9 @@ public class TimeScroller extends FrameLayout {
                 minute.length() == 1 ? "0" + minute : minute);
     }
 
+    /**
+     * Scrolls the timescroller back to default values.
+     */
     public void resetScroller() {
         ObjectAnimator hourAnimator = ObjectAnimator.ofInt(hourScrollView, "scrollY", hourScrollView.getScrollY(), 0).setDuration(1500);
         ObjectAnimator minuteAnimator = ObjectAnimator.ofInt(minuteScrollView, "scrollY", minuteScrollView.getScrollY(), 0).setDuration(1500);
@@ -174,6 +205,13 @@ public class TimeScroller extends FrameLayout {
         updateTimeInfo();
     }
 
+    /**
+     * Scrolls the hour scrollview to the given value, with the given delay.
+     *
+     * @param hour  the hour to scroll to
+     * @param delay the animation's start delay
+     * @return the duration of the animation.
+     */
     private long scrollHourTo(Integer hour, long delay) {
         // if the hour is 1, no scrolling needs to be done
         if (hour == 1) return 0;
@@ -187,16 +225,30 @@ public class TimeScroller extends FrameLayout {
         return objectAnimator.getDuration();
     }
 
+    /**
+     * Scrolls the minute scrollview to the given value, with the given delay.
+     *
+     * @param minute the minute to scroll to
+     * @param delay  the animation's start delay
+     * @return the duration of the animation
+     */
     private long scrollMinTo(Integer minute, long delay) {
         // if the minute is 0, no scrolling needs to be done
         if (minute == 0) return 0;
         int unitHeight = minuteScrollView.getUnitHeight();
-        ObjectAnimator objectAnimator = ObjectAnimator.ofInt(minuteScrollView, "scrollY", 0, (minute/5) * unitHeight).setDuration(1500);
+        ObjectAnimator objectAnimator = ObjectAnimator.ofInt(minuteScrollView, "scrollY", 0, (minute / 5) * unitHeight).setDuration(1500);
         objectAnimator.setStartDelay(delay);
         objectAnimator.start();
         return objectAnimator.getDuration();
     }
 
+    /**
+     * Scrolls the period scrollview to the given value, with the given delay.
+     *
+     * @param period the period to scroll to
+     * @param delay  the animation's start delay
+     * @return the duration of the animation
+     */
     private long scrollPeriodTo(String period, long delay) {
         // if the period is AM, no scrolling needs to be done
         if (period.equals("AM")) return 0;
@@ -207,6 +259,17 @@ public class TimeScroller extends FrameLayout {
         return objectAnimator.getDuration();
     }
 
+    /**
+     * Scrolls all scrollviews to the given values, with the given start delay.
+     * The scrollviews begin scrolling one after another, with the next one scrolling
+     * once the previous one has finished.
+     *
+     * @param startDelay the delay before the scrolling begins
+     * @param hour       the hours to scroll to
+     * @param minute     the minute to scroll to
+     * @param period     the period to scroll to
+     * @return the total duration of the scrolling.
+     */
     public long scrollAllTo(long startDelay, Integer hour, Integer minute, String period) {
         long delay = startDelay;
         delay += scrollHourTo(hour, startDelay);
@@ -215,12 +278,28 @@ public class TimeScroller extends FrameLayout {
         return delay;
     }
 
+    /**
+     * Scrolls all scrollviews to the given values with the same start delay.
+     *
+     * @param startDelay the delay before all scrollviews begin scrolling
+     * @param hour       the hour to scroll to
+     * @param minute     the minute to scroll to
+     * @param period     the period to scroll to
+     */
     public void scrollAllAtOnce(long startDelay, Integer hour, Integer minute, String period) {
         scrollHourTo(hour, startDelay);
         scrollMinTo(minute, startDelay);
         scrollPeriodTo(period, startDelay);
     }
 
+    /**
+     * Compares the selected times between this timescroller and another timescroller.
+     *
+     * @param otherScroller the timescroller to compare to
+     * @return the time comparison (-1 = before, 0 = the same, 1 = after)
+     * @throws ParseException exception thrown if there is a problem parsing the time
+     *                        in one of the timescrollers
+     */
     public int compareTo(TimeScroller otherScroller) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
         String thisTime = getHour() + ":" + getMinute();

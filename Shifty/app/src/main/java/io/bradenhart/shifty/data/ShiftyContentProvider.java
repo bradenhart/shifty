@@ -41,6 +41,7 @@ public class ShiftyContentProvider extends ContentProvider {
 
     /**
      * Builds the UriMatcher for this ContentProvider.
+     *
      * @return the built uri matcher
      */
     public static UriMatcher buildUriMatcher() {
@@ -91,7 +92,7 @@ public class ShiftyContentProvider extends ContentProvider {
                         ShiftyContract.Shift.TABLE_NAME,
                         projection,
                         ShiftyContract.Shift._ID + " = ?",
-                        new String[] {id},
+                        new String[]{id},
                         null,
                         null,
                         sortOrder,

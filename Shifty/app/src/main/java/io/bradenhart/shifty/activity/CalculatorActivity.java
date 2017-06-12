@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -55,7 +56,9 @@ public class CalculatorActivity extends AppCompatActivity {
     private static final String KEY_CALCULATOR_MODE = "KEY_CALCULATOR_MODE";
 
     // holds the current mode for the calculator
-    private @CalcMode int currentMode = CALC_MODE_HOUR;
+    private
+    @CalcMode
+    int currentMode = CALC_MODE_HOUR;
 
     private Context context;
 
@@ -120,7 +123,8 @@ public class CalculatorActivity extends AppCompatActivity {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({CALC_MODE_HOUR, CALC_MODE_GROSS})
-    public @interface CalcMode {}
+    public @interface CalcMode {
+    }
 
     /* CalcMode constants */
     public static final int CALC_MODE_HOUR = 0;
@@ -267,9 +271,12 @@ public class CalculatorActivity extends AppCompatActivity {
     @CalcMode
     public int getCalcMode(int value) {
         switch (value) {
-            case CALC_MODE_HOUR: return CALC_MODE_HOUR;
-            case CALC_MODE_GROSS: return CALC_MODE_GROSS;
-            default: return CALC_MODE_HOUR;
+            case CALC_MODE_HOUR:
+                return CALC_MODE_HOUR;
+            case CALC_MODE_GROSS:
+                return CALC_MODE_GROSS;
+            default:
+                return CALC_MODE_HOUR;
         }
     }
 
@@ -372,7 +379,7 @@ public class CalculatorActivity extends AppCompatActivity {
         // get the user's input
         String input = inputEditText.getText().toString();
         if (input.isEmpty()) {
-            makeToast(context, "No input");
+            makeToast(context, "No input", Toast.LENGTH_SHORT);
             clearCalculatorResult();
             return;
         }
@@ -395,10 +402,10 @@ public class CalculatorActivity extends AppCompatActivity {
                 gross = value;
                 payslip = new Payslip(gross, Payslip.MODE_GROSS);
             } else {
-                makeToast(context, "Gross value can't be zero");
+                makeToast(context, "Gross value can't be zero", Toast.LENGTH_SHORT);
             }
         } else {
-            makeToast(context, "Cannot calculate payslip");
+            makeToast(context, "Cannot calculate payslip", Toast.LENGTH_SHORT);
         }
 
         if (payslip != null) updateCalculatorResult(payslip);
