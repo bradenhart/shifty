@@ -7,16 +7,16 @@ import android.database.sqlite.SQLiteOpenHelper;
 import io.bradenhart.shifty.data.ShiftyContract.*;
 
 /**
- * Created by bradenhart on 27/03/17.
+ * Helper class for the Shifty SQLite Database.
+ *
+ * @author bradenhart
  */
-
 class ShiftyDbHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "shifty_db.db";
     private static final int DB_VERSION = 1;
 
     private static ShiftyDbHelper dbHelper;
-    private Context context;
 
     private final String SQL_CREATE_SHIFT = "create table " + Shift.TABLE_NAME + "("
             + Shift._ID + " integer primary key autoincrement, "
@@ -42,15 +42,11 @@ class ShiftyDbHelper extends SQLiteOpenHelper {
             + Workweek.COLUMN_WEEK_END_DATETIME + ") "
             + ");";
 
-
-
-
     private final String SQL_DELETE_SHIFT = "drop table if exists " + Shift.TABLE_NAME;
     private final String SQL_DELETE_WORKWEEK = "drop table if exists " + Shift.TABLE_NAME;
 
     private ShiftyDbHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
-        this.context = context;
     }
 
     static synchronized ShiftyDbHelper getInstance(Context context) {
@@ -64,32 +60,12 @@ class ShiftyDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_WORKWEEK);
         db.execSQL(SQL_CREATE_SHIFT);
-
-//        db.execSQL(SQL_CREATE_TR_BI_SHIFT);
-//        db.execSQL(SQL_CREATE_TR_AI_SHIFT);
-//        db.execSQL(SQL_CREATE_TR_AU_SHIFT_TSH);
-//        db.execSQL(SQL_CREATE_TR_AU_SHIFT_PH_VALID);
-//        db.execSQL(SQL_CREATE_TR_AD_SHIFT_PH_VALID);
-//        db.execSQL(SQL_CREATE_TR_AD_WORKWEEK);
-//        db.execSQL(SQL_CREATE_TR_AU_WORKWEEK_TPS_ZERO);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-//        if (oldVersion == 1 && newVersion == 2) {
-//            db.execSQL(SQL_CREATE_TR_AU_SHIFT_TSH);
-//        } else if (oldVersion == 2 && newVersion == 3) {
-//            db.execSQL(SQL_CREATE_TR_AI_SHIFT);
-//        } else if (oldVersion == 3 && newVersion == 4) {
-//            db.execSQL(SQL_CREATE_TR_AU_SHIFT_TSH);
-//            db.execSQL(SQL_CREATE_TR_AU_SHIFT_PH_VALID);
-//            db.execSQL(SQL_CREATE_TR_AD_SHIFT_PH_VALID);
-//            db.execSQL(SQL_CREATE_TR_AD_WORKWEEK);
-//            db.execSQL(SQL_CREATE_TR_AU_WORKWEEK_TPS_ZERO);
-//        } //else {
             db.execSQL(SQL_DELETE_WORKWEEK);
             db.execSQL(SQL_DELETE_SHIFT);
             onCreate(db);
-//        }
     }
 }

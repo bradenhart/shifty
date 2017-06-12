@@ -13,9 +13,10 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- * Created by bradenhart on 3/04/17.
+ * Creates and inserts test data into the database.
+ *
+ * @author bradenhart
  */
-
 public class TestData {
 
     public static ArrayList<String[]> shiftData = new ArrayList<String[]>() {};

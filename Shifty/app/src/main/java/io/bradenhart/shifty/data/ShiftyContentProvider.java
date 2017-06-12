@@ -20,20 +20,29 @@ import io.bradenhart.shifty.util.DateUtils;
  *
  * @author bradenhart
  */
-
 public class ShiftyContentProvider extends ContentProvider {
 
+    /* codes for the uri matcher to match uris */
+    // /shift
     public static final int CODE_SHIFT = 100;
+    // /shift/<id>
     public static final int CODE_SHIFT_WITH_ID = 101;
+    // /shift/<date>
     public static final int CODE_SHIFT_WITH_DATE = 102;
-
+    // /workweek
     public static final int CODE_WORKWEEK = 200;
+    // /workweek/<id>
     public static final int CODE_WORKWEEK_WITH_ID = 201;
 
+    // helper class for the database
     private ShiftyDbHelper dbHelper;
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
 
+    /**
+     * Builds the UriMatcher for this ContentProvider.
+     * @return the built uri matcher
+     */
     public static UriMatcher buildUriMatcher() {
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
